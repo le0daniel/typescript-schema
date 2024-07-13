@@ -6,12 +6,12 @@ use Closure;
 use TypescriptSchema\Contracts\Validator;
 use TypescriptSchema\Exceptions\Issue;
 
-final class ClosureValidator implements Validator
+final readonly class ClosureValidator implements Validator
 {
 
     public function __construct(
-        private readonly Closure $validationFunction,
-        private readonly null|string|Closure $message = null,
+        private Closure             $validationFunction,
+        private null|string|Closure $message = null,
     )
     {
     }

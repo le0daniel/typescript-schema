@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Primitives;
 
+use BackedEnum;
 use RuntimeException;
 use TypescriptSchema\Exceptions\Issue;
 use UnitEnum;
@@ -29,15 +30,16 @@ final class LiteralType extends PrimitiveType
 
     /**
      * Ensures that enums are of type string after validation is successful.
-     * This is useful for serialization, as you can not JSON serialize UnitEnums.
+     * This is useful for serialization, as you can not JSON serialize UnitEnums that are not backed.
      * @return self
      */
-    public function enumsAsString(): static
+    public function unitEnumAsString(): static
     {
         return $this->addTransformer(function (mixed $value) {
-            if ($value instanceof UnitEnum) {
+            if ($value instanceof UnitEnum && !$value instanceof BackedEnum) {
                 return $value->name;
             }
+
             return $value;
         });
     }
@@ -48,17 +50,28 @@ final class LiteralType extends PrimitiveType
             throw new RuntimeException('Literal value cannot be null.');
         }
 
-        // In case the Enum is matched by name, we return the Enum.
-        // ToDo: Handle backed enum
-        if ($this->literalValue instanceof UnitEnum && $value === $this->literalValue->name) {
-            return $this->literalValue;
-        }
+        $value = $this->literalValue instanceof UnitEnum
+            ? $this->parseEnumStringOrInteger($value)
+            : $value;
 
         if ($value !== $this->literalValue) {
             throw Issue::invalidType($this->literalValue, $value);
         }
 
         return $value;
+    }
+
+    private function parseEnumStringOrInteger(mixed $value): mixed
+    {
+        if ($this->literalValue instanceof BackedEnum) {
+            return $this->literalValue->value === $value
+                ? $this->literalValue
+                : $value;
+        }
+
+        return $value === $this->literalValue->name
+            ? $this->literalValue
+            : $value;
     }
 
     protected function coerceValue(mixed $value): mixed
@@ -72,8 +85,17 @@ final class LiteralType extends PrimitiveType
             is_string($this->literalValue) => "'{$this->literalValue}'",
             is_int($this->literalValue) => "{$this->literalValue}",
             is_bool($this->literalValue) => "{$this->boolAsString()}",
-            $this->literalValue instanceof UnitEnum => "'{$this->literalValue->name}'",
+            $this->literalValue instanceof UnitEnum => $this->toEnumDefinition($this->literalValue),
         };
+    }
+
+    private function toEnumDefinition(UnitEnum $enum): string
+    {
+        if ($enum instanceof BackedEnum) {
+            return is_string($enum->value) ? "'{$enum->value}'" : (string) $enum->value;
+        }
+
+        return "'{$enum->name}'";
     }
 
     private function boolAsString(): string
