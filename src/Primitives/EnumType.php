@@ -44,15 +44,17 @@ class EnumType extends PrimitiveType
         $inputDefinition = implode('|', array_map(Typescript::enumString(...), $this->enumClassName::cases()));
 
         $reflection = new ReflectionEnum($this->enumClassName);
-        if ($reflection->isBacked()) {
-            return new Definition(
-                $inputDefinition,
-                implode('|', array_map(Typescript::enumValueString(...), $this->enumClassName::cases())),
-            );
+        if (!$reflection->isBacked()) {
+            // Unit enums fail to serialize to json, so the output type is never.
+            return new Definition($inputDefinition, 'never');
         }
 
-        // Unit enums fail to serialize to json, so the output type is never.
-        return new Definition($inputDefinition, 'never');
+        // As backed enums are serialized to values in PHP, by default, we add the types as
+        // a union of literal values.
+        return new Definition(
+            $inputDefinition,
+            implode('|', array_map(Typescript::enumValueString(...), $this->enumClassName::cases())),
+        );
     }
 
     protected function parsePrimitiveType(mixed $value): mixed

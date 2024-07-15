@@ -2,6 +2,8 @@
 
 namespace TypescriptSchema\Utils;
 
+use UnitEnum;
+
 final class Typescript
 {
 
@@ -9,11 +11,6 @@ final class Typescript
     {
         $stringSafeInput = addslashes($input);
         return "'{$stringSafeInput}'";
-    }
-
-    public static function withoutNull()
-    {
-
     }
 
     public static function literal(string|int|float|bool|null $value): string
@@ -26,12 +23,7 @@ final class Typescript
         };
     }
 
-    public static function bool(bool $value): string
-    {
-        return $value ? 'true' : 'false';
-    }
-
-    public static function enumString(\UnitEnum $enum): string
+    public static function enumString(UnitEnum $enum): string
     {
         return self::wrapInSingleQuote($enum->name);
     }
@@ -41,4 +33,8 @@ final class Typescript
         return self::literal($enum->value);
     }
 
+    private static function bool(bool $value): string
+    {
+        return $value ? 'true' : 'false';
+    }
 }
