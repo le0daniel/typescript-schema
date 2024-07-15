@@ -28,7 +28,7 @@ final class NullableType extends WrapsType
 
     protected function verifyType(Type $type): void
     {
-        if ($type instanceof $this) {
+        if ($this->containsWrapped(NullableType::class)) {
             throw new RuntimeException("Can not wrap a nullable type with nullable.");
         }
     }
@@ -75,12 +75,13 @@ final class NullableType extends WrapsType
         return null;
     }
 
-    /**
-     * Adds Null to the typescript definition.
-     *
-     * @return string
-     */
-    public function toDefinition(): string {
-        return $this->type->toDefinition() . '|null';
+    public function toInputDefinition(): string
+    {
+        return $this->type->toInputDefinition() . '|null';
+    }
+
+    public function toOutputDefinition(): string
+    {
+        return $this->type->toOutputDefinition() . '|null';
     }
 }

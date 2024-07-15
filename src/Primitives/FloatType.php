@@ -19,7 +19,7 @@ final class FloatType extends PrimitiveType
         return (float) $value;
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return 'number';
     }
@@ -27,7 +27,7 @@ final class FloatType extends PrimitiveType
     protected function coerceValue(mixed $value): mixed
     {
         if (!is_scalar($value)) {
-            throw Issue::coercionFailure('float 1', $value);
+            throw Issue::coercionFailure('float', $value);
         }
 
         try {

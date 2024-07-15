@@ -28,7 +28,7 @@ final class BoolType extends PrimitiveType
         };
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return 'bool';
     }

@@ -17,7 +17,7 @@ final class UnknownType extends BaseType
         return $value;
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return 'unknown';
     }

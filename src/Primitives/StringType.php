@@ -34,17 +34,17 @@ class StringType extends PrimitiveType
      */
     public function upperCase(): static
     {
-        return $this->addTransformer(strtoupper(...));
+        return $this->addInternalTransformer(strtoupper(...));
     }
 
     public function lowerCase(): static
     {
-        return $this->addTransformer(strtolower(...));
+        return $this->addInternalTransformer(strtolower(...));
     }
 
     public function trim(): static
     {
-        return $this->addTransformer(static fn(string $value) => trim($value));
+        return $this->addInternalTransformer(static fn(string $value) => trim($value));
     }
 
     public function regex(string $regex): static
@@ -97,18 +97,7 @@ class StringType extends PrimitiveType
         });
     }
 
-    public function dateTime(string $format = 'Y-m-d H:i:s'): static
-    {
-        return $this->addValidator(static function(string $value) use ($format) {
-            $dateTime = DateTimeImmutable::createFromFormat($format, $value);
-            if (!$dateTime || $dateTime->format($format) !== $value) {
-                throw Issue::custom("Value is not a valid date time format ({$format}).");
-            }
-            return true;
-        });
-    }
-
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return 'string';
     }

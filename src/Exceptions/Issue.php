@@ -26,10 +26,20 @@ final class Issue extends Exception implements JsonSerializable
     }
 
     /**
+     * Signifies that an internal error occurred. If so, a previous exception is available, which you might want to report.
+     *
+     * @return bool
+     */
+    public function isInternal(): bool
+    {
+        return $this->type === IssueType::INTERNAL_ERROR;
+    }
+
+    /**
      * Marks the error as Fatal, execution stops.
      * @return $this
      */
-    public function fatal(): static
+    public function fatal(): self
     {
         $this->isFatal = true;
         return $this;

@@ -12,7 +12,7 @@ final class AnyType extends BaseType
         return new self();
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return 'any';
     }

@@ -55,7 +55,7 @@ final class ArrayType extends BaseType
         return $parsed;
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return "Array<{$this->type->toDefinition()}>";
     }

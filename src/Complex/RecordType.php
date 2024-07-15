@@ -55,7 +55,7 @@ final class RecordType extends BaseType
         return $values;
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return "Record<string,{$this->ofType->toDefinition()}>";
     }

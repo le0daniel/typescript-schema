@@ -42,7 +42,7 @@ final class UnionType extends BaseType
         throw Issue::custom("Value did not match any of the union types.");
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return implode('|', array_map(fn(Type $type) => $type->toDefinition(), $this->types));
     }

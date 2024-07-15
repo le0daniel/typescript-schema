@@ -2,19 +2,20 @@
 
 namespace TypescriptSchema;
 
-use Closure;
 use Throwable;
 use TypescriptSchema\Context\Context;
-use TypescriptSchema\Contracts\Validator;
+use TypescriptSchema\Data\TypescriptDefinition;
 use TypescriptSchema\Data\Value;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\ParsesInput;
-use TypescriptSchema\Helpers\Transformers;
+use TypescriptSchema\Helpers\Refinable;
+use TypescriptSchema\Helpers\InternalTransformers;
+use TypescriptSchema\Helpers\Transformable;
 use TypescriptSchema\Helpers\Validators;
 
 abstract class BaseType implements Type
 {
-    use Transformers, Validators, ParsesInput;
+    use InternalTransformers, Transformable, Validators, Refinable, ParsesInput;
 
     /**
      * Given a value and context, validate the value and return with the right type.
@@ -33,29 +34,26 @@ abstract class BaseType implements Type
      */
     abstract protected function validateAndParseType(mixed $value, Context $context): mixed;
 
-    private function runValidationOn(array $validators, mixed $value, Context $context): bool
+    abstract protected function toDefinition(): string|TypescriptDefinition;
+
+    final public function toOutputDefinition(): string
     {
-        $isDirty = false;
-        /** @var Validator|Closure $validator */
-        foreach ($validators as $validator) {
-            try {
-                if ($validator->validate($value)) {
-                    continue;
-                }
-
-                $issue = $validator->produceIssue($value);
-            } catch (Throwable $exception) {
-                $issue = Issue::captureThrowable($exception);
-            }
-
-            $isDirty = true;
-            $context->addIssue($issue);
-            if ($issue->isFatal()) {
-                return false;
-            }
+        if ($this->overwrittenOutputType) {
+            return $this->overwrittenOutputType;
         }
 
-        return !$isDirty;
+        $baseDefinition = $this->toDefinition();
+        return $baseDefinition instanceof TypescriptDefinition
+            ? $baseDefinition->output :
+            $baseDefinition;
+    }
+
+    final public function toInputDefinition(): string
+    {
+        $baseDefinition = $this->toDefinition();
+        return $baseDefinition instanceof TypescriptDefinition
+            ? $baseDefinition->input :
+            $baseDefinition;
     }
 
     /**
@@ -74,15 +72,17 @@ abstract class BaseType implements Type
             return Value::INVALID;
         }
 
-        if (
-            !$this->runValidationOn($this->validators, $value, $context)
-            || !$this->runValidationOn($this->refiners, $value, $context)
-        ) {
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+
+        // This could be a wrapping type instead. Allowing to chain transform and refine
+        if (!$this->runRefiners($value, $context)) {
             return Value::INVALID;
         }
 
         try {
-            return $this->runTransformers($value);
+            return $this->runInternalTransformers($value);
         } catch (Throwable $exception) {
             $context->addIssue(Issue::captureThrowable($exception));
             return Value::INVALID;

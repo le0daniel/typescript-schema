@@ -4,6 +4,7 @@ namespace TypescriptSchema\Primitives;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use TypescriptSchema\Data\TypescriptDefinition;
 use TypescriptSchema\Exceptions\Issue;
 
 final class DateTimeType extends PrimitiveType
@@ -20,18 +21,20 @@ final class DateTimeType extends PrimitiveType
     {
     }
 
-    private function getFormat(): string
-    {
-        return $this->format ?? self::$DEFAULT_FORMAT;
-    }
-
     public static function make(?string $format = null): static
     {
         return new self($format);
     }
 
+    /**
+     * @throws Issue
+     */
     protected function parsePrimitiveType(mixed $value): DateTimeImmutable
     {
+        if (is_string($value)) {
+            return $this->parseDateTimeString($value);
+        }
+
         if (!$value instanceof DateTimeInterface) {
             throw Issue::invalidType('DateTime', $value);
         }
@@ -41,22 +44,38 @@ final class DateTimeType extends PrimitiveType
             : DateTimeImmutable::createFromInterface($value);
     }
 
-    protected function coerceValue(mixed $value): mixed
+    protected function parseDateTimeString(string $value): DateTimeImmutable
     {
-        if (!is_string($value)) {
-            return $value;
-        }
-
         $dateTime = DateTimeImmutable::createFromFormat($this->getFormat(), $value);
         if ($dateTime && $dateTime->format($this->getFormat()) === $value) {
             return $dateTime;
         }
 
+        throw Issue::invalidType("DateTimeString<format: {$this->getFormat()}>", $value);
+    }
+
+    protected function coerceValue(mixed $value): mixed
+    {
         return $value;
     }
 
-    public function toDefinition(): string
+    private function getFormat(): string
     {
-        return '{date: string, timezone_type: number, timezone: string}';
+        return $this->format ?? self::$DEFAULT_FORMAT;
+    }
+
+    public function toFormattedString(?string $format = null): static
+    {
+        return $this->addInternalTransformer(function (DateTimeImmutable $timeImmutable) use ($format): string {
+            return $timeImmutable->format($format ?? self::$DEFAULT_FORMAT);
+        }, 'string');
+    }
+
+    protected function toDefinition(): TypescriptDefinition
+    {
+        return new TypescriptDefinition(
+            'string',
+            '{date: string, timezone_type: number, timezone: string}'
+        );
     }
 }

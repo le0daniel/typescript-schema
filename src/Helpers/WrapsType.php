@@ -9,9 +9,11 @@ use RuntimeException;
 
 abstract class WrapsType implements Type
 {
+    private const int RESOLVING_MAX_DEPTH = 10;
+
     use ParsesInput;
 
-    final protected function __construct(protected Type $type)
+    protected function __construct(protected Type $type)
     {
         $this->verifyType($this->type);
     }
@@ -28,18 +30,44 @@ abstract class WrapsType implements Type
         return $this->type;
     }
 
-    public function mostInnerType(): Type
+    /**
+     * @template T of WrapsType
+     * @param class-string<T> $className
+     * @return bool
+     */
+    public function containsWrapped(string $className): bool
     {
-        $depth = 0;
+        $currentDepth = 0;
         $type = $this->unwrap();
 
         while ($type instanceof WrapsType) {
-            if ($depth > 4) {
+            if ($currentDepth > self::RESOLVING_MAX_DEPTH) {
+                throw new RuntimeException("Too many unwraps called");
+            }
+
+            if ($type instanceof $className) {
+                return true;
+            }
+
+            $type = $type->unwrap();
+            $currentDepth++;
+        }
+
+        return false;
+    }
+
+    public function mostInnerType(): Type
+    {
+        $currentDepth = 0;
+        $type = $this->unwrap();
+
+        while ($type instanceof WrapsType) {
+            if ($currentDepth > self::RESOLVING_MAX_DEPTH) {
                 throw new RuntimeException("Too many unwraps called");
             }
 
             $type = $type->unwrap();
-            $depth++;
+            $currentDepth++;
         }
 
         return $type;
@@ -50,7 +78,7 @@ abstract class WrapsType implements Type
         return $this->type->execute($value, $context);
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return $this->type->toDefinition();
     }

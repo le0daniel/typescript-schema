@@ -5,6 +5,7 @@ namespace TypescriptSchema\Primitives;
 use BackedEnum;
 use RuntimeException;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Utils\Typescript;
 use UnitEnum;
 
 /**
@@ -35,7 +36,7 @@ final class LiteralType extends PrimitiveType
      */
     public function unitEnumAsString(): static
     {
-        return $this->addTransformer(function (mixed $value) {
+        return $this->addInternalTransformer(function (mixed $value) {
             if ($value instanceof UnitEnum && !$value instanceof BackedEnum) {
                 return $value->name;
             }
@@ -50,8 +51,9 @@ final class LiteralType extends PrimitiveType
             throw new RuntimeException('Literal value cannot be null.');
         }
 
+        // As enums can not be serialized in JSON, they appear as string and are parsed as such
         $value = $this->literalValue instanceof UnitEnum
-            ? $this->parseEnumStringOrInteger($value)
+            ? $this->parseEnum($value)
             : $value;
 
         if ($value !== $this->literalValue) {
@@ -61,7 +63,7 @@ final class LiteralType extends PrimitiveType
         return $value;
     }
 
-    private function parseEnumStringOrInteger(mixed $value): mixed
+    private function parseEnum(mixed $value): mixed
     {
         if ($this->literalValue instanceof BackedEnum) {
             return $this->literalValue->value === $value
@@ -79,27 +81,10 @@ final class LiteralType extends PrimitiveType
         return $value;
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
-        return match (true) {
-            is_string($this->literalValue) => "'{$this->literalValue}'",
-            is_int($this->literalValue) => "{$this->literalValue}",
-            is_bool($this->literalValue) => "{$this->boolAsString()}",
-            $this->literalValue instanceof UnitEnum => $this->toEnumDefinition($this->literalValue),
-        };
-    }
-
-    private function toEnumDefinition(UnitEnum $enum): string
-    {
-        if ($enum instanceof BackedEnum) {
-            return is_string($enum->value) ? "'{$enum->value}'" : (string) $enum->value;
-        }
-
-        return "'{$enum->name}'";
-    }
-
-    private function boolAsString(): string
-    {
-        return $this->literalValue ? 'true' : 'false';
+        return $this->literalValue instanceof UnitEnum
+            ? Typescript::enumString($this->literalValue)
+            : Typescript::literal($this->literalValue);
     }
 }

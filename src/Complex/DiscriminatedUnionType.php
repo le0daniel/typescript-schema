@@ -57,7 +57,7 @@ final class DiscriminatedUnionType extends BaseType
         throw Issue::custom("Value did not match the union types (field: {$this->discriminatorFieldName}).");
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return implode('|', array_map(fn(Type $type) => $type->toDefinition(), $this->types));
     }

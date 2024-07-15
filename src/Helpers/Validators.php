@@ -3,16 +3,16 @@
 namespace TypescriptSchema\Helpers;
 
 use Closure;
+use Throwable;
+use TypescriptSchema\Context\Context;
 use TypescriptSchema\Contracts\Validator;
+use TypescriptSchema\Data\Value;
 use TypescriptSchema\Exceptions\Issue;
 
 trait Validators
 {
     /** @var array<Validator>  */
     protected array $validators = [];
-
-    /** @var array */
-    private array $refiners = [];
 
     /**
      * Use the message parameter to customize the error message.
@@ -43,15 +43,31 @@ trait Validators
     }
 
     /**
-     * @param Closure(mixed):bool $refine
-     * @param string|Closure(mixed): Issue|null $message
-     * @return $this
+     * @param mixed $value
+     * @param Context $context
+     * @return bool
      */
-    public function refine(Closure $refine, string|Closure|null $message = null): static
+    private function runValidators(mixed $value, Context $context): bool
     {
-        $instance = clone $this;
-        $instance->refiners[] = new ClosureValidator($refine, $message);
-        return $instance;
-    }
+        $isDirty = false;
+        foreach ($this->validators as $validator) {
+            try {
+                if ($validator->validate($value)) {
+                    continue;
+                }
 
+                $issue = $validator->produceIssue($value);
+            } catch (Throwable $exception) {
+                $issue = Issue::captureThrowable($exception);
+            }
+
+            $isDirty = true;
+            $context->addIssue($issue);
+            if ($issue->isFatal()) {
+                return false;
+            }
+        }
+
+        return !$isDirty;
+    }
 }

@@ -20,5 +20,8 @@ interface Type
      */
     public function execute(mixed $value, Context $context): mixed;
 
-    public function toDefinition(): string;
+    public function toInputDefinition(): string;
+    public function toOutputDefinition(): string;
+
+    // protected function toDefinition(): string;
 }

@@ -60,14 +60,14 @@ class BaseTypeTest extends TestCase
                 return $value;
             }
 
-            public function addValidator(Closure|Validator $validator, string|Closure|null $message = null): static
+            public function validate(Closure|Validator $validator): static
             {
-                return parent::addValidator($validator);
+                return $this->addValidator($validator);
             }
 
-            public function addTransformer(Closure $transformer): static
+            public function addTestTransform(Closure $closure): static
             {
-                return parent::addTransformer($transformer);
+                return $this->addInternalTransformer($closure);
             }
 
             public function toDefinition(): string
@@ -80,8 +80,8 @@ class BaseTypeTest extends TestCase
     public function testCapturesIssueFromMultipleValidators()
     {
         $result = $this->openMock()
-            ->addValidator(fn() => throw Issue::custom('first'))
-            ->addValidator(fn() => throw Issue::custom('second'))
+            ->validate(fn() => throw Issue::custom('first'))
+            ->validate(fn() => throw Issue::custom('second'))
             ->execute(null, $context = new Context());
 
         self::assertEquals(Value::INVALID, $result);
@@ -91,8 +91,8 @@ class BaseTypeTest extends TestCase
     public function testCapturesFatalIssueAndStops()
     {
         $result = $this->openMock()
-            ->addValidator(fn() => throw Issue::custom('first')->fatal())
-            ->addValidator(fn() => throw Issue::custom('second'))
+            ->validate(fn() => throw Issue::custom('first')->fatal())
+            ->validate(fn() => throw Issue::custom('second'))
             ->execute(null, $context = new Context());
 
         self::assertEquals(Value::INVALID, $result);
@@ -105,8 +105,8 @@ class BaseTypeTest extends TestCase
         $signal->status = false;
 
         $result = $this->openMock()
-            ->addValidator(fn() => throw Issue::custom('first'))
-            ->addValidator(fn() => throw Issue::custom('second'))
+            ->validate(fn() => throw Issue::custom('first'))
+            ->validate(fn() => throw Issue::custom('second'))
             ->refine(function($value) use ($signal) {
                 $signal->status = true;
                 return $value;
@@ -135,9 +135,9 @@ class BaseTypeTest extends TestCase
     public function testRunTransformersIfEverythingPassed()
     {
         $result = $this->openMock()
-            ->addValidator(fn() => true)
+            ->validate(fn() => true)
             ->refine(fn() => true)
-            ->addTransformer(fn() => 'This is the result')
+            ->addTestTransform(fn() => 'This is the result')
             ->execute(null, $context = new Context());
 
         self::assertEquals('This is the result', $result);
@@ -146,7 +146,7 @@ class BaseTypeTest extends TestCase
     public function testCaptureErrorOfTransformers()
     {
         $result = $this->openMock()
-            ->addTransformer(fn() => throw new RuntimeException('Something'))
+            ->addTestTransform(fn() => throw new RuntimeException('Something'))
             ->execute(null, $context = new Context());
 
         self::assertEquals(Value::INVALID, $result);

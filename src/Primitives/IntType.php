@@ -53,7 +53,7 @@ final class IntType extends PrimitiveType
         });
     }
 
-    public function toDefinition(): string
+    protected function toDefinition(): string
     {
         return 'number';
     }

@@ -18,7 +18,7 @@ class ObjectTypeTest extends TestCase
             'opt' => Field::ofType(StringType::make()->nullable())->optional(),
         ]);
 
-        self::assertSame('{id: string; name: string|null; opt?: string|null;}', $type->toDefinition());
+        self::assertSame('{id: string; name: string|null; opt?: string|null;}', $type->toOutputDefinition());
     }
 
     public function testParsing(): void

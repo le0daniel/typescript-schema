@@ -26,7 +26,11 @@ class StringTypeTest extends TestCase
 
     public function testTypescriptDefinition(): void
     {
-        self::assertSame('string', StringType::make()->toDefinition());
+        self::assertSame('string', StringType::make()->toInputDefinition());
+        self::assertSame('string', StringType::make()->toOutputDefinition());
+        self::assertSame('string', StringType::make()->lowerCase()->toOutputDefinition());
+        self::assertSame('string', StringType::make()->upperCase()->toOutputDefinition());
+        self::assertSame('string', StringType::make()->trim()->toOutputDefinition());
     }
 
     public static function successfulPassesDataProvider(): array {

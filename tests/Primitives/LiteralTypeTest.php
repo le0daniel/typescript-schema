@@ -112,13 +112,13 @@ class LiteralTypeTest extends TestCase
 
     public function testToDefinition(): void
     {
-        self::assertEquals("'Test'", LiteralType::make('Test')->toDefinition());
-        self::assertEquals('true', LiteralType::make(true)->toDefinition());
-        self::assertEquals('false', LiteralType::make(false)->toDefinition());
-        self::assertEquals('145', LiteralType::make(145)->toDefinition());
-        self::assertEquals("'SUCCESS'", LiteralType::make(UnitEnumMock::SUCCESS)->toDefinition());
-        self::assertEquals("0", LiteralType::make(IntBackedEnumMock::SUCCESS)->toDefinition());
-        self::assertEquals("'success'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toDefinition());
+        self::assertEquals("'Test'", LiteralType::make('Test')->toOutputDefinition());
+        self::assertEquals('true', LiteralType::make(true)->toOutputDefinition());
+        self::assertEquals('false', LiteralType::make(false)->toOutputDefinition());
+        self::assertEquals('145', LiteralType::make(145)->toOutputDefinition());
+        self::assertEquals("'SUCCESS'", LiteralType::make(UnitEnumMock::SUCCESS)->toOutputDefinition());
+        self::assertEquals("0", LiteralType::make(IntBackedEnumMock::SUCCESS)->toOutputDefinition());
+        self::assertEquals("'success'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toOutputDefinition());
     }
 
 }
