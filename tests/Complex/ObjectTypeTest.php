@@ -5,20 +5,25 @@ namespace Tests\Complex;
 use TypescriptSchema\Complex\Field;
 use TypescriptSchema\Complex\ObjectType;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Primitives\IntType;
 use TypescriptSchema\Primitives\StringType;
 
 class ObjectTypeTest extends TestCase
 {
 
-    public function testObjectTypeDefinition() {
+    public function testObjectTypeDefinition()
+    {
         $type = ObjectType::make([
-            'id' => StringType::make()->min(1),
-            'name' => StringType::make()->min(1)->max(10)->nullable(),
+            'id' => StringType::make(),
+            'name' => StringType::make()->nullable(),
             'opt' => Field::ofType(StringType::make()->nullable())->optional(),
         ]);
 
         self::assertSame('{id: string; name: string|null; opt?: string|null;}', $type->toOutputDefinition());
+        self::assertTrue($type->toInputDefinition() === $type->toOutputDefinition());
+        self::assertSame('{id: string; name: string|null; opt?: string|null; [key: string]: unknown;}', $type->passThrough()->toOutputDefinition());
+        self::assertTrue($type->passThrough()->toInputDefinition() === $type->passThrough()->toOutputDefinition());
     }
 
     public function testParsing(): void
@@ -42,7 +47,7 @@ class ObjectTypeTest extends TestCase
     public function testFieldResolver()
     {
         $type = ObjectType::make([
-            'id' => Field::ofType(IntType::make()->min(1))->resolvedBy(fn($key, $data) => $data->id()),
+            'id' => Field::ofType(IntType::make()->min(1))->resolvedBy(fn($data) => $data->id()),
         ]);
 
         $object = new class () {
@@ -52,6 +57,20 @@ class ObjectTypeTest extends TestCase
             }
         };
         self::assertSame(['id' => 123456], $type->parse($object));
+    }
+
+    public function testPassThrough()
+    {
+        $type = ObjectType::make([
+            'id' => Field::ofType(IntType::make()->min(1))
+                ->resolvedBy(fn($data) => $data['id'] + 2),
+        ]);
+
+        try {
+            self::assertEquals(['id' => 125, 'other' => true], $type->passThrough()->parse(['id' => 123, 'other' => true]));
+        } catch (ParsingException $exception) {
+            var_dump($exception->issues);
+        }
     }
 
 }

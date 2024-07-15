@@ -32,7 +32,7 @@ class Field
      *
      *     ObjectType::make([
      *         'oldField' => Field::ofType(StringType::make())
-     *             ->resolvedBy(function(MyObject $object): string {
+     *             ->resolvedBy(function(MyObject $object, string $fieldName): string {
      *                 return $object->getFullName();
      *             })
      *     ])
@@ -47,14 +47,14 @@ class Field
         return $instance;
     }
 
-    private function defaultResolver(string $key, mixed $data): mixed
+    private function defaultResolver(mixed $data, string $fieldName): mixed
     {
         // Handles the undefined case.
-        if (!Utils::valueExists($key, $data)) {
+        if (!Utils::valueExists($fieldName, $data)) {
             return Value::UNDEFINED;
         }
 
-        return Utils::extractValue($key, $data);
+        return Utils::extractValue($fieldName, $data);
     }
 
     public static function ofType(Type $type): self
@@ -63,16 +63,16 @@ class Field
     }
 
     /**
-     * @internal
-     * @param string $key
+     * @param string $fieldName
      * @param mixed $data
      * @return mixed
+     *@internal
      */
-    public function resolveToValue(string $key, mixed $data): mixed
+    public function resolveToValue(string $fieldName, mixed $data): mixed
     {
         return isset($this->resolvedBy)
-            ? ($this->resolvedBy)($key, $data)
-            : $this->defaultResolver($key, $data);
+            ? ($this->resolvedBy)($data, $fieldName)
+            : $this->defaultResolver($data, $fieldName);
     }
 
     public function getType(): Type

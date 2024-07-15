@@ -81,14 +81,16 @@ final class ObjectType extends BaseType
             } catch (Throwable $exception) {
                 $context->addIssue(Issue::captureThrowable($exception));
                 return Value::INVALID;
-            }
-            finally {
+            } finally {
                 $context->leave();
             }
         }
 
         if ($this->passThrough && is_array($value)) {
-            return array_merge($value, $parsed);
+            return [
+                ... $value,
+                ... $parsed,
+            ];
         }
 
         return $parsed;
@@ -104,23 +106,26 @@ final class ObjectType extends BaseType
 
     protected function toDefinition(): Definition
     {
-        $inputDefinitions = [];
-        $outputDefinitions = [];
+        $definitions = [];
 
         foreach ($this->fields() as $name => $field) {
             $typeName = $field->isOptional() ? "{$name}?" : $name;
-            $inputDefinitions[] = "{$typeName}: {$field->getType()->toInputDefinition()};";
-            $outputDefinitions[] = "{$typeName}: {$field->getType()->toOutputDefinition()};";
+            $definitions[] = [
+                "{$typeName}: {$field->getType()->toInputDefinition()};",
+                "{$typeName}: {$field->getType()->toOutputDefinition()};",
+            ];
         }
 
         if ($this->passThrough) {
-            $inputDefinitions[] = '[key: string]: unknown;';
-            $outputDefinitions[] = '[key: string]: unknown;';
+            $definitions[] = [
+                '[key: string]: unknown;',
+                '[key: string]: unknown;',
+            ];
         }
 
         return new Definition(
-            '{' . implode(' ', $inputDefinitions) . '}',
-            '{' . implode(' ', $outputDefinitions) . '}'
+            '{' . implode(' ', array_column($definitions, 0)) . '}',
+            '{' . implode(' ', array_column($definitions, 1)) . '}'
         );
     }
 }
