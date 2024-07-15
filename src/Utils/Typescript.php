@@ -11,6 +11,11 @@ final class Typescript
         return "'{$stringSafeInput}'";
     }
 
+    public static function withoutNull()
+    {
+
+    }
+
     public static function literal(string|int|float|bool|null $value): string
     {
         return match (gettype($value)) {
@@ -28,11 +33,12 @@ final class Typescript
 
     public static function enumString(\UnitEnum $enum): string
     {
-        if ($enum instanceof \BackedEnum) {
-            return is_string($enum->value) ? self::wrapInSingleQuote($enum->value) : (string) $enum->value;
-        }
+        return self::wrapInSingleQuote($enum->name);
+    }
 
-        return "'{$enum->name}'";
+    public static function enumValueString(\BackedEnum $enum): string
+    {
+        return self::literal($enum->value);
     }
 
 }

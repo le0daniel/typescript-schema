@@ -3,11 +3,16 @@
 namespace TypescriptSchema\Data;
 
 use RuntimeException;
+use TypescriptSchema\Exceptions\Issue;
 
 final readonly class Result implements \JsonSerializable
 {
     public Status $status;
 
+    /**
+     * @param mixed $data
+     * @param array<Issue> $issues
+     */
     public function __construct(
         private mixed $data,
         public array $issues,

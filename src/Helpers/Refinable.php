@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Helpers;
 
 use Closure;
+use Throwable;
 use TypescriptSchema\Context\Context;
 use TypescriptSchema\Exceptions\Issue;
 
@@ -36,7 +37,7 @@ trait Refinable
                 }
 
                 $issue = $validator->produceIssue($value);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $issue = Issue::captureThrowable($exception);
             }
 

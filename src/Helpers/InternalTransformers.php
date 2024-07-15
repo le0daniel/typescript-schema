@@ -3,7 +3,6 @@
 namespace TypescriptSchema\Helpers;
 
 use Closure;
-use TypescriptSchema\TransformWrapper;
 
 /**
  * This trait is internal and should not be reused.
@@ -12,12 +11,13 @@ use TypescriptSchema\TransformWrapper;
 trait InternalTransformers
 {
     /** @var array<Closure(mixed): mixed>  */
-    protected array $internalTransformers = [];
+    private array $internalTransformers = [];
     private ?string $overwrittenOutputType = null;
 
     /**
      * Use internal transformers to manipulate a validated value.
      * It is possible to change the type of the return value when an output type is given.
+     *
      * @param Closure $transformer
      * @param string|null $outputType
      * @return $this

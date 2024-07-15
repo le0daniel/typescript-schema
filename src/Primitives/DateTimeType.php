@@ -2,16 +2,22 @@
 
 namespace TypescriptSchema\Primitives;
 
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use TypescriptSchema\Data\TypescriptDefinition;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Exceptions\Issue;
 
 final class DateTimeType extends PrimitiveType
 {
-    public const string DATABASE_FORMAT = 'Y-m-d H:i:s';
-    private static string $DEFAULT_FORMAT = self::DATABASE_FORMAT;
+    private static string $DEFAULT_FORMAT = DateTime::ATOM;
 
+    /**
+     * Use this to globally change the date time format to whatever fits your need.
+     *
+     * @param string $defaultFormat
+     * @return void
+     */
     public static function setDefaultFormat(string $defaultFormat): void
     {
         self::$DEFAULT_FORMAT = $defaultFormat;
@@ -66,14 +72,17 @@ final class DateTimeType extends PrimitiveType
 
     public function toFormattedString(?string $format = null): static
     {
-        return $this->addInternalTransformer(function (DateTimeImmutable $timeImmutable) use ($format): string {
-            return $timeImmutable->format($format ?? self::$DEFAULT_FORMAT);
+        $format ??= $this->format;
+        return $this->addInternalTransformer(static function (DateTimeImmutable $timeImmutable) use ($format): string {
+            return $timeImmutable->format($format ?? DateTimeType::$DEFAULT_FORMAT);
         }, 'string');
     }
 
-    protected function toDefinition(): TypescriptDefinition
+    protected function toDefinition(): Definition
     {
-        return new TypescriptDefinition(
+        // Datetime has a different format for input and output, as by default when using json_serialize
+        // it creates an object containing, date, timezone_type and timezone.
+        return new Definition(
             'string',
             '{date: string, timezone_type: number, timezone: string}'
         );

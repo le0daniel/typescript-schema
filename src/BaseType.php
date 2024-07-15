@@ -4,7 +4,7 @@ namespace TypescriptSchema;
 
 use Throwable;
 use TypescriptSchema\Context\Context;
-use TypescriptSchema\Data\TypescriptDefinition;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Value;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\ParsesInput;
@@ -34,7 +34,7 @@ abstract class BaseType implements Type
      */
     abstract protected function validateAndParseType(mixed $value, Context $context): mixed;
 
-    abstract protected function toDefinition(): string|TypescriptDefinition;
+    abstract protected function toDefinition(): string|Definition;
 
     final public function toOutputDefinition(): string
     {
@@ -43,7 +43,7 @@ abstract class BaseType implements Type
         }
 
         $baseDefinition = $this->toDefinition();
-        return $baseDefinition instanceof TypescriptDefinition
+        return $baseDefinition instanceof Definition
             ? $baseDefinition->output :
             $baseDefinition;
     }
@@ -51,7 +51,7 @@ abstract class BaseType implements Type
     final public function toInputDefinition(): string
     {
         $baseDefinition = $this->toDefinition();
-        return $baseDefinition instanceof TypescriptDefinition
+        return $baseDefinition instanceof Definition
             ? $baseDefinition->input :
             $baseDefinition;
     }

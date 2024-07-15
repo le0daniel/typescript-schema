@@ -6,7 +6,6 @@ use Closure;
 use Throwable;
 use TypescriptSchema\Context\Context;
 use TypescriptSchema\Contracts\Validator;
-use TypescriptSchema\Data\Value;
 use TypescriptSchema\Exceptions\Issue;
 
 trait Validators

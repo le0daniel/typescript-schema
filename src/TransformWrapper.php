@@ -3,23 +3,25 @@
 namespace TypescriptSchema;
 
 use Closure;
+use Throwable;
 use TypescriptSchema\Context\Context;
 use TypescriptSchema\Data\Value;
+use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\InternalTransformers;
 use TypescriptSchema\Helpers\IsNullable;
-use TypescriptSchema\Helpers\Refinable;
-use TypescriptSchema\Helpers\Transformable;
 use TypescriptSchema\Helpers\WrapsType;
 
 final class TransformWrapper extends WrapsType
 {
-    use IsNullable, Transformable, Refinable;
+    use IsNullable, InternalTransformers;
 
     protected function __construct(
-        Type                                 $type,
-        private readonly Closure             $transformer,
-        private readonly string|Closure|null $outputDefinition = null,
+        Type                        $type,
+        Closure                     $transformer,
+        private string|Closure|null $outputDefinition = null,
     )
     {
+        $this->internalTransformers = [$transformer];
         parent::__construct($type);
     }
 
@@ -35,13 +37,37 @@ final class TransformWrapper extends WrapsType
     public function execute(mixed $value, Context $context): mixed
     {
         $resolvedValue = $this->type->execute($value, $context);
-        return $resolvedValue === Value::INVALID
-            ? Value::INVALID
-            : ($this->transformer)($resolvedValue);
+        if ($value === Value::INVALID) {
+            return Value::INVALID;
+        }
+
+        try {
+            return $this->runInternalTransformers($resolvedValue);
+        } catch (Throwable $throwable) {
+            $context->addIssue(Issue::captureThrowable($throwable));
+            return Value::INVALID;
+        }
+    }
+
+    public function refine(Closure $closure, string|null|Closure $message = null): RefineWrapper
+    {
+        return RefineWrapper::make($this, $closure, $message);
+    }
+
+    public function transform(Closure $transformer, string|Closure|null $outputDefinition): TransformWrapper
+    {
+        $instance = $this->addInternalTransformer($transformer);
+
+        if ($outputDefinition) {
+            $instance->outputDefinition = $outputDefinition;
+        }
+
+        return $instance;
     }
 
     protected function verifyType(Type $type): void
-    {}
+    {
+    }
 
     public function toInputDefinition(): string
     {
@@ -53,7 +79,8 @@ final class TransformWrapper extends WrapsType
         return match (true) {
             is_string($this->outputDefinition) => $this->outputDefinition,
             $this->outputDefinition instanceof Closure => ($this->outputDefinition)($this->type->toOutputDefinition()),
-            default => $this->type->toOutputDefinition(),
+            // As the type is no longer known, it is returned as any.
+            default => 'unknown',
         };
     }
 }

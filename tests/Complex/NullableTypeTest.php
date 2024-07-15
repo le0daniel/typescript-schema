@@ -3,7 +3,7 @@
 namespace Tests\Complex;
 
 use RuntimeException;
-use TypescriptSchema\Complex\NullableType;
+use TypescriptSchema\Complex\NullableWrapper;
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Primitives\StringType;
@@ -16,15 +16,15 @@ class NullableTypeTest extends TestCase
     public function testNotWrappableInsideItself()
     {
         $this->expectException(RuntimeException::class);
-        NullableType::make(NullableType::make(StringType::make()));
+        NullableWrapper::make(NullableWrapper::make(StringType::make()));
     }
 
     public function testNotWrappableInsideItselfWithOtherWrappedTypeBetween()
     {
         $this->expectException(RuntimeException::class);
-        NullableType::make(
+        NullableWrapper::make(
             TransformWrapper::make(
-                NullableType::make(StringType::make()),
+                NullableWrapper::make(StringType::make()),
                 fn() => Typescript::wrapInSingleQuote('my val'),
             )
         );
@@ -32,13 +32,13 @@ class NullableTypeTest extends TestCase
 
     public function testResolvesCorrectlyWhenTypeHasDefaultValue()
     {
-        $schema = NullableType::make(StringType::make()->default('test value'));
+        $schema = NullableWrapper::make(StringType::make()->default('test value'));
         self::assertEquals('test value', $schema->parse(null));
     }
 
     public function testErrorBoundary(): void
     {
-        $schema = NullableType::make(StringType::make()->min(5));
+        $schema = NullableWrapper::make(StringType::make()->min(5));
         $result = $schema->safeParse('one', true);
         self::assertFalse($result->isSuccess());
         self::assertTrue($result->isPartial());

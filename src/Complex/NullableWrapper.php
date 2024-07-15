@@ -13,7 +13,7 @@ use RuntimeException;
  * @template T of Type
  * @mixin T
  */
-final class NullableType extends WrapsType
+final class NullableWrapper extends WrapsType
 {
 
     /**
@@ -21,20 +21,22 @@ final class NullableType extends WrapsType
      * @param M $type
      * @return M
      */
-    public static function make(Type $type): NullableType
+    public static function make(Type $type): NullableWrapper
     {
         return new self($type);
     }
 
     protected function verifyType(Type $type): void
     {
-        if ($this->containsWrapped(NullableType::class)) {
+        if ($this->containsWrapped(NullableWrapper::class)) {
             throw new RuntimeException("Can not wrap a nullable type with nullable.");
         }
     }
 
     /**
-     * Proxies all call forward to the type.
+     * Proxies all call forward to the type. This also ensures that the nullable wrapper stays on
+     * top of all other wrappers.
+     *
      * @param string $name
      * @param array $arguments
      * @return $this

@@ -80,13 +80,13 @@ class LiteralTypeTest extends TestCase
             'enum as literal success with string' => [
                 true,
                 LiteralType::make(StringBackedEnumMock::SUCCESS),
-                'success',
+                'SUCCESS',
                 StringBackedEnumMock::SUCCESS,
             ],
             'enum as literal failure with string' => [
                 false,
                 LiteralType::make(StringBackedEnumMock::SUCCESS),
-                'SUCCESS'
+                'success',
             ],
             'enum literal int backed success' => [
                 true,
@@ -97,7 +97,7 @@ class LiteralTypeTest extends TestCase
             'enum literal int (value: int) backed success' => [
                 true,
                 LiteralType::make(IntBackedEnumMock::SUCCESS),
-                0,
+                'SUCCESS',
                 IntBackedEnumMock::SUCCESS,
             ],
         ];
@@ -116,9 +116,16 @@ class LiteralTypeTest extends TestCase
         self::assertEquals('true', LiteralType::make(true)->toOutputDefinition());
         self::assertEquals('false', LiteralType::make(false)->toOutputDefinition());
         self::assertEquals('145', LiteralType::make(145)->toOutputDefinition());
-        self::assertEquals("'SUCCESS'", LiteralType::make(UnitEnumMock::SUCCESS)->toOutputDefinition());
+
+        self::assertEquals("never", LiteralType::make(UnitEnumMock::SUCCESS)->toOutputDefinition());
+        self::assertEquals("'SUCCESS'", LiteralType::make(UnitEnumMock::SUCCESS)->toInputDefinition());
+
         self::assertEquals("0", LiteralType::make(IntBackedEnumMock::SUCCESS)->toOutputDefinition());
+        self::assertEquals("'SUCCESS'", LiteralType::make(IntBackedEnumMock::SUCCESS)->toInputDefinition());
+
         self::assertEquals("'success'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toOutputDefinition());
+        self::assertEquals("'SUCCESS'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toInputDefinition());
+
     }
 
 }

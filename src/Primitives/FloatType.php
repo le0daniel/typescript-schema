@@ -16,6 +16,10 @@ final class FloatType extends PrimitiveType
             throw Issue::invalidType('float', $value);
         }
 
+        if (is_string($value)) {
+            throw Issue::invalidType('float', $value);
+        }
+
         return (float) $value;
     }
 

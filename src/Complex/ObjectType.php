@@ -6,7 +6,7 @@ use Closure;
 use Throwable;
 use TypescriptSchema\BaseType;
 use TypescriptSchema\Context\Context;
-use TypescriptSchema\Data\TypescriptDefinition;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Value;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\IsNullable;
@@ -102,7 +102,7 @@ final class ObjectType extends BaseType
         return $this->definition[$name];
     }
 
-    protected function toDefinition(): TypescriptDefinition
+    protected function toDefinition(): Definition
     {
         $inputDefinitions = [];
         $outputDefinitions = [];
@@ -118,7 +118,7 @@ final class ObjectType extends BaseType
             $outputDefinitions[] = '[key: string]: unknown;';
         }
 
-        return new TypescriptDefinition(
+        return new Definition(
             '{' . implode(' ', $inputDefinitions) . '}',
             '{' . implode(' ', $outputDefinitions) . '}'
         );

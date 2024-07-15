@@ -2,7 +2,7 @@
 
 namespace TypescriptSchema\Data;
 
-final readonly class TypescriptDefinition
+final readonly class Definition
 {
 
     public function __construct(

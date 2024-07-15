@@ -2,7 +2,7 @@
 
 namespace TypescriptSchema\Helpers;
 
-use TypescriptSchema\Complex\NullableType;
+use TypescriptSchema\Complex\NullableWrapper;
 
 trait IsNullable
 {
@@ -10,6 +10,6 @@ trait IsNullable
      * @return $this
      */
     public function nullable(): mixed {
-        return NullableType::make($this);
+        return NullableWrapper::make($this);
     }
 }

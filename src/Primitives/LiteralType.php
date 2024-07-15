@@ -4,6 +4,7 @@ namespace TypescriptSchema\Primitives;
 
 use BackedEnum;
 use RuntimeException;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Utils\Typescript;
 use UnitEnum;
@@ -36,8 +37,8 @@ final class LiteralType extends PrimitiveType
      */
     public function unitEnumAsString(): static
     {
-        return $this->addInternalTransformer(function (mixed $value) {
-            if ($value instanceof UnitEnum && !$value instanceof BackedEnum) {
+        return $this->addInternalTransformer(static function (mixed $value) {
+            if ($value instanceof UnitEnum) {
                 return $value->name;
             }
 
@@ -51,10 +52,9 @@ final class LiteralType extends PrimitiveType
             throw new RuntimeException('Literal value cannot be null.');
         }
 
-        // As enums can not be serialized in JSON, they appear as string and are parsed as such
-        $value = $this->literalValue instanceof UnitEnum
-            ? $this->parseEnum($value)
-            : $value;
+        if ($this->literalValue instanceof UnitEnum && $value === $this->literalValue->name) {
+            return $this->literalValue;
+        }
 
         if ($value !== $this->literalValue) {
             throw Issue::invalidType($this->literalValue, $value);
@@ -63,28 +63,22 @@ final class LiteralType extends PrimitiveType
         return $value;
     }
 
-    private function parseEnum(mixed $value): mixed
-    {
-        if ($this->literalValue instanceof BackedEnum) {
-            return $this->literalValue->value === $value
-                ? $this->literalValue
-                : $value;
-        }
-
-        return $value === $this->literalValue->name
-            ? $this->literalValue
-            : $value;
-    }
-
     protected function coerceValue(mixed $value): mixed
     {
         return $value;
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): string|Definition
     {
-        return $this->literalValue instanceof UnitEnum
-            ? Typescript::enumString($this->literalValue)
-            : Typescript::literal($this->literalValue);
+        if (!$this->literalValue instanceof UnitEnum) {
+            return Typescript::literal($this->literalValue);
+        }
+
+        return new Definition(
+            Typescript::enumString($this->literalValue),
+            $this->literalValue instanceof BackedEnum
+                ? Typescript::literal($this->literalValue->value)
+                : 'never',
+        );
     }
 }
