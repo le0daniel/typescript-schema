@@ -76,6 +76,27 @@ class StringType extends PrimitiveType
         });
     }
 
+    public function nonEmpty(): static
+    {
+        return $this->addValidator(static function(string $value) {
+            $trimmed = trim($value);
+            if (empty($trimmed)) {
+                throw Issue::custom("Value can not be empty.");
+            }
+            return true;
+        });
+    }
+
+    public function alphaNumeric(): static
+    {
+        return $this->addValidator(static function (string $value) {
+            if (preg_match('/^[A-Za-z0-9]*$/', $value) !== 1) {
+                throw Issue::custom("Value is not a valid alphanumeric string.");
+            }
+            return true;
+        });
+    }
+
     public function max(int $max): static
     {
         return $this->addValidator(static function (string $value) use ($max) {
@@ -91,6 +112,16 @@ class StringType extends PrimitiveType
         return $this->addValidator(static function (string $value) use ($endsIn) {
             if (!str_ends_with($value, $endsIn)) {
                 throw Issue::custom("Value must end with {$endsIn}.");
+            }
+            return true;
+        });
+    }
+
+    public function startsWith(string $startsIn): static
+    {
+        return $this->addValidator(static function (string $value) use ($startsIn) {
+            if (!str_starts_with($value, $startsIn)) {
+                throw Issue::custom("Value must start with {$startsIn}.");
             }
             return true;
         });

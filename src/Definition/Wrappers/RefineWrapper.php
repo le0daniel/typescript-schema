@@ -7,7 +7,6 @@ use Throwable;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\IsNullable;
-use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\ClosureValidator;
@@ -44,7 +43,7 @@ final class RefineWrapper extends WrapsType
         return $instance;
     }
 
-    public function runRefiners(mixed $value, Context $context): bool
+    private function runRefiners(mixed $value, Context $context): bool
     {
         $isDirty = false;
         foreach ($this->refiners as $validator) {

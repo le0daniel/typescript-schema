@@ -7,23 +7,11 @@ use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 use TypescriptSchema\Exceptions\ParsingException;
 
 class StringTypeTest extends TestCase
 {
-
-    #[DataProvider('successfulPassesDataProvider')]
-    public function testSuccessfulPasses(Type $type, mixed $value, mixed $expected, mixed $failing = null): void
-    {
-        /** @var BaseType&StringType $type */
-        self::assertSame($expected, $type->parse($value));
-
-        if (isset($failing)) {
-            $this->expectException(ParsingException::class);
-            $type->parse($failing);
-        }
-    }
-
     public function testTypescriptDefinition(): void
     {
         self::assertSame('string', StringType::make()->toInputDefinition());
@@ -33,70 +21,110 @@ class StringTypeTest extends TestCase
         self::assertSame('string', StringType::make()->trim()->toOutputDefinition());
     }
 
+    private function wrap(mixed $value): array
+    {
+        return is_array($value) ? $value : [$value];
+    }
+
+    #[DataProvider('successfulPassesDataProvider')]
+    public function testSuccessfulPasses(StringType|NullableWrapper $type, mixed $successful, mixed $failing = null): void
+    {
+        $successful = $this->wrap($successful ?? []);
+        $failing = $this->wrap($failing ?? []);
+
+        foreach ($successful as $value) {
+            $result = $type->safeParse($value);
+            self::assertTrue($result->isSuccess(), 'Failed for value: ' . $value);
+        }
+
+        foreach ($failing as $value) {
+            $result = $type->safeParse($value);
+            self::assertFalse($result->isSuccess(), "Success for value '{$value}'.");
+        }
+    }
+
     public static function successfulPassesDataProvider(): array {
         return [
-            'test simple string' => [
+            'simple string' => [
                 StringType::make(),
                 'My String',
-                'My String',
-                []
             ],
-            'test exact min length' => [
+            'exact min length' => [
                 StringType::make()->min(6),
-                'String',
                 'String',
                 'Strin'
             ],
-            'test exact max length' => [
+            'exact max length' => [
                 StringType::make()->max(6),
-                'String',
                 'String',
                 'string+1'
             ],
-            'test ends with' => [
+            'ends with' => [
                 StringType::make()->endsWith('.test'),
-                'String.test',
                 'String.test',
                 'string.not-test'
             ],
-            'test email' => [
+            'start with' => [
+                StringType::make()->startsWith('String'),
+                ['String.startsWith', 'String'],
+                ['other', '']
+            ],
+            'email' => [
                 StringType::make()->email(),
-                'test@me.local',
                 'test@me.local',
                 'test_e.local',
             ],
-            'test email ending in test' => [
+            'email ending in test' => [
                 StringType::make()->endsWith('.test')->email(),
-                'test@me.test',
                 'test@me.test',
                 'test_e.test',
             ],
-            'test regex' => [
+            'regex' => [
                 StringType::make()->regex('/^[a-z]+$/'),
-                'mystring',
                 'mystring',
                 'myString',
             ],
-            'test uppercase' => [
+            'nullable' => [
+                StringType::make()->nullable(),
+                [null],
+            ],
+            'alpha numeric' => [
+                StringType::make()->alphaNumeric(),
+                ['ThisIsANumericString0123456789', ''],
+                ['@', '  a', 'other_']
+            ],
+            'non empty' => [
+                StringType::make()->nonEmpty(),
+                '  a',
+                [PHP_EOL, '', ' ', '    ', "     \n\r\t\0"]
+            ]
+        ];
+    }
+
+    #[DataProvider('transformDataProvider')]
+    public function testTransform(StringType $type, mixed $value, mixed $expected): void
+    {
+        self::assertEquals($expected, $type->parse($value));
+    }
+
+    public static function transformDataProvider(): array
+    {
+        return [
+            'uppercase' => [
                 StringType::make()->upperCase(),
                 'my-string',
                 'MY-STRING',
             ],
-            'test lowercase' => [
+            'lowercase' => [
                 StringType::make()->lowerCase(),
                 'MY-STRING',
                 'my-string',
             ],
-            'test trim' => [
+            'trim' => [
                 StringType::make()->trim(),
                 '   My String  ',
                 'My String',
             ],
-            'test nullable' => [
-                StringType::make()->nullable(),
-                null,
-                null
-            ]
         ];
     }
 

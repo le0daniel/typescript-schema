@@ -19,9 +19,6 @@ interface Type
      * @internal
      */
     public function execute(mixed $value, Context $context): mixed;
-
     public function toInputDefinition(): string;
     public function toOutputDefinition(): string;
-
-    // protected function toDefinition(): string;
 }
