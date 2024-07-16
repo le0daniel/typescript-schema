@@ -5,7 +5,7 @@ namespace TypescriptSchema\Definition\Wrappers;
 use Closure;
 use Throwable;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Value;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Definition\Shared\IsNullable;
 use TypescriptSchema\Exceptions\Issue;

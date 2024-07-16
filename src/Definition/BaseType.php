@@ -5,7 +5,7 @@ namespace TypescriptSchema\Definition;
 use Throwable;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
-use TypescriptSchema\Data\Value;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Definition\Shared\ParsesInput;
 use TypescriptSchema\Definition\Shared\Refinable;

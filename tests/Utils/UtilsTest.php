@@ -2,10 +2,8 @@
 
 namespace Tests\Utils;
 
-use TypescriptSchema\Data\Value;
-use TypescriptSchema\Schema;
-use TypescriptSchema\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Utils\Utils;
 
 class UtilsTest extends TestCase
 {

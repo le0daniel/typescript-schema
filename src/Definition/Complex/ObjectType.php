@@ -6,7 +6,7 @@ use Closure;
 use Throwable;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
-use TypescriptSchema\Data\Value;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Shared\IsNullable;
 use TypescriptSchema\Exceptions\Issue;

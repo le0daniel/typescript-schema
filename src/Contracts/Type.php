@@ -2,7 +2,7 @@
 
 namespace TypescriptSchema\Contracts;
 
-use TypescriptSchema\Data\Value;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Helpers\Context;
 
 interface Type

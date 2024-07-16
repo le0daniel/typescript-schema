@@ -4,7 +4,6 @@ namespace Tests\Data;
 
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use TypescriptSchema\Data\IssueType;
 use TypescriptSchema\Exceptions\Issue;
 
 class IssueTest extends TestCase

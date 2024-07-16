@@ -4,8 +4,8 @@ namespace TypescriptSchema\Definition\Shared;
 
 use Throwable;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Result;
-use TypescriptSchema\Data\Value;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Helpers\Context;

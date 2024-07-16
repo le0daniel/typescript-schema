@@ -3,7 +3,7 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Value;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Shared\IsNullable;
 use TypescriptSchema\Exceptions\Issue;

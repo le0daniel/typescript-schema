@@ -3,8 +3,6 @@
 namespace TypescriptSchema\Utils;
 
 use ArrayAccess;
-use TypescriptSchema\Data\Value;
-use TypescriptSchema\Schema;
 
 final class Utils
 {

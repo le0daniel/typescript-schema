@@ -3,6 +3,8 @@
 namespace TypescriptSchema\Data;
 
 use RuntimeException;
+use TypescriptSchema\Data\Enum\Status;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Exceptions\Issue;
 
 final readonly class Result implements \JsonSerializable

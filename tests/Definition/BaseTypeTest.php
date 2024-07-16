@@ -6,7 +6,7 @@ use Closure;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use TypescriptSchema\Contracts\Validator;
-use TypescriptSchema\Data\Value;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;

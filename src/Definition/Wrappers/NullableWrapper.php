@@ -4,7 +4,7 @@ namespace TypescriptSchema\Definition\Wrappers;
 
 use RuntimeException;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Value;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\PrimitiveType;
 use TypescriptSchema\Helpers\Context;
 

@@ -5,7 +5,7 @@ namespace TypescriptSchema\Exceptions;
 use Exception;
 use JsonSerializable;
 use Throwable;
-use TypescriptSchema\Data\IssueType;
+use TypescriptSchema\Data\Enum\IssueType;
 use TypescriptSchema\Utils\Serialize;
 
 final class Issue extends Exception implements JsonSerializable

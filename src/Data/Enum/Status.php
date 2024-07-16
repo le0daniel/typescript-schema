@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace TypescriptSchema\Data;
+namespace TypescriptSchema\Data\Enum;
 
 enum Status
 {
