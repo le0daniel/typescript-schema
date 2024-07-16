@@ -8,12 +8,13 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
 final class TransformWrapper extends WrapsType
 {
-    use IsNullable, InternalTransformers;
+    use IsNullable, InternalTransformers, Refinable;
 
     protected function __construct(
         Type                        $type,
@@ -47,11 +48,6 @@ final class TransformWrapper extends WrapsType
             $context->addIssue(Issue::captureThrowable($throwable));
             return Value::INVALID;
         }
-    }
-
-    public function refine(Closure $closure, string|null|Closure $message = null): RefineWrapper
-    {
-        return RefineWrapper::make($this, $closure, $message);
     }
 
     public function transform(Closure $transformer, string|Closure|null $outputDefinition): TransformWrapper

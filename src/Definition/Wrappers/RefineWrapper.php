@@ -7,6 +7,7 @@ use Throwable;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\ClosureValidator;
@@ -16,7 +17,10 @@ final class RefineWrapper extends WrapsType
 {
     use Transformable, IsNullable;
 
-    private ClosureValidator $validator;
+    /**
+     * @var array<ClosureValidator>
+     */
+    private array $refiners;
 
     protected function __construct(
         Type                                 $type,
@@ -25,12 +29,43 @@ final class RefineWrapper extends WrapsType
     )
     {
         parent::__construct($type);
-        $this->validator = new ClosureValidator($refiner, $message);
+        $this->refiners = [new ClosureValidator($refiner, $message)];
     }
 
     public static function make(Type $type, Closure $refiner, string|Closure|null $message = null): self
     {
         return new self($type, $refiner, $message);
+    }
+
+    public function refine(Closure $refine, string|Closure|null $message = null): RefineWrapper
+    {
+        $instance = clone $this;
+        $instance->refiners[] = new ClosureValidator($refine, $message);
+        return $instance;
+    }
+
+    public function runRefiners(mixed $value, Context $context): bool
+    {
+        $isDirty = false;
+        foreach ($this->refiners as $validator) {
+            try {
+                if ($validator->validate($value)) {
+                    continue;
+                }
+
+                $issue = $validator->produceIssue($value);
+            } catch (Throwable $exception) {
+                $issue = Issue::captureThrowable($exception);
+            }
+
+            $isDirty = true;
+            $context->addIssue($issue);
+            if ($issue->isFatal()) {
+                return false;
+            }
+        }
+
+        return !$isDirty;
     }
 
     public function execute(mixed $value, Context $context): mixed
@@ -41,17 +76,9 @@ final class RefineWrapper extends WrapsType
             return Value::INVALID;
         }
 
-        try {
-            if ($this->validator->validate($value)) {
-                return $resolvedValue;
-            }
-
-            $context->addIssue($this->validator->produceIssue($value));
-        } catch (Throwable $throwable) {
-            $context->addIssue(Issue::captureThrowable($throwable));
-        }
-
-        return Value::INVALID;
+        return $this->runRefiners($value, $context)
+            ? $resolvedValue
+            : Value::INVALID;
     }
 
     public function toInputDefinition(): string

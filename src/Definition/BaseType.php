@@ -78,9 +78,9 @@ abstract class BaseType implements Type
         }
 
         // This could be a wrapping type instead. Allowing to chain transform and refine
-        if (!$this->runRefiners($value, $context)) {
-            return Value::INVALID;
-        }
+        // if (!$this->runRefiners($value, $context)) {
+        //     return Value::INVALID;
+        // }
 
         try {
             return $this->runInternalTransformers($value);

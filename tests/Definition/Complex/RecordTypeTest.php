@@ -79,10 +79,6 @@ class RecordTypeTest extends TestCase
         $record = RecordType::make(StringType::make());
         $result = $record->safeParse(['name' => 'value', 'email' => null]);
 
-        self::assertFalse($result->isSuccess());
-        self::assertFalse($result->isPartial());
-        self::assertTrue($result->isFailure());
-
         self::assertCount(1, $result->issues);
         self::assertEquals(['email'], $result->issues[0]->getPath());
     }

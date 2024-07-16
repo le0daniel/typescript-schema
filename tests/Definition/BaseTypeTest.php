@@ -136,8 +136,8 @@ class BaseTypeTest extends TestCase
     {
         $result = $this->openMock()
             ->validate(fn() => true)
-            ->refine(fn() => true)
             ->addTestTransform(fn() => 'This is the result')
+            ->refine(fn() => true)
             ->execute(null, $context = new Context());
 
         self::assertEquals('This is the result', $result);
