@@ -119,8 +119,8 @@ final class ObjectType extends BaseType
         foreach ($this->fields() as $name => $field) {
             $typeName = $field->isOptional() ? "{$name}?" : $name;
             $definitions[] = [
-                "{$typeName}: {$field->getType()->toInputDefinition()};",
-                "{$typeName}: {$field->getType()->toOutputDefinition()};",
+                "{$field->getDocBlock()}{$typeName}: {$field->getType()->toInputDefinition()};",
+                "{$field->getDocBlock()}{$typeName}: {$field->getType()->toOutputDefinition()};",
             ];
         }
 

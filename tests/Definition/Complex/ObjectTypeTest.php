@@ -32,6 +32,23 @@ class ObjectTypeTest extends TestCase
         self::assertTrue($type->passThrough()->toInputDefinition() === $type->passThrough()->toOutputDefinition());
     }
 
+    public function testTypeDefinitionWithDocBlock(): void
+    {
+        $type = ObjectType::make([
+            'id' => Field::ofType(StringType::make())->describe('this is the description')->deprecated(),
+            'name' => StringType::make(),
+        ]);
+        $expectedDescription = <<<DOC
+{/**
+ * this is the description
+ * 
+ * @deprecated
+ */id: string; name: string;}
+DOC;
+        self::assertEquals($expectedDescription, $type->toInputDefinition());
+        self::assertEquals($expectedDescription, $type->toOutputDefinition());
+    }
+
     public function testParsing(): void
     {
         $type = ObjectType::make([

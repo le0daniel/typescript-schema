@@ -23,6 +23,17 @@ final class Typescript
         };
     }
 
+    public static function doc(array $lines): string
+    {
+        $linesAsStrings = implode(PHP_EOL . ' * ', $lines);
+        return <<<DOCBLOCK
+/**
+ * {$linesAsStrings}
+ */
+DOCBLOCK;
+
+    }
+
     public static function enumString(UnitEnum $enum): string
     {
         return self::wrapInSingleQuote($enum->name);
