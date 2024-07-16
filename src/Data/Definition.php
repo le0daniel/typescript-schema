@@ -12,4 +12,9 @@ final readonly class Definition
     {
     }
 
+    public static function same(string $definition): self
+    {
+        return new self($definition, $definition);
+    }
+
 }

@@ -18,7 +18,7 @@ final class Issue extends Exception implements JsonSerializable
         public readonly IssueType $type,
         string                    $message,
         public readonly array     $metadata = [],
-        public readonly array     $path = [],
+        protected readonly array     $path = [],
         Throwable                 $previous = null
     )
     {
@@ -133,16 +133,21 @@ final class Issue extends Exception implements JsonSerializable
         return $issue;
     }
 
+    public function getPath(): array
+    {
+        return [
+            ... $this->basePath,
+            ... $this->path,
+        ];
+    }
+
     public function jsonSerialize(): array
     {
         return [
             ... $this->metadata,
             'type' => $this->type->jsonSerialize(),
             'message' => $this->getMessage(),
-            'path' => [
-                ... $this->basePath,
-                ... $this->path,
-            ],
+            'path' => $this->getPath(),
         ];
     }
 }

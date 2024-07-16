@@ -4,6 +4,7 @@ namespace TypescriptSchema\Definition\Complex;
 
 use Throwable;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Shared\IsNullable;
@@ -56,8 +57,11 @@ final class RecordType extends BaseType
         return $values;
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return "Record<string,{$this->ofType->toDefinition()}>";
+        return new Definition(
+            "Record<string,{$this->ofType->toInputDefinition()}>",
+            "Record<string,{$this->ofType->toOutputDefinition()}>",
+        );
     }
 }
