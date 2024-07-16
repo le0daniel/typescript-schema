@@ -44,6 +44,18 @@ final class ComplextSchemaTest extends TestCase
         );
     }
 
+    public function testChainingOfTransformAndRefine(): void
+    {
+        $schema = Schema::string()
+            ->transform(fn(string $name): int => strlen($name))
+            ->refine(fn(int $length): bool => $length > 10)
+            ->refine(fn() => true)
+            ->transform(fn(int $length): string => (string) $length)
+            ->refine(fn($val) => $val === "11");
+
+        self::assertEquals("11", $schema->safeParse('stringal911')->getData());
+    }
+
     public function testTupleParsing()
     {
         $tuple = Schema::tuple(
