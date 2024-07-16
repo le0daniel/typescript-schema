@@ -3,10 +3,9 @@
 namespace Tests\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use TypescriptSchema\Exceptions\ParsingException;
-use TypescriptSchema\Primitives\IntType;
 use PHPUnit\Framework\TestCase;
-use TypescriptSchema\Type;
+use TypescriptSchema\Definition\Primitives\IntType;
+use TypescriptSchema\Exceptions\ParsingException;
 
 class IntTypeTest extends TestCase
 {

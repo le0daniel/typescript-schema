@@ -2,8 +2,8 @@
 
 namespace Tests\Primitives;
 
-use TypescriptSchema\Primitives\BoolType;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Primitives\BoolType;
 
 class BoolTypeTest extends TestCase
 {

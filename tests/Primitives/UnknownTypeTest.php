@@ -2,8 +2,8 @@
 
 namespace Tests\Primitives;
 
-use TypescriptSchema\Primitives\UnknownType;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Primitives\UnknownType;
 
 class UnknownTypeTest extends TestCase
 {

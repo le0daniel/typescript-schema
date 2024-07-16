@@ -3,12 +3,12 @@
 namespace Tests\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use Tests\Mocks\IntBackedEnumMock;
 use Tests\Mocks\StringBackedEnumMock;
 use Tests\Mocks\UnitEnumMock;
-use TypescriptSchema\Primitives\LiteralType;
-use PHPUnit\Framework\TestCase;
-use TypescriptSchema\Type;
+use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Definition\Primitives\LiteralType;
 
 class LiteralTypeTest extends TestCase
 {

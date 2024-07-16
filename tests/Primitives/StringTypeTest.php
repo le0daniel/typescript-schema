@@ -3,11 +3,11 @@
 namespace Tests\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use TypescriptSchema\BaseType;
-use TypescriptSchema\Exceptions\ParsingException;
-use TypescriptSchema\Primitives\StringType;
 use PHPUnit\Framework\TestCase;
-use TypescriptSchema\Type;
+use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Definition\BaseType;
+use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Exceptions\ParsingException;
 
 class StringTypeTest extends TestCase
 {

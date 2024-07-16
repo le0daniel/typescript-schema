@@ -1,0 +1,1 @@
+type test = unknown |null;

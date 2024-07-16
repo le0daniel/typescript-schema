@@ -3,8 +3,8 @@
 namespace Tests\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use TypescriptSchema\Primitives\FloatType;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Primitives\FloatType;
 
 class FloatTypeTest extends TestCase
 {

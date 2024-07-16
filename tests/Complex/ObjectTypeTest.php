@@ -2,12 +2,12 @@
 
 namespace Tests\Complex;
 
-use TypescriptSchema\Complex\Field;
-use TypescriptSchema\Complex\ObjectType;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Complex\Field;
+use TypescriptSchema\Definition\Complex\ObjectType;
+use TypescriptSchema\Definition\Primitives\IntType;
+use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Exceptions\ParsingException;
-use TypescriptSchema\Primitives\IntType;
-use TypescriptSchema\Primitives\StringType;
 
 class ObjectTypeTest extends TestCase
 {

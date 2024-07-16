@@ -3,8 +3,8 @@
 namespace Tests\Primitives;
 
 use DateTimeImmutable;
-use TypescriptSchema\Primitives\DateTimeType;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Primitives\DateTimeType;
 
 class DateTimeTypeTest extends TestCase
 {

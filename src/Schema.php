@@ -2,20 +2,19 @@
 
 namespace TypescriptSchema;
 
-use TypescriptSchema\Complex\ArrayType;
-use TypescriptSchema\Complex\ObjectType;
-use TypescriptSchema\Complex\RecordType;
-use TypescriptSchema\Complex\TupleType;
-use TypescriptSchema\Complex\UnionType;
-use TypescriptSchema\Data\Value;
-use TypescriptSchema\Primitives\AnyType;
-use TypescriptSchema\Primitives\BoolType;
-use TypescriptSchema\Primitives\IntType;
-use TypescriptSchema\Primitives\LiteralType;
-use TypescriptSchema\Primitives\StringType;
-use TypescriptSchema\Primitives\UnknownType;
 use Closure;
-use stdClass;
+use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Definition\Complex\ArrayType;
+use TypescriptSchema\Definition\Complex\ObjectType;
+use TypescriptSchema\Definition\Complex\RecordType;
+use TypescriptSchema\Definition\Complex\TupleType;
+use TypescriptSchema\Definition\Complex\UnionType;
+use TypescriptSchema\Definition\Primitives\AnyType;
+use TypescriptSchema\Definition\Primitives\BoolType;
+use TypescriptSchema\Definition\Primitives\IntType;
+use TypescriptSchema\Definition\Primitives\LiteralType;
+use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Definition\Primitives\UnknownType;
 use UnitEnum;
 
 final class Schema

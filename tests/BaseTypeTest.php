@@ -5,11 +5,11 @@ namespace Tests;
 use Closure;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use TypescriptSchema\BaseType;
-use TypescriptSchema\Context\Context;
 use TypescriptSchema\Contracts\Validator;
 use TypescriptSchema\Data\Value;
+use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\Context;
 
 class BaseTypeTest extends TestCase
 {

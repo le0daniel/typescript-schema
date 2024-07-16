@@ -2,12 +2,12 @@
 
 namespace Tests\Complex;
 
-use RuntimeException;
-use TypescriptSchema\Complex\NullableWrapper;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Definition\Wrappers\NullableWrapper;
+use TypescriptSchema\Definition\Wrappers\TransformWrapper;
 use TypescriptSchema\Exceptions\ParsingException;
-use TypescriptSchema\Primitives\StringType;
-use TypescriptSchema\TransformWrapper;
 use TypescriptSchema\Utils\Typescript;
 
 class NullableTypeTest extends TestCase

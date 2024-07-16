@@ -2,8 +2,8 @@
 
 namespace Tests\Primitives;
 
-use TypescriptSchema\Primitives\AnyType;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Primitives\AnyType;
 
 class AnyTypeTest extends TestCase
 {

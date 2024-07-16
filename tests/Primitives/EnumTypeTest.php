@@ -2,11 +2,11 @@
 
 namespace Tests\Primitives;
 
+use PHPUnit\Framework\TestCase;
 use Tests\Mocks\IntBackedEnumMock;
 use Tests\Mocks\StringBackedEnumMock;
 use Tests\Mocks\UnitEnumMock;
-use TypescriptSchema\Primitives\EnumType;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Primitives\EnumType;
 
 class EnumTypeTest extends TestCase
 {

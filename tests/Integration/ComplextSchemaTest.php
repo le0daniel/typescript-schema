@@ -3,7 +3,7 @@
 namespace Integration;
 
 use PHPUnit\Framework\TestCase;
-use TypescriptSchema\Complex\ObjectType;
+use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Schema;
 
 final class ComplextSchemaTest extends TestCase
