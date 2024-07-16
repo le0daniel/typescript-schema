@@ -40,7 +40,7 @@ final class DiscriminatedUnionType extends BaseType
 
                 // Field passes successfully
                 $result = $field->getType()->execute(
-                    $field->resolveToValue($this->discriminatorFieldName, $value),
+                    $field->resolveValue($this->discriminatorFieldName, $value),
                     $probingContext
                 );
             } catch (Throwable $throwable) {

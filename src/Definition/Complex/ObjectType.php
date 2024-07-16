@@ -66,7 +66,7 @@ final class ObjectType extends BaseType
         foreach ($this->fields() as $name => $field) {
             $context->enter($name);
             try {
-                $fieldValue = $field->resolveToValue($name, $value);
+                $fieldValue = $field->resolveValue($name, $value);
 
                 if ($field->isOptional() && $fieldValue === Value::UNDEFINED) {
                     continue;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Complex;
+namespace Definition\Complex;
 
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Complex\Field;

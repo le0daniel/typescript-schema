@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Complex;
+namespace Definition\Wrappers;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 use TypescriptSchema\Definition\Wrappers\TransformWrapper;
 use TypescriptSchema\Exceptions\ParsingException;
+use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Utils\Typescript;
 
 class NullableTypeTest extends TestCase
@@ -53,6 +55,54 @@ class NullableTypeTest extends TestCase
     {
         self::assertEquals('string|null', StringType::make()->nullable()->toOutputDefinition());
         self::assertEquals('string|null', StringType::make()->nullable()->toInputDefinition());
+    }
+
+    public function testProxyFunctionality(): void
+    {
+        $mockType = new class implements Type
+        {
+
+            public function testProxy(): string
+            {
+                return 'this is a string';
+            }
+
+            public function changeToString(): Type
+            {
+                return StringType::make();
+            }
+
+            public function execute(mixed $value, Context $context): mixed
+            {
+                return ['value'];
+            }
+
+            public function toInputDefinition(): string
+            {
+                return 'something';
+            }
+
+            public function toOutputDefinition(): string
+            {
+                return 'something';
+            }
+        };
+
+        $nullable = NullableWrapper::make($mockType);
+        self::assertEquals('this is a string', $nullable->testProxy());
+        self::assertEquals('something|null', $nullable->toInputDefinition());
+        self::assertEquals('something|null', $nullable->toOutputDefinition());
+
+        $changedType = $nullable->changeToString();
+        self::assertNotSame($changedType, $nullable);
+        self::assertInstanceOf(NullableWrapper::class, $changedType);
+
+        self::assertEquals('string|null', $changedType->toInputDefinition());
+        self::assertEquals('string|null', $changedType->toOutputDefinition());
+        self::assertEquals('something|null', $nullable->toInputDefinition());
+        self::assertEquals('something|null', $nullable->toOutputDefinition());
+
+        self::assertInstanceOf(StringType::class, $changedType->unwrap());
     }
 
 }

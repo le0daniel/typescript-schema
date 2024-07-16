@@ -5,10 +5,13 @@ namespace TypescriptSchema\Definition\Complex;
 use Closure;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Value;
+use TypescriptSchema\Definition\Shared\Describable;
 use TypescriptSchema\Utils\Utils;
 
 class Field
 {
+    use Describable;
+
     protected Closure $resolvedBy;
     protected bool $isOptional = false;
 
@@ -67,13 +70,17 @@ class Field
      * @return mixed
      *@internal
      */
-    public function resolveToValue(string $fieldName, mixed $data): mixed
+    public function resolveValue(string $fieldName, mixed $data): mixed
     {
         return isset($this->resolvedBy)
             ? ($this->resolvedBy)($data, $fieldName)
             : $this->defaultResolver($data, $fieldName);
     }
 
+    /**
+     * @internal
+     * @return Type
+     */
     public function getType(): Type
     {
         return $this->type;

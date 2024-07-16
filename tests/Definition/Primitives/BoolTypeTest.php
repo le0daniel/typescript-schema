@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Primitives;
+namespace Definition\Primitives;
 
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\BoolType;
