@@ -12,6 +12,12 @@ use TypescriptSchema\Exceptions\ParsingException;
 class ObjectTypeTest extends TestCase
 {
 
+    public function testImmutability(): void
+    {
+        $object = ObjectType::make(['name' => StringType::make()]);
+        self::assertNotSame($object, $object->passThrough());
+    }
+
     public function testObjectTypeDefinition()
     {
         $type = ObjectType::make([

@@ -35,6 +35,13 @@ final class ObjectType extends BaseType
         return new self($definition);
     }
 
+    /**
+     * Pass through additional data that is not declared as fields.
+     * Those will have the type: [key: string]: unknown
+     *
+     * @api
+     * @return $this
+     */
     public function passThrough(): ObjectType
     {
         $instance = clone $this;
@@ -97,6 +104,7 @@ final class ObjectType extends BaseType
     }
 
     /**
+     * This is used internally to locate a field by its name.
      * @internal
      */
     public function getFieldByName(string $name): Field
