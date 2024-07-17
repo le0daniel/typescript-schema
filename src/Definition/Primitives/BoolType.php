@@ -31,7 +31,14 @@ final class BoolType extends PrimitiveType
 
     public function toDefinition(): Definition
     {
-        return Definition::same('any');
+        if ($this->coerce) {
+            return new Definition(
+                "bool|number|null|'true'|'false'",
+                'bool'
+            );
+        }
+
+        return Definition::same('bool');
     }
 
 
