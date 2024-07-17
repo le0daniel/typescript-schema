@@ -73,7 +73,7 @@ final class DateTimeType extends PrimitiveType
         return $this->format ?? self::$DEFAULT_FORMAT;
     }
 
-    public function toFormattedString(?string $format = null): static
+    public function asFormattedString(?string $format = null): static
     {
         $format ??= $this->format;
         return $this->addInternalTransformer(static function (DateTimeImmutable $timeImmutable) use ($format): string {
