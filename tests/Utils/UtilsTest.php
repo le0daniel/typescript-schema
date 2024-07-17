@@ -3,6 +3,8 @@
 namespace TypescriptSchema\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\Mocks\ArrayAccessMock;
+use TypescriptSchema\Tests\Mocks\GettersMock;
 use TypescriptSchema\Utils\Utils;
 
 class UtilsTest extends TestCase
@@ -37,32 +39,8 @@ class UtilsTest extends TestCase
         self::assertTrue(Utils::valueExists('test', $classWithGetter));
         self::assertFalse(Utils::valueExists('other', $classWithGetter));
 
-        $classWithArrayAccess = new class implements \ArrayAccess
-        {
-
-            public function offsetExists(mixed $offset): bool
-            {
-                return $offset === 'test';
-            }
-
-            public function offsetGet(mixed $offset): mixed
-            {
-                // TODO: Implement offsetGet() method.
-            }
-
-            public function offsetSet(mixed $offset, mixed $value): void
-            {
-                // TODO: Implement offsetSet() method.
-            }
-
-            public function offsetUnset(mixed $offset): void
-            {
-                // TODO: Implement offsetUnset() method.
-            }
-        };
-
-        self::assertTrue(Utils::valueExists('test', $classWithArrayAccess));
-        self::assertFalse(Utils::valueExists('other', $classWithArrayAccess));
+        self::assertTrue(Utils::valueExists('test', new ArrayAccessMock(['test' => 1])));
+        self::assertFalse(Utils::valueExists('other', new ArrayAccessMock(['test' => 1])));
     }
 
     public function testExtractValue()
@@ -77,49 +55,10 @@ class UtilsTest extends TestCase
         self::assertSame('one', Utils::extractValue('test', $object));
         self::assertSame(null, Utils::extractValue('other', $object));
 
-        $classWithGetter = new class {
-            public function __isset(string $name): bool
-            {
-                return $name === 'test';
-            }
+        self::assertSame('two', Utils::extractValue('test', new GettersMock(['test' => 'two'])));
+        self::assertSame(null, Utils::extractValue('other', new GettersMock([])));
 
-            public function __get(string $name)
-            {
-                return match ($name) {
-                    'test' => 'two',
-                    default => null,
-                };
-            }
-        };
-
-        self::assertSame('two', Utils::extractValue('test', $classWithGetter));
-        self::assertSame(null, Utils::extractValue('other', $classWithGetter));
-
-        $classWithArrayAccess = new class implements \ArrayAccess
-        {
-
-            public function offsetExists(mixed $offset): bool
-            {
-                return $offset === 'test';
-            }
-
-            public function offsetGet(mixed $offset): mixed
-            {
-                return $offset === 'test' ? 'three' : null;
-            }
-
-            public function offsetSet(mixed $offset, mixed $value): void
-            {
-                // TODO: Implement offsetSet() method.
-            }
-
-            public function offsetUnset(mixed $offset): void
-            {
-                // TODO: Implement offsetUnset() method.
-            }
-        };
-
-        self::assertSame('three', Utils::extractValue('test', $classWithArrayAccess));
-        self::assertSame(null, Utils::extractValue('other', $classWithArrayAccess));
+        self::assertSame('three', Utils::extractValue('test', new ArrayAccessMock(['test' => 'three'])));
+        self::assertSame(null, Utils::extractValue('other', new ArrayAccessMock([])));
     }
 }
