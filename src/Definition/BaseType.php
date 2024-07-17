@@ -43,18 +43,12 @@ abstract class BaseType implements Type
             return $this->overwrittenOutputType;
         }
 
-        $baseDefinition = $this->toDefinition();
-        return $baseDefinition instanceof Definition
-            ? $baseDefinition->output :
-            $baseDefinition;
+        return $this->toDefinition()->output;
     }
 
     final public function toInputDefinition(): string
     {
-        $baseDefinition = $this->toDefinition();
-        return $baseDefinition instanceof Definition
-            ? $baseDefinition->input :
-            $baseDefinition;
+        return $this->toDefinition()->input;
     }
 
     /**

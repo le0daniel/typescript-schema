@@ -2,7 +2,9 @@
 
 namespace TypescriptSchema\Data;
 
-final readonly class Definition
+use Closure;
+
+final readonly class Definition implements \Stringable
 {
 
     public function __construct(
@@ -17,4 +19,8 @@ final readonly class Definition
         return new self($definition, $definition);
     }
 
+    public function __toString(): string
+    {
+        return $this->output;
+    }
 }
