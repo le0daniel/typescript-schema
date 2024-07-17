@@ -39,7 +39,7 @@ final class Schema
         return UnionType::make(...$types);
     }
 
-    public static function literal(string|int|UnitEnum $value): LiteralType
+    public static function literal(string|int|float|bool|UnitEnum $value): LiteralType
     {
         return LiteralType::make($value);
     }

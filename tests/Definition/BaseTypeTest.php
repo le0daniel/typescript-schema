@@ -6,6 +6,7 @@ use Closure;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use TypescriptSchema\Contracts\Validator;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Exceptions\Issue;
@@ -21,9 +22,9 @@ class BaseTypeTest extends TestCase
                 throw new RuntimeException('Something');
             }
 
-            public function toDefinition(): string
+            public function toDefinition(): Definition
             {
-                return '';
+                return Definition::same('');
             }
         };
 
@@ -41,9 +42,9 @@ class BaseTypeTest extends TestCase
                 return Value::INVALID;
             }
 
-            public function toDefinition(): string
+            public function toDefinition(): Definition
             {
-                return '';
+                return Definition::same( '');
             }
         };
 
@@ -70,9 +71,9 @@ class BaseTypeTest extends TestCase
                 return $this->addInternalTransformer($closure);
             }
 
-            public function toDefinition(): string
+            public function toDefinition(): Definition
             {
-                return '';
+                return Definition::same('');
             }
         };
     }

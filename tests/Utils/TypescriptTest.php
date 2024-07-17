@@ -29,6 +29,7 @@ class TypescriptTest extends TestCase
 
     public function testEnumValueString(): void
     {
+        self::assertEquals('never', Typescript::enumValueString(UnitEnumMock::SUCCESS));
         self::assertEquals("'success'", Typescript::enumValueString(StringBackedEnumMock::SUCCESS));
         self::assertEquals("0", Typescript::enumValueString(IntBackedEnumMock::SUCCESS));
     }

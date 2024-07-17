@@ -35,7 +35,7 @@ abstract class BaseType implements Type
      */
     abstract protected function validateAndParseType(mixed $value, Context $context): mixed;
 
-    abstract protected function toDefinition(): string|Definition;
+    abstract protected function toDefinition(): Definition;
 
     final public function toOutputDefinition(): string
     {

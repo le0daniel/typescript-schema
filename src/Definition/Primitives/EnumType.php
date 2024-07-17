@@ -38,7 +38,7 @@ class EnumType extends PrimitiveType
     /**
      * @throws \ReflectionException
      */
-    protected function toDefinition(): string|Definition
+    protected function toDefinition(): Definition
     {
         $inputDefinition = implode('|', array_map(Typescript::enumString(...), $this->enumClassName::cases()));
 

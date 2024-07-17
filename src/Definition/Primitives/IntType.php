@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Definition\Primitives;
 
 use Throwable;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Exceptions\Issue;
 
 /**
@@ -53,8 +54,8 @@ final class IntType extends PrimitiveType
         });
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return 'number';
+        return Definition::same('number');
     }
 }

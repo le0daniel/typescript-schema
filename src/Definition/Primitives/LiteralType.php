@@ -14,20 +14,13 @@ use UnitEnum;
  */
 final class LiteralType extends PrimitiveType 
 {
-    public function __construct(private string|int|bool|UnitEnum|null $literalValue)
+    public function __construct(private readonly string|int|float|bool|UnitEnum|null $literalValue)
     {
     }
 
-    public static function make(string|int|bool|UnitEnum|null $literalValue = null): static
+    public static function make(string|int|float|bool|UnitEnum|null $literalValue = null): static
     {
         return new self($literalValue);
-    }
-
-    public function value(string|int|bool|UnitEnum $literalValue): static
-    {
-        $instance = clone $this;
-        $instance->literalValue = $literalValue;
-        return $instance;
     }
 
     /**
@@ -68,17 +61,16 @@ final class LiteralType extends PrimitiveType
         return $value;
     }
 
-    protected function toDefinition(): string|Definition
+    protected function toDefinition(): Definition
     {
-        if (!$this->literalValue instanceof UnitEnum) {
-            return Typescript::literal($this->literalValue);
+        if ($this->literalValue instanceof UnitEnum) {
+            return new Definition(
+                Typescript::enumString($this->literalValue),
+                Typescript::enumValueString($this->literalValue)
+            );
+
         }
 
-        return new Definition(
-            Typescript::enumString($this->literalValue),
-            $this->literalValue instanceof BackedEnum
-                ? Typescript::literal($this->literalValue->value)
-                : 'never',
-        );
+        return Definition::same(Typescript::literal($this->literalValue));
     }
 }

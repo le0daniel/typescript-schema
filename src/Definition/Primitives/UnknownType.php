@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Helpers\Context;
 
@@ -17,8 +18,8 @@ final class UnknownType extends BaseType
         return $value;
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return 'unknown';
+        return Definition::same('unknown');
     }
 }

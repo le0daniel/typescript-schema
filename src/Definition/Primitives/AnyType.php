@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Helpers\Context;
 
@@ -12,9 +13,9 @@ final class AnyType extends BaseType
         return new self();
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return 'any';
+        return Definition::same('any');
     }
 
     protected function validateAndParseType(mixed $value, Context $context): mixed

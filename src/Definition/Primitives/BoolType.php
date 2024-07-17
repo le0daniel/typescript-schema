@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Exceptions\Issue;
 
 /**
@@ -28,9 +29,9 @@ final class BoolType extends PrimitiveType
         };
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return 'bool';
+        return Definition::same('any');
     }
 
 

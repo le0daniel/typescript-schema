@@ -6,6 +6,8 @@ use UnitEnum;
 
 final class Typescript
 {
+    private const string NEVER = 'never';
+
     public static function literal(string|int|float|bool|null $value): string
     {
         return match (gettype($value)) {
@@ -32,9 +34,11 @@ DOCBLOCK;
         return self::wrapInSingleQuote($enum->name);
     }
 
-    public static function enumValueString(\BackedEnum $enum): string
+    public static function enumValueString(\UnitEnum $enum): string
     {
-        return self::literal($enum->value);
+        return $enum instanceof \BackedEnum
+            ? self::literal($enum->value)
+            : self::NEVER;
     }
 
     private static function boolToStringLiteral(bool $value): string

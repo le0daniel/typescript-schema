@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Exceptions\Issue;
 
 /**
@@ -127,8 +128,8 @@ class StringType extends PrimitiveType
         });
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return 'string';
+        return Definition::same('string');
     }
 }

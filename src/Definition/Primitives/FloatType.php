@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Exceptions\Issue;
 
 /**
@@ -23,9 +24,9 @@ final class FloatType extends PrimitiveType
         return (float) $value;
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return 'number';
+        return Definition::same('number');
     }
 
     protected function coerceValue(mixed $value): mixed

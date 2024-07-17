@@ -47,7 +47,7 @@ class IssueTest extends TestCase
         );
 
         self::assertEquals(
-            "Expected string, got object<TypescriptSchema\Exceptions\Issue>",
+            "Expected string, got object<Issue>",
             Issue::invalidType('string', Issue::invalidType('', ''))->getMessage()
         );
 
