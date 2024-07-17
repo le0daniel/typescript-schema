@@ -7,9 +7,9 @@ use TypescriptSchema\Exceptions\Issue;
 class Context
 {
     public function __construct(
-        public readonly bool $partialResult = false,
-        private array $currentPath = [],
-        private array $issues = [],
+        public readonly bool $allowPartialFailures = false,
+        private array        $currentPath = [],
+        private array        $issues = [],
     )
     {
     }
@@ -22,6 +22,11 @@ class Context
         $clone = clone $this;
         $clone->issues = [];
         return $clone;
+    }
+
+    public function issueCount(): int
+    {
+        return count($this->issues);
     }
 
     public function mergeProbingIssues(Context $context): void

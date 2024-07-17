@@ -3,9 +3,11 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Wrappers\WrapsType;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
@@ -26,6 +28,11 @@ final class UnionType extends BaseType
 
     protected function validateAndParseType(mixed $value, Context $context): mixed
     {
+        // Need to handle the partial mode differently, as null barriers will be accepted.
+        if ($context->allowPartialFailures) {
+            return $this->parseInPartialMode($value, $context);
+        }
+
         $validationContext = $context->cloneForProbing();
 
         foreach ($this->types as $type) {
@@ -41,8 +48,52 @@ final class UnionType extends BaseType
         throw Issue::custom("Value did not match any of the union types.");
     }
 
-    protected function toDefinition(): string
+    private function parseInPartialMode(mixed $value, Context $context): mixed
     {
-        return implode('|', array_map(fn(Type $type) => $type->toDefinition(), $this->types));
+        $allIssues = [];
+        /** @var null|Context $nullableValidationContext */
+        $nullableValidationContext = null;
+
+        foreach ($this->types as $type) {
+            $validationContext = $context->cloneForProbing();
+            $result = $type->execute($value, $validationContext);
+
+            if ($result === Value::INVALID) {
+                array_push($allIssues, ...$validationContext->getIssues());
+                continue;
+            }
+
+            // Full match, or partial match below. This is considered a success.
+            if (!$validationContext->hasIssues() || $result !== null) {
+                $context->mergeProbingIssues($validationContext);
+                return $result;
+            }
+
+            // The value is null, meaning we encountered issues, but there was a nullable barrier.
+            if (!isset($nullableValidationContext)) {
+                $nullableValidationContext = $validationContext;
+            }
+        }
+
+        if ($nullableValidationContext) {
+            $context->mergeProbingIssues($nullableValidationContext);
+            return null;
+        }
+
+        foreach ($allIssues as $issue) {
+            $context->addIssue($issue);
+        }
+        throw Issue::custom('Could not match union to any type');
+    }
+
+    protected function toDefinition(): Definition
+    {
+        $inputDef = array_map(fn(Type $type) => $type->toInputDefinition(), $this->types);
+        $outputDef = array_map(fn(Type $type) => $type->toOutputDefinition(), $this->types);
+
+        return new Definition(
+            implode('|', $inputDef),
+            implode('|', $outputDef)
+        );
     }
 }

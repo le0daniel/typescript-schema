@@ -109,7 +109,7 @@ final class ObjectType extends BaseType
      */
     public function getFieldByName(string $name): Field
     {
-        return $this->definition[$name];
+        return $this->fields()[$name];
     }
 
     protected function toDefinition(): Definition

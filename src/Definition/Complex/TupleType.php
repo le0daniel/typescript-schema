@@ -4,6 +4,7 @@ namespace TypescriptSchema\Definition\Complex;
 
 use RuntimeException;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Shared\IsNullable;
@@ -61,9 +62,14 @@ final class TupleType extends BaseType
         return $parsed;
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        $definitions = array_map(fn(Type $type): string => $type->toDefinition(), $this->types);
-        return '[' . implode(', ', $definitions) . ']';
+        $inputDef = array_map(fn(Type $type): string => $type->toInputDefinition(), $this->types);
+        $outputDef = array_map(fn(Type $type): string => $type->toOutputDefinition(), $this->types);
+
+        return new Definition(
+            '[' . implode(', ', $inputDef) . ']',
+            '[' . implode(', ', $outputDef) . ']'
+        );
     }
 }

@@ -35,7 +35,7 @@ final class LiteralType extends PrimitiveType
      * This is useful for serialization, as you can not JSON serialize UnitEnums that are not backed.
      * @return self
      */
-    public function unitEnumAsString(): static
+    public function enumAsNameString(): static
     {
         return $this->addInternalTransformer(static function (mixed $value) {
             if ($value instanceof UnitEnum) {
@@ -43,7 +43,7 @@ final class LiteralType extends PrimitiveType
             }
 
             return $value;
-        });
+        }, $this->literalValue instanceof UnitEnum ? Typescript::enumString($this->literalValue) : null);
     }
 
     protected function parsePrimitiveType(mixed $value): mixed

@@ -59,7 +59,7 @@ final class NullableWrapper extends WrapsType
         // If a value is set and partial errors are enabled, an error boundary is created
         if ($value !== null) {
             $result = $this->type->execute($value, $context);
-            return $context->partialResult && $result === Value::INVALID
+            return $context->allowPartialFailures && $result === Value::INVALID
                 ? null
                 : $result;
         }

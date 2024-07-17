@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Definition\Shared;
 
 use Closure;
+use TypescriptSchema\Data\Enum\Value;
 
 /**
  * This trait is internal and should not be reused.

@@ -2,11 +2,15 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
+use RuntimeException;
 use Throwable;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
+use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
@@ -16,13 +20,30 @@ final class DiscriminatedUnionType extends BaseType
 
     /**
      * @param string $discriminatorFieldName
-     * @param array<ObjectType> $types
+     * @param array<ObjectType|NullableWrapper<ObjectType>> $types
      */
     protected function __construct(
         private readonly string $discriminatorFieldName,
         private readonly array $types,
     )
     {
+        if (count($this->types) < 2) {
+            throw new RuntimeException("A discriminatory union type must have at least two types.");
+        }
+    }
+
+    /**
+     * @return \Generator<Field>
+     */
+    public function discriminatorFields(): \Generator
+    {
+        foreach ($this->types as $key => $type) {
+            $field = $type->getFieldByName($this->discriminatorFieldName);
+            if (!$field->getType() instanceof LiteralType) {
+                throw new RuntimeException("Discriminatory union field type must be a literal type.");
+            }
+            yield $key => $field;
+        }
     }
 
     public static function make(string $discriminatorFieldName, ObjectType ... $types): self
@@ -30,35 +51,44 @@ final class DiscriminatedUnionType extends BaseType
         return new self($discriminatorFieldName, $types);
     }
 
-    protected function validateAndParseType(mixed $value, Context $context): mixed
+    private function findMatchingType(mixed $value, Context $context): ?Type
     {
-        $probingContext = $context->cloneForProbing();
-
-        foreach ($this->types as $objectType) {
+        foreach ($this->discriminatorFields() as $key => $field) {
             try {
-                $field = $objectType->getFieldByName($this->discriminatorFieldName);
-
-                // Field passes successfully
-                $result = $field->getType()->execute(
-                    $field->resolveValue($this->discriminatorFieldName, $value),
-                    $probingContext
-                );
-            } catch (Throwable $throwable) {
-                $probingContext->addIssue(Issue::captureThrowable($throwable));
+                $fieldValue = $field->resolveValue($this->discriminatorFieldName, $value);
+                $result = $field->getType()->execute($fieldValue, $context);
+                if ($result === Value::INVALID) {
+                    continue;
+                }
+            } catch (Throwable $exception) {
+                $context->addIssue(Issue::captureThrowable($exception));
                 continue;
             }
 
-            if ($result !== Value::INVALID) {
-                return $objectType->execute($value, $context);
-            }
+            return $this->types[$key];
         }
-
-        $context->mergeProbingIssues($context);
-        throw Issue::custom("Value did not match the union types (field: {$this->discriminatorFieldName}).");
     }
 
-    protected function toDefinition(): string
+    protected function validateAndParseType(mixed $value, Context $context): mixed
     {
-        return implode('|', array_map(fn(Type $type) => $type->toDefinition(), $this->types));
+        $matchedType = $this->findMatchingType($value, $probingContext = $context->cloneForProbing());
+
+        if (!$matchedType) {
+            $context->mergeProbingIssues($probingContext);
+            throw Issue::custom("Value did not match the union types (field: {$this->discriminatorFieldName}).");
+        }
+
+        return $matchedType->execute($value, $context);
+    }
+
+    protected function toDefinition(): Definition
+    {
+        $inputDef = array_map(fn(Type $type) => $type->toInputDefinition(), $this->types);
+        $outputDef = array_map(fn(Type $type) => $type->toOutputDefinition(), $this->types);
+
+        return new Definition(
+            implode('|', $inputDef),
+            implode('|', $outputDef)
+        );
     }
 }

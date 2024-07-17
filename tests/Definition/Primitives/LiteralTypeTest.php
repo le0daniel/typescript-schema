@@ -106,8 +106,20 @@ class LiteralTypeTest extends TestCase
     public function testEnumAsNameString()
     {
         $type = LiteralType::make(UnitEnumMock::SUCCESS);
-        self::assertEquals('SUCCESS', $type->unitEnumAsString()->parse('SUCCESS'));
+        self::assertEquals('SUCCESS', $type->enumAsNameString()->parse('SUCCESS'));
         self::assertEquals(UnitEnumMock::SUCCESS, $type->parse('SUCCESS'));
+    }
+
+    public function testEnumAsStringChangesReturnTypeCorrectly(): void
+    {
+        foreach ([UnitEnumMock::SUCCESS, StringBackedEnumMock::ERROR, IntBackedEnumMock::FAILURE] as $enum) {
+            $type = LiteralType::make($enum)->enumAsNameString();
+            self::assertEquals("'{$enum->name}'", $type->toOutputDefinition());
+            self::assertEquals("'{$enum->name}'", $type->toInputDefinition());
+        }
+
+        $type = LiteralType::make(123)->enumAsNameString();
+        self::assertEquals("123", $type->toOutputDefinition());
     }
 
     public function testToDefinition(): void

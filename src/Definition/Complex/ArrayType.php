@@ -2,8 +2,11 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
+use Closure;
+use Generator;
 use Throwable;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Shared\IsNullable;
@@ -27,7 +30,8 @@ final class ArrayType extends BaseType
 
     protected function validateAndParseType(mixed $value, Context $context): array|Value
     {
-        if (!is_iterable($value)) {
+        $value = $value instanceof Closure ? $value() : $value;
+        if (!is_iterable($value) && !$value instanceof Generator) {
             throw Issue::invalidType('iterable', $value);
         }
 
@@ -36,13 +40,13 @@ final class ArrayType extends BaseType
         foreach ($value as $item) {
             $context->enter($index);
             try {
-                $value = $this->type->execute($item, $context);
-                if ($value === Value::INVALID) {
+                $itemValue = $this->type->execute($item, $context);
+                if ($itemValue === Value::INVALID) {
                     // Issues have been collected further down already.
                     return Value::INVALID;
                 }
 
-                $parsed[] = $value;
+                $parsed[] = $itemValue;
                 $index++;
             } catch (Throwable $exception) {
                 $context->addIssue(Issue::captureThrowable($exception));
@@ -55,8 +59,11 @@ final class ArrayType extends BaseType
         return $parsed;
     }
 
-    protected function toDefinition(): string
+    protected function toDefinition(): Definition
     {
-        return "Array<{$this->type->toDefinition()}>";
+        return new Definition(
+            "Array<{$this->type->toInputDefinition()}>",
+            "Array<{$this->type->toOutputDefinition()}>"
+        );
     }
 }

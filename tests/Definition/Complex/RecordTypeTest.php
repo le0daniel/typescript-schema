@@ -2,15 +2,17 @@
 
 namespace TypescriptSchema\Tests\Definition\Complex;
 
-use Iterator;
 use TypescriptSchema\Definition\Complex\RecordType;
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Tests\Definition\TestsParsing;
+use TypescriptSchema\Tests\Mocks\TraversableMock;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 
 class RecordTypeTest extends TestCase
 {
+    use TestsParsing;
 
     public function testDefinition()
     {
@@ -23,55 +25,32 @@ class RecordTypeTest extends TestCase
         self::assertEquals('Record<string,never>', $different->toOutputDefinition());
     }
 
-    public function testExecutionWithArray()
+    public static function parsingDataProvider(): array
     {
-        $record = RecordType::make(StringType::make());
-        self::assertEquals(['name' => 'value', 'email' => 'something'], $record->parse(['name' => 'value', 'email' => 'something']));
-    }
-
-    public function testExecutionWithObject()
-    {
-        $record = RecordType::make(StringType::make());
-
-        $object = new class implements Iterator {
-
-            private int $currentIndex = 0;
-
-            private array $data = [
-                ['name', 'value',],
-                ['email', 'something'],
-                ['wow', 'new'],
-            ];
-
-            public function current(): string
-            {
-                [$key, $value] = $this->data[$this->currentIndex];
-                return $value;
-            }
-
-            public function next(): void
-            {
-                $this->currentIndex++;
-            }
-
-            public function key(): string
-            {
-                [$key, $value] = $this->data[$this->currentIndex];
-                return $key;
-            }
-
-            public function valid(): bool
-            {
-                return $this->currentIndex < count($this->data);
-            }
-
-            public function rewind(): void
-            {
-                $this->currentIndex = 0;
-            }
-        };
-
-        self::assertEquals(['name' => 'value', 'email' => 'something', 'wow' => 'new'], $record->parse($object));
+        return [
+            'array' => [
+                RecordType::make(StringType::make()),
+                [
+                    ['name' => 'value', 'email' => 'something']
+                ],
+                [
+                    ['value', 'email']
+                ]
+            ],
+            'iterator' => [
+                RecordType::make(StringType::make()),
+                [
+                    new TraversableMock([
+                        'name' => 'value',
+                        'email' => 'something',
+                        'wow' => 'new',
+                    ])
+                ],
+                [
+                    new TraversableMock(['one', 'two'])
+                ]
+            ],
+        ];
     }
 
     public function testPathOfIssues()
@@ -82,5 +61,4 @@ class RecordTypeTest extends TestCase
         self::assertCount(1, $result->issues);
         self::assertEquals(['email'], $result->issues[0]->getPath());
     }
-
 }
