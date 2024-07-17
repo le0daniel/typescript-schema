@@ -56,20 +56,20 @@ abstract class BaseType implements Type
             return Value::INVALID;
         }
 
+        if (method_exists($this, 'runInternalTransformers')) {
+            try {
+                $value = $this->runInternalTransformers($value);
+            } catch (Throwable $exception) {
+                $context->addIssue(Issue::captureThrowable($exception));
+                return Value::INVALID;
+            }
+        }
+
         if (!$this->runRefiners($value, $context)) {
             return Value::INVALID;
         }
 
-        if (!method_exists($this, 'runInternalTransformers')) {
-            return $value;
-        }
-
-        try {
-            return $this->runInternalTransformers($value);
-        } catch (Throwable $exception) {
-            $context->addIssue(Issue::captureThrowable($exception));
-            return Value::INVALID;
-        }
+        return $value;
     }
 
 }
