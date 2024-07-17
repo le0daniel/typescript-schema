@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Definition;
+namespace TypescriptSchema\Tests\Definition;
 
 use Closure;
 use PHPUnit\Framework\TestCase;

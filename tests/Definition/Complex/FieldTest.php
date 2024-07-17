@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Definition\Complex;
+namespace TypescriptSchema\Tests\Definition\Complex;
 
-use TypescriptSchema\Definition\Complex\Field;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Primitives\StringType;
 
 class FieldTest extends TestCase

@@ -1,14 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Definition\Primitives;
+namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
-use TypescriptSchema\Exceptions\ParsingException;
 
 class StringTypeTest extends TestCase
 {

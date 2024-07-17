@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Definition\Primitives;
+namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\TestCase;
-use Tests\Mocks\IntBackedEnumMock;
-use Tests\Mocks\StringBackedEnumMock;
-use Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Definition\Primitives\EnumType;
+use TypescriptSchema\Tests\Mocks\IntBackedEnumMock;
+use TypescriptSchema\Tests\Mocks\StringBackedEnumMock;
+use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 
 class EnumTypeTest extends TestCase
 {

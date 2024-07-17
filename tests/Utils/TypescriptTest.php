@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Utils;
+namespace TypescriptSchema\Tests\Utils;
 
-use Tests\Mocks\IntBackedEnumMock;
-use Tests\Mocks\StringBackedEnumMock;
-use Tests\Mocks\UnitEnumMock;
+use TypescriptSchema\Tests\Mocks\IntBackedEnumMock;
+use TypescriptSchema\Tests\Mocks\StringBackedEnumMock;
+use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Utils\Typescript;
 use PHPUnit\Framework\TestCase;
 

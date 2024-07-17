@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Definition\Primitives;
+namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Mocks\IntBackedEnumMock;
-use Tests\Mocks\StringBackedEnumMock;
-use Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Definition\Primitives\LiteralType;
+use TypescriptSchema\Tests\Mocks\IntBackedEnumMock;
+use TypescriptSchema\Tests\Mocks\StringBackedEnumMock;
+use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 
 class LiteralTypeTest extends TestCase
 {

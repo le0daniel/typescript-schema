@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Utils;
+namespace TypescriptSchema\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Utils\Utils;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Definition\Primitives;
+namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

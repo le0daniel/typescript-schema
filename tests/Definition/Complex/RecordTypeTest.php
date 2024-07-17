@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Definition\Complex;
+namespace TypescriptSchema\Tests\Definition\Complex;
 
 use Iterator;
-use Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Definition\Complex\RecordType;
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 
 class RecordTypeTest extends TestCase
 {

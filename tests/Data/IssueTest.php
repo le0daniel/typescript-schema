@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Data;
+namespace TypescriptSchema\Tests\Data;
 
 use PHPUnit\Framework\TestCase;
 use stdClass;

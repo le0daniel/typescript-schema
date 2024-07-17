@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Integration;
+namespace TypescriptSchema\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Schema;
 
