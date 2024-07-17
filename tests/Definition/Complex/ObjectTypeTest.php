@@ -3,12 +3,12 @@
 namespace TypescriptSchema\Tests\Definition\Complex;
 
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Exceptions\ParsingException;
+use TypescriptSchema\Tests\Mocks\GettersMock;
 
 class ObjectTypeTest extends TestCase
 {
@@ -60,12 +60,11 @@ DOC;
 
         self::assertSame(['id' => 1, 'name' => 'my-name'], $type->parse(['id' => 1, 'name' => 'my-name', 'other' => true]));
 
-        $object = new stdClass();
-        $object->name = 'my-other';
-        $object->other = true;
-        $object->id = 123;
-
-        self::assertSame(['id' => 123, 'name' => 'my-other'], $type->parse($object));
+        self::assertSame(['id' => 123, 'name' => 'my-other'], $type->parse(GettersMock::standardObject([
+            'id' => 123,
+            'name' => 'my-other',
+            'other' => true,
+        ])));
     }
 
     public function testFieldResolver()

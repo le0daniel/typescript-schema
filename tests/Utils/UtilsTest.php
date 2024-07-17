@@ -16,28 +16,11 @@ class UtilsTest extends TestCase
         self::assertTrue(Utils::valueExists('test', ['test' => null]));
         self::assertFalse(Utils::valueExists('test', ['other' => null]));
 
-        $object = new \stdClass();
-        $object->test = null;
-        self::assertTrue(Utils::valueExists('test', $object));
-        self::assertFalse(Utils::valueExists('other', $object));
+        self::assertTrue(Utils::valueExists('test', GettersMock::standardObject(['test' => 1])));
+        self::assertFalse(Utils::valueExists('other', GettersMock::standardObject(['test' => 1])));
 
-        $classWithGetter = new class {
-            public function __isset(string $name): bool
-            {
-                return $name === 'test';
-            }
-
-            public function __get(string $name)
-            {
-                return match ($name) {
-                    'test' => 1,
-                    default => null,
-                };
-            }
-        };
-
-        self::assertTrue(Utils::valueExists('test', $classWithGetter));
-        self::assertFalse(Utils::valueExists('other', $classWithGetter));
+        self::assertTrue(Utils::valueExists('test', new GettersMock(['test' => 1])));
+        self::assertFalse(Utils::valueExists('other', new GettersMock([])));
 
         self::assertTrue(Utils::valueExists('test', new ArrayAccessMock(['test' => 1])));
         self::assertFalse(Utils::valueExists('other', new ArrayAccessMock(['test' => 1])));

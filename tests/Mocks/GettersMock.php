@@ -8,6 +8,15 @@ final readonly class GettersMock
     {
     }
 
+    public static function standardObject(array $attributes): \stdClass
+    {
+        $object = new \stdClass();
+        foreach ($attributes as $name => $value) {
+            $object->{$name} = $value;
+        }
+        return $object;
+    }
+
     public function __get(string $name)
     {
         return $this->attributes[$name] ?? null;
