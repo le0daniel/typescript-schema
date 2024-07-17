@@ -64,7 +64,7 @@ class ArrayTypeTest extends TestCase
     public function testDefinitionOfInAndOutput()
     {
         $type = new ArrayType(EnumType::make(UnitEnumMock::class));
-        self::assertEquals("Array<'SUCCESS'|'FAILURE'>", $type->toInputDefinition());
-        self::assertEquals("Array<never>", $type->toOutputDefinition());
+        self::assertEquals("Array<'SUCCESS'|'FAILURE'>", $type->toDefinition()->input);
+        self::assertEquals("Array<never>", $type->toDefinition()->output);
     }
 }

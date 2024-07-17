@@ -27,10 +27,10 @@ class ObjectTypeTest extends TestCase
             'opt' => Field::ofType(StringType::make()->nullable())->optional(),
         ]);
 
-        self::assertSame('{id: string; name: string|null; opt?: string|null;}', $type->toOutputDefinition());
-        self::assertTrue($type->toInputDefinition() === $type->toOutputDefinition());
-        self::assertSame('{id: string; name: string|null; opt?: string|null; [key: string]: unknown;}', $type->passThrough()->toOutputDefinition());
-        self::assertTrue($type->passThrough()->toInputDefinition() === $type->passThrough()->toOutputDefinition());
+        self::assertSame('{id: string; name: string|null; opt?: string|null;}', $type->toDefinition()->output);
+        self::assertTrue($type->toDefinition()->input === $type->toDefinition()->output);
+        self::assertSame('{id: string; name: string|null; opt?: string|null; [key: string]: unknown;}', $type->passThrough()->toDefinition()->output);
+        self::assertTrue($type->passThrough()->toDefinition()->input === $type->passThrough()->toDefinition()->output);
     }
 
     public function testTypeDefinitionWithDocBlock(): void
@@ -46,8 +46,8 @@ class ObjectTypeTest extends TestCase
  * @deprecated
  */id: string; name: string;}
 DOC;
-        self::assertEquals($expectedDescription, $type->toInputDefinition());
-        self::assertEquals($expectedDescription, $type->toOutputDefinition());
+        self::assertEquals($expectedDescription, $type->toDefinition()->input);
+        self::assertEquals($expectedDescription, $type->toDefinition()->output);
     }
 
     public function testParsing(): void

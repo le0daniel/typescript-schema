@@ -4,6 +4,7 @@ namespace TypescriptSchema\Definition\Wrappers;
 
 use RuntimeException;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Definition\Shared\ParsesInput;
 use TypescriptSchema\Helpers\Context;
 
@@ -79,7 +80,7 @@ abstract class WrapsType implements Type
         return $this->type->execute($value, $context);
     }
 
-    protected function toDefinition(): string
+    public function toDefinition(): Definition
     {
         return $this->type->toDefinition();
     }

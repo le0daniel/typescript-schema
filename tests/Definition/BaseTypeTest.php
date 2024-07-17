@@ -9,6 +9,7 @@ use TypescriptSchema\Contracts\Validator;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
+use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
@@ -56,6 +57,7 @@ class BaseTypeTest extends TestCase
     private function openMock()
     {
         return new class extends BaseType {
+            use InternalTransformers;
             protected function validateAndParseType(mixed $value, Context $context): mixed
             {
                 return $value;

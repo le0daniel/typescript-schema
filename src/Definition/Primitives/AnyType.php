@@ -13,7 +13,7 @@ final class AnyType extends BaseType
         return new self();
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         return Definition::same('any');
     }

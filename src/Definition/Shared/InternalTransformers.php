@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Definition\Shared;
 
 use Closure;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 
 /**
@@ -40,5 +41,12 @@ trait InternalTransformers
             fn(mixed $value, Closure $transformer) => $transformer($value),
             $value
         );
+    }
+
+    protected function applyTransformerToDefinition(Definition $definition): Definition
+    {
+        return $this->overwrittenOutputType
+            ? new Definition($definition->input, $this->overwrittenOutputType)
+            : $definition;
     }
 }

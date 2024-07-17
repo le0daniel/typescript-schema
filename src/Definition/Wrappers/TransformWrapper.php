@@ -5,6 +5,7 @@ namespace TypescriptSchema\Definition\Wrappers;
 use Closure;
 use Throwable;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\IsNullable;
 use TypescriptSchema\Definition\Shared\Refinable;
@@ -15,8 +16,6 @@ use TypescriptSchema\Helpers\Context;
 final class TransformWrapper extends WrapsType
 {
     use IsNullable, Refinable, Transformable;
-
-
 
     protected function __construct(
         Type                                 $type,
@@ -61,18 +60,9 @@ final class TransformWrapper extends WrapsType
     {
     }
 
-    public function toInputDefinition(): string
+    public function toDefinition(): Definition
     {
-        return $this->type->toInputDefinition();
-    }
-
-    public function toOutputDefinition(): string
-    {
-        return match (true) {
-            is_string($this->outputDefinition) => $this->outputDefinition,
-            $this->outputDefinition instanceof Closure => ($this->outputDefinition)($this->type->toOutputDefinition()),
-            // As the type is no longer known, it is returned as any.
-            default => 'unknown',
-        };
+        return $this->type->toDefinition()
+            ->overwriteOutput($this->outputDefinition);
     }
 }

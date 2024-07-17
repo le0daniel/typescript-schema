@@ -42,8 +42,8 @@ class FloatTypeTest extends TestCase
 
     public function testDefinition():void
     {
-        self::assertEquals('number', FloatType::make()->toOutputDefinition());
-        self::assertEquals('number', FloatType::make()->toInputDefinition());
+        self::assertEquals('number', FloatType::make()->toDefinition()->output);
+        self::assertEquals('number', FloatType::make()->toDefinition()->input);
     }
 
 }

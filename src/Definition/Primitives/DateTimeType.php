@@ -6,10 +6,13 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Exceptions\Issue;
 
 final class DateTimeType extends PrimitiveType
 {
+    use InternalTransformers;
+
     private static string $DEFAULT_FORMAT = DateTime::ATOM;
 
     /**
@@ -78,13 +81,15 @@ final class DateTimeType extends PrimitiveType
         }, 'string');
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         // Datetime has a different format for input and output, as by default when using json_serialize
         // it creates an object containing, date, timezone_type and timezone.
-        return new Definition(
-            'string',
-            '{date: string, timezone_type: number, timezone: string}'
+        return $this->applyTransformerToDefinition(
+            new Definition(
+                'string',
+                '{date: string, timezone_type: number, timezone: string}'
+            )
         );
     }
 }

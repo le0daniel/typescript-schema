@@ -4,6 +4,7 @@ namespace TypescriptSchema\Definition\Wrappers;
 
 use RuntimeException;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\PrimitiveType;
 use TypescriptSchema\Helpers\Context;
@@ -76,13 +77,8 @@ final class NullableWrapper extends WrapsType
         return null;
     }
 
-    public function toInputDefinition(): string
+    public function toDefinition(): Definition
     {
-        return $this->type->toInputDefinition() . '|null';
-    }
-
-    public function toOutputDefinition(): string
-    {
-        return $this->type->toOutputDefinition() . '|null';
+        return $this->type->toDefinition()->wrap(fn(string $previous): string => "{$previous}|null");
     }
 }

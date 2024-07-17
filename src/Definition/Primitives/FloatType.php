@@ -24,7 +24,7 @@ final class FloatType extends PrimitiveType
         return (float) $value;
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         return Definition::same('number');
     }

@@ -12,8 +12,8 @@ class AnyTypeTest extends TestCase
 
     public function testToDefinition()
     {
-        self::assertEquals('any', AnyType::make()->toInputDefinition());
-        self::assertEquals('any', AnyType::make()->toOutputDefinition());
+        self::assertEquals('any', AnyType::make()->toDefinition()->input);
+        self::assertEquals('any', AnyType::make()->toDefinition()->output);
     }
 
     public static function parsingDataProvider(): array

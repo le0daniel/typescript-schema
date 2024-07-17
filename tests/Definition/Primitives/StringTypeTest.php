@@ -11,11 +11,11 @@ class StringTypeTest extends TestCase
 {
     public function testTypescriptDefinition(): void
     {
-        self::assertSame('string', StringType::make()->toInputDefinition());
-        self::assertSame('string', StringType::make()->toOutputDefinition());
-        self::assertSame('string', StringType::make()->lowerCase()->toOutputDefinition());
-        self::assertSame('string', StringType::make()->upperCase()->toOutputDefinition());
-        self::assertSame('string', StringType::make()->trim()->toOutputDefinition());
+        self::assertSame('string', StringType::make()->toDefinition()->input);
+        self::assertSame('string', StringType::make()->toDefinition()->output);
+        self::assertSame('string', StringType::make()->lowerCase()->toDefinition()->output);
+        self::assertSame('string', StringType::make()->upperCase()->toDefinition()->output);
+        self::assertSame('string', StringType::make()->trim()->toDefinition()->output);
     }
 
     private function wrap(mixed $value): array

@@ -18,7 +18,7 @@ final class UnknownType extends BaseType
         return $value;
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         return Definition::same('unknown');
     }

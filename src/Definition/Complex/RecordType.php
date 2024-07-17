@@ -57,11 +57,11 @@ final class RecordType extends BaseType
         return $values;
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         return new Definition(
-            "Record<string,{$this->ofType->toInputDefinition()}>",
-            "Record<string,{$this->ofType->toOutputDefinition()}>",
+            "Record<string,{$this->ofType->toDefinition()->input}>",
+            "Record<string,{$this->ofType->toDefinition()->output}>",
         );
     }
 }

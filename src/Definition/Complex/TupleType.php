@@ -62,10 +62,10 @@ final class TupleType extends BaseType
         return $parsed;
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
-        $inputDef = array_map(fn(Type $type): string => $type->toInputDefinition(), $this->types);
-        $outputDef = array_map(fn(Type $type): string => $type->toOutputDefinition(), $this->types);
+        $inputDef = array_map(fn(Type $type): string => $type->toDefinition()->input, $this->types);
+        $outputDef = array_map(fn(Type $type): string => $type->toDefinition()->output, $this->types);
 
         return new Definition(
             '[' . implode(', ', $inputDef) . ']',

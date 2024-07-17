@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Contracts;
 
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Helpers\Context;
 
@@ -19,6 +20,6 @@ interface Type
      * @internal
      */
     public function execute(mixed $value, Context $context): mixed;
-    public function toInputDefinition(): string;
-    public function toOutputDefinition(): string;
+
+    public function toDefinition(): Definition;
 }

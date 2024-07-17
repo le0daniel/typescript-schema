@@ -86,14 +86,8 @@ final class UnionType extends BaseType
         throw Issue::custom('Could not match union to any type');
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
-        $inputDef = array_map(fn(Type $type) => $type->toInputDefinition(), $this->types);
-        $outputDef = array_map(fn(Type $type) => $type->toOutputDefinition(), $this->types);
-
-        return new Definition(
-            implode('|', $inputDef),
-            implode('|', $outputDef)
-        );
+        return Definition::join('|', ... $this->types);
     }
 }

@@ -13,10 +13,10 @@ class DateTimeTypeTest extends TestCase
 
     public function testDefinition()
     {
-        self::assertEquals('string', DateTimeType::make()->toInputDefinition());
-        self::assertEquals('{date: string, timezone_type: number, timezone: string}', DateTimeType::make()->toOutputDefinition());
-        self::assertEquals('string', DateTimeType::make()->toFormattedString()->toOutputDefinition());
-        self::assertEquals('string|null', DateTimeType::make()->toFormattedString()->nullable()->toOutputDefinition());
+        self::assertEquals('string', DateTimeType::make()->toDefinition()->input);
+        self::assertEquals('{date: string, timezone_type: number, timezone: string}', DateTimeType::make()->toDefinition()->output);
+        self::assertEquals('string', DateTimeType::make()->toFormattedString()->toDefinition()->output);
+        self::assertEquals('string|null', DateTimeType::make()->toFormattedString()->nullable()->toDefinition()->output);
     }
 
     public function testsReturnsInstanceOfDateTimeImmutable(): void

@@ -5,6 +5,7 @@ namespace TypescriptSchema\Definition\Primitives;
 use BackedEnum;
 use RuntimeException;
 use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Utils\Typescript;
 use UnitEnum;
@@ -14,6 +15,8 @@ use UnitEnum;
  */
 final class LiteralType extends PrimitiveType 
 {
+    use InternalTransformers;
+
     public function __construct(private readonly string|int|float|bool|UnitEnum|null $literalValue)
     {
     }
@@ -61,16 +64,15 @@ final class LiteralType extends PrimitiveType
         return $value;
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
-        if ($this->literalValue instanceof UnitEnum) {
-            return new Definition(
+        $definition = $this->literalValue instanceof UnitEnum
+            ? new Definition(
                 Typescript::enumString($this->literalValue),
                 Typescript::enumValueString($this->literalValue)
-            );
+            )
+            : Definition::same(Typescript::literal($this->literalValue));
 
-        }
-
-        return Definition::same(Typescript::literal($this->literalValue));
+        return $this->applyTransformerToDefinition($definition);
     }
 }

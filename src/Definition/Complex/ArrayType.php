@@ -59,11 +59,10 @@ final class ArrayType extends BaseType
         return $parsed;
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
-        return new Definition(
-            "Array<{$this->type->toInputDefinition()}>",
-            "Array<{$this->type->toOutputDefinition()}>"
-        );
+        return $this->type
+            ->toDefinition()
+            ->wrap(fn(string $definition) => "Array<{$definition}>");
     }
 }

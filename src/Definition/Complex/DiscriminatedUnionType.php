@@ -83,14 +83,8 @@ final class DiscriminatedUnionType extends BaseType
         return $matchedType->execute($value, $context);
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
-        $inputDef = array_map(fn(Type $type) => $type->toInputDefinition(), $this->types);
-        $outputDef = array_map(fn(Type $type) => $type->toOutputDefinition(), $this->types);
-
-        return new Definition(
-            implode('|', $inputDef),
-            implode('|', $outputDef)
-        );
+        return Definition::join('|', ...$this->types);
     }
 }

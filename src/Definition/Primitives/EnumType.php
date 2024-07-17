@@ -4,12 +4,15 @@ namespace TypescriptSchema\Definition\Primitives;
 
 use ReflectionEnum;
 use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Utils\Typescript;
 use UnitEnum;
 
 class EnumType extends PrimitiveType
 {
+    use InternalTransformers;
+
     /**
      * @template T of UnitEnum
      * @param class-string<T> $enumClassName
@@ -38,9 +41,13 @@ class EnumType extends PrimitiveType
     /**
      * @throws \ReflectionException
      */
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         $inputDefinition = implode('|', array_map(Typescript::enumString(...), $this->enumClassName::cases()));
+
+        if ($this->overwrittenOutputType) {
+            return new Definition($inputDefinition, $this->overwrittenOutputType);
+        }
 
         $reflection = new ReflectionEnum($this->enumClassName);
         if (!$reflection->isBacked()) {

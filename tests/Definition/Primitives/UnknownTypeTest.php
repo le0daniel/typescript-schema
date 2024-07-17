@@ -9,8 +9,8 @@ class UnknownTypeTest extends TestCase
 {
     public function testToDefinition()
     {
-        self::assertEquals('unknown', UnknownType::make()->toInputDefinition());
-        self::assertEquals('unknown', UnknownType::make()->toOutputDefinition());
+        self::assertEquals('unknown', UnknownType::make()->toDefinition()->input);
+        self::assertEquals('unknown', UnknownType::make()->toDefinition()->output);
     }
 
     public function testParse()

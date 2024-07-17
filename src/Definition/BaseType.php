@@ -6,7 +6,6 @@ use Throwable;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Definition\Shared\ParsesInput;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -16,7 +15,7 @@ use TypescriptSchema\Helpers\Context;
 
 abstract class BaseType implements Type
 {
-    use InternalTransformers, Transformable, Validators, Refinable, ParsesInput;
+    use Transformable, Validators, Refinable, ParsesInput;
 
     /**
      * Given a value and context, validate the value and return with the right type.
@@ -35,21 +34,7 @@ abstract class BaseType implements Type
      */
     abstract protected function validateAndParseType(mixed $value, Context $context): mixed;
 
-    abstract protected function toDefinition(): Definition;
-
-    final public function toOutputDefinition(): string
-    {
-        if ($this->overwrittenOutputType) {
-            return $this->overwrittenOutputType;
-        }
-
-        return $this->toDefinition()->output;
-    }
-
-    final public function toInputDefinition(): string
-    {
-        return $this->toDefinition()->input;
-    }
+    abstract public function toDefinition(): Definition;
 
     /**
      * This is the function run when parsing.
@@ -73,6 +58,10 @@ abstract class BaseType implements Type
 
         if (!$this->runRefiners($value, $context)) {
             return Value::INVALID;
+        }
+
+        if (!method_exists($this, 'runInternalTransformers')) {
+            return $value;
         }
 
         try {

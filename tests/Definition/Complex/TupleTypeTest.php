@@ -33,11 +33,11 @@ class TupleTypeTest extends TestCase
     public function testToDefinition(): void
     {
         $type = TupleType::make(StringType::make(), IntType::make());
-        self::assertEquals('[string, number]', $type->toInputDefinition());
-        self::assertEquals('[string, number]', $type->toOutputDefinition());
+        self::assertEquals('[string, number]', $type->toDefinition()->input);
+        self::assertEquals('[string, number]', $type->toDefinition()->output);
 
         $type = TupleType::make(StringType::make(), IntType::make()->transform(fn() => true, 'boolean'));
-        self::assertEquals('[string, number]', $type->toInputDefinition());
-        self::assertEquals('[string, boolean]', $type->toOutputDefinition());
+        self::assertEquals('[string, number]', $type->toDefinition()->input);
+        self::assertEquals('[string, boolean]', $type->toDefinition()->output);
     }
 }

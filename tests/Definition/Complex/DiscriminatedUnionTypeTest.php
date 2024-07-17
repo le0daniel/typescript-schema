@@ -27,8 +27,8 @@ class DiscriminatedUnionTypeTest extends TestCase
             ObjectType::make(['type' => LiteralType::make('failure')])
         );
 
-        self::assertEquals("{type: 'success';}|{type: 'failure';}", $type->toInputDefinition());
-        self::assertEquals("{type: 'success';}|{type: 'failure';}", $type->toOutputDefinition());
+        self::assertEquals("{type: 'success';}|{type: 'failure';}", $type->toDefinition()->input);
+        self::assertEquals("{type: 'success';}|{type: 'failure';}", $type->toDefinition()->output);
     }
 
 

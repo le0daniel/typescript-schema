@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Tests\Definition\Wrappers;
 
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Wrappers\TransformWrapper;
 use PHPUnit\Framework\TestCase;
@@ -42,7 +43,7 @@ class TransformWrapperTest extends TestCase
             fn() => 'wow',
         );
 
-        self::assertEquals('string', $type->toInputDefinition());
+        self::assertEquals('string', $type->toDefinition()->input);
     }
 
     public function testToOutputDefinitionWithoutValue()
@@ -52,7 +53,7 @@ class TransformWrapperTest extends TestCase
             fn() => 'wow',
         );
 
-        self::assertEquals('unknown', $type->toOutputDefinition());
+        self::assertEquals('unknown', $type->toDefinition()->output);
     }
 
     public function testToOutputDefinitionWithStringDefinition()
@@ -63,7 +64,7 @@ class TransformWrapperTest extends TestCase
             Typescript::literal('wow')
         );
 
-        self::assertEquals("'wow'", $type->toOutputDefinition());
+        self::assertEquals("'wow'", $type->toDefinition()->output);
     }
 
     public function testToOutputDefinitionWithClosureDefinition()
@@ -71,9 +72,9 @@ class TransformWrapperTest extends TestCase
         $type = TransformWrapper::make(
             StringType::make(),
             fn() => 'wow',
-            fn(string $previous) => "Array<{$previous}|null>"
+            fn(Definition $previous) => "Array<{$previous->output}|null>"
         );
 
-        self::assertEquals("Array<string|null>", $type->toOutputDefinition());
+        self::assertEquals("Array<string|null>", $type->toDefinition()->output);
     }
 }

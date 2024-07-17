@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Definition\Primitives;
 
 use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Exceptions\Issue;
 
 /**
@@ -10,10 +11,12 @@ use TypescriptSchema\Exceptions\Issue;
  */
 class StringType extends PrimitiveType 
 {
+    use InternalTransformers;
+
     protected function parsePrimitiveType(mixed $value): string
     {
         if (!is_string($value)) {
-            throw Issue::invalidType($this->toDefinition(), $value);
+            throw Issue::invalidType($this->toDefinition()->input, $value);
         }
 
         return (string) $value;
@@ -128,7 +131,7 @@ class StringType extends PrimitiveType
         });
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         return Definition::same('string');
     }

@@ -17,12 +17,12 @@ class RecordTypeTest extends TestCase
     public function testDefinition()
     {
         $same = RecordType::make(StringType::make());
-        self::assertEquals('Record<string,string>', $same->toInputDefinition());
-        self::assertEquals('Record<string,string>', $same->toOutputDefinition());
+        self::assertEquals('Record<string,string>', $same->toDefinition()->input);
+        self::assertEquals('Record<string,string>', $same->toDefinition()->output);
 
         $different = RecordType::make(LiteralType::make(UnitEnumMock::SUCCESS));
-        self::assertEquals("Record<string,'SUCCESS'>", $different->toInputDefinition());
-        self::assertEquals('Record<string,never>', $different->toOutputDefinition());
+        self::assertEquals("Record<string,'SUCCESS'>", $different->toDefinition()->input);
+        self::assertEquals('Record<string,never>', $different->toDefinition()->output);
     }
 
     public static function parsingDataProvider(): array

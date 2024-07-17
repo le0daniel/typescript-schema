@@ -29,7 +29,7 @@ final class BoolType extends PrimitiveType
         };
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         return Definition::same('any');
     }

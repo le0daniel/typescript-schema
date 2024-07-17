@@ -112,15 +112,15 @@ final class ObjectType extends BaseType
         return $this->fields()[$name];
     }
 
-    protected function toDefinition(): Definition
+    public function toDefinition(): Definition
     {
         $definitions = [];
 
         foreach ($this->fields() as $name => $field) {
             $typeName = $field->isOptional() ? "{$name}?" : $name;
             $definitions[] = [
-                "{$field->getDocBlock()}{$typeName}: {$field->getType()->toInputDefinition()};",
-                "{$field->getDocBlock()}{$typeName}: {$field->getType()->toOutputDefinition()};",
+                "{$field->getDocBlock()}{$typeName}: {$field->getType()->toDefinition()->input};",
+                "{$field->getDocBlock()}{$typeName}: {$field->getType()->toDefinition()->output};",
             ];
         }
 

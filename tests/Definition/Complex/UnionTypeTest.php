@@ -57,11 +57,11 @@ class UnionTypeTest extends TestCase
     public function testToDefinition()
     {
         $type = UnionType::make(StringType::make(), IntType::make());
-        self::assertEquals('string|number', $type->toInputDefinition());
-        self::assertEquals('string|number', $type->toOutputDefinition());
+        self::assertEquals('string|number', $type->toDefinition()->input);
+        self::assertEquals('string|number', $type->toDefinition()->output);
 
         $type = UnionType::make(StringType::make(), IntType::make()->transform(fn() => 'some', Typescript::literal('some')));
-        self::assertEquals('string|number', $type->toInputDefinition());
-        self::assertEquals('string|\'some\'', $type->toOutputDefinition());
+        self::assertEquals('string|number', $type->toDefinition()->input);
+        self::assertEquals('string|\'some\'', $type->toDefinition()->output);
     }
 }

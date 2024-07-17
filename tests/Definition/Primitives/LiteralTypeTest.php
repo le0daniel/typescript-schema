@@ -114,29 +114,29 @@ class LiteralTypeTest extends TestCase
     {
         foreach ([UnitEnumMock::SUCCESS, StringBackedEnumMock::ERROR, IntBackedEnumMock::FAILURE] as $enum) {
             $type = LiteralType::make($enum)->enumAsNameString();
-            self::assertEquals("'{$enum->name}'", $type->toOutputDefinition());
-            self::assertEquals("'{$enum->name}'", $type->toInputDefinition());
+            self::assertEquals("'{$enum->name}'", $type->toDefinition()->output);
+            self::assertEquals("'{$enum->name}'", $type->toDefinition()->input);
         }
 
         $type = LiteralType::make(123)->enumAsNameString();
-        self::assertEquals("123", $type->toOutputDefinition());
+        self::assertEquals("123", $type->toDefinition()->output);
     }
 
     public function testToDefinition(): void
     {
-        self::assertEquals("'Test'", LiteralType::make('Test')->toOutputDefinition());
-        self::assertEquals('true', LiteralType::make(true)->toOutputDefinition());
-        self::assertEquals('false', LiteralType::make(false)->toOutputDefinition());
-        self::assertEquals('145', LiteralType::make(145)->toOutputDefinition());
+        self::assertEquals("'Test'", LiteralType::make('Test')->toDefinition()->output);
+        self::assertEquals('true', LiteralType::make(true)->toDefinition()->output);
+        self::assertEquals('false', LiteralType::make(false)->toDefinition()->output);
+        self::assertEquals('145', LiteralType::make(145)->toDefinition()->output);
 
-        self::assertEquals("never", LiteralType::make(UnitEnumMock::SUCCESS)->toOutputDefinition());
-        self::assertEquals("'SUCCESS'", LiteralType::make(UnitEnumMock::SUCCESS)->toInputDefinition());
+        self::assertEquals("never", LiteralType::make(UnitEnumMock::SUCCESS)->toDefinition()->output);
+        self::assertEquals("'SUCCESS'", LiteralType::make(UnitEnumMock::SUCCESS)->toDefinition()->input);
 
-        self::assertEquals("0", LiteralType::make(IntBackedEnumMock::SUCCESS)->toOutputDefinition());
-        self::assertEquals("'SUCCESS'", LiteralType::make(IntBackedEnumMock::SUCCESS)->toInputDefinition());
+        self::assertEquals("0", LiteralType::make(IntBackedEnumMock::SUCCESS)->toDefinition()->output);
+        self::assertEquals("'SUCCESS'", LiteralType::make(IntBackedEnumMock::SUCCESS)->toDefinition()->input);
 
-        self::assertEquals("'success'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toOutputDefinition());
-        self::assertEquals("'SUCCESS'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toInputDefinition());
+        self::assertEquals("'success'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toDefinition()->output);
+        self::assertEquals("'SUCCESS'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toDefinition()->input);
 
     }
 
