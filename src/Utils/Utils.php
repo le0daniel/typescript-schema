@@ -13,6 +13,10 @@ final class Utils
             return array_key_exists($key, $arrayOrObject);
         }
 
+        if (!is_object($arrayOrObject)) {
+            return false;
+        }
+
         if ($arrayOrObject instanceof ArrayAccess) {
             return $arrayOrObject->offsetExists($key);
         }

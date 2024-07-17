@@ -89,7 +89,7 @@ abstract class PrimitiveType extends BaseType
         $value ??= $this->getDefaultValue();
 
         if (null === $value) {
-            throw Issue::invalidType($this->toDefinition(), $value)->fatal();
+            throw Issue::invalidType($this->toDefinition()->input, $value)->fatal();
         }
 
         /** @var T $value */

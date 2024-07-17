@@ -68,6 +68,11 @@ final class ObjectType extends BaseType
      */
     protected function validateAndParseType(mixed $value, Context $context): array|Value
     {
+        if ($value === null) {
+            $context->addIssue(Issue::invalidType('array', $value));
+            return Value::INVALID;
+        }
+
         $parsed = [];
 
         foreach ($this->fields() as $name => $field) {
