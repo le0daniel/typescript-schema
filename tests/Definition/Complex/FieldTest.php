@@ -15,6 +15,7 @@ class FieldTest extends TestCase
         self::assertNotSame($field, $field->optional());
         self::assertNotSame($field, $field->describe('Something'));
         self::assertNotSame($field, $field->deprecated('Something'));
+        self::assertNotSame($field, $field->onlyOutput());
     }
 
     public function testDescriptionDocBlock(): void

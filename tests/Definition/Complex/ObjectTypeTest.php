@@ -33,6 +33,16 @@ class ObjectTypeTest extends TestCase
         self::assertTrue($type->passThrough()->toDefinition()->input === $type->passThrough()->toDefinition()->output);
     }
 
+    public function testOnlyOutputDefinition(): void
+    {
+        $type = ObjectType::make([
+            'id' => StringType::make(),
+            'name' => Field::ofType(StringType::make())->onlyOutput(),
+        ]);
+        self::assertSame('{id: string; }', $type->toDefinition()->input);
+        self::assertSame('{id: string; name: string;}', $type->toDefinition()->output);
+    }
+
     public function testTypeDefinitionWithDocBlock(): void
     {
         $type = ObjectType::make([

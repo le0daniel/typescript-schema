@@ -15,11 +15,18 @@ class Field
 
     protected Closure $resolvedBy;
     protected bool $isOptional = false;
-
     protected array|null $deprecated = null;
+    protected bool $isOnlyOutput = false;
 
     public function __construct(protected Type $type)
     {
+    }
+
+    public function onlyOutput(): self
+    {
+        $instance = clone $this;
+        $instance->isOnlyOutput = true;
+        return $instance;
     }
 
     public function optional(): self
@@ -50,6 +57,15 @@ class Field
         $instance = clone $this;
         $instance->resolvedBy = $resolvedBy;
         return $instance;
+    }
+
+    /**
+     * @internal
+     * @return bool
+     */
+    public function isIsOnlyOutput(): bool
+    {
+        return $this->isOnlyOutput;
     }
 
     private function defaultResolver(mixed $data, string $fieldName): mixed
