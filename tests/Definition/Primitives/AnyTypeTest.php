@@ -4,9 +4,11 @@ namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\AnyType;
+use TypescriptSchema\Tests\Definition\TestsParsing;
 
 class AnyTypeTest extends TestCase
 {
+    use TestsParsing;
 
     public function testToDefinition()
     {
@@ -14,10 +16,13 @@ class AnyTypeTest extends TestCase
         self::assertEquals('any', AnyType::make()->toOutputDefinition());
     }
 
-    public function testParse()
+    public static function parsingDataProvider(): array
     {
-        self::assertEquals(null, AnyType::make()->parse(null));
-        self::assertEquals('string', AnyType::make()->parse('string'));
-        self::assertEquals(['string'], AnyType::make()->parse(['string']));
+        return [
+            'null' => [
+                AnyType::make(),
+                [null, 'string', new \stdClass()]
+            ]
+        ];
     }
 }

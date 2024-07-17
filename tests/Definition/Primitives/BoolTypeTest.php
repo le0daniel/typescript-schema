@@ -4,9 +4,11 @@ namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\BoolType;
+use TypescriptSchema\Tests\Definition\TestsParsing;
 
 class BoolTypeTest extends TestCase
 {
+    use TestsParsing;
 
     public function testImmutability(): void
     {
@@ -14,22 +16,19 @@ class BoolTypeTest extends TestCase
         self::assertNotSame($type, $type->coerce());
     }
 
-    public function testBoolType(): void {
-        $type = BoolType::make();
-
-        self::assertTrue($type->parse(true));
-        self::assertFalse($type->parse(false));
-
-        $nonStrict = BoolType::make()->coerce();
-        self::assertTrue($nonStrict->parse(true));
-        self::assertTrue($nonStrict->parse(1));
-        self::assertTrue($nonStrict->parse('1'));
-        self::assertTrue($nonStrict->parse('true'));
-
-        self::assertFalse($nonStrict->parse(false));
-        self::assertFalse($nonStrict->parse(0));
-        self::assertFalse($nonStrict->parse('0'));
-        self::assertFalse($nonStrict->parse('false'));
+    public static function parsingDataProvider(): array
+    {
+        return [
+            'bool strict' => [
+                BoolType::make(),
+                [true, false],
+                [1, '1', 'true', '0', -1, 0, 'false', new \stdClass()]
+            ],
+            'bool coerce' => [
+                BoolType::make()->coerce(),
+                [true, false, 1, '1', 'true', '0', 0, 'false'],
+                [-1, new \stdClass(), []]
+            ]
+        ];
     }
-
 }

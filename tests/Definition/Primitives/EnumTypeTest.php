@@ -40,6 +40,7 @@ class EnumTypeTest extends TestCase
         self::assertEquals("'SUCCESS'|'FAILURE'", $intEnumSchema->toInputDefinition());
     }
 
+
     public function testSuccessfulParse()
     {
         self::assertEquals(

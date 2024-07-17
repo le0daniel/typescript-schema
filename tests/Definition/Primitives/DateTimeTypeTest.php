@@ -5,9 +5,11 @@ namespace TypescriptSchema\Tests\Definition\Primitives;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\DateTimeType;
+use TypescriptSchema\Tests\Definition\TestsParsing;
 
 class DateTimeTypeTest extends TestCase
 {
+    use TestsParsing;
 
     public function testDefinition()
     {
@@ -17,13 +19,20 @@ class DateTimeTypeTest extends TestCase
         self::assertEquals('string|null', DateTimeType::make()->toFormattedString()->nullable()->toOutputDefinition());
     }
 
-    public function testToStringTransformation(): void
+    public function testsReturnsInstanceOfDateTimeImmutable(): void
     {
         $type = DateTimeType::make('Y-m-d H:i:s');
-        self::assertTrue($type->safeParse(DateTimeImmutable::createFromFormat('Y', '2024'))->isSuccess());
-        self::assertTrue($type->safeParse('2023-12-29 18:56:01')->isSuccess());
         self::assertInstanceOf(DateTimeImmutable::class, $type->parse('2023-12-29 18:56:01'));
-        self::assertEquals('2023-12-29 18:56:01', $type->toFormattedString()->parse('2023-12-29 18:56:01'));
     }
 
+    public static function parsingDataProvider(): array
+    {
+        return [
+            'with datetime instance' => [
+                DateTimeType::make('Y-m-d H:i:s'),
+                ['2023-12-29 18:56:01', new DateTimeImmutable('2023-12-29 18:56:01')],
+                [new \stdClass(), [], true, false, -100, '100']
+            ]
+        ];
+    }
 }
