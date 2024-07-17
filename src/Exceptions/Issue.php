@@ -4,12 +4,13 @@ namespace TypescriptSchema\Exceptions;
 
 use Exception;
 use JsonSerializable;
+use Stringable;
 use Throwable;
 use TypescriptSchema\Data\Enum\IssueType;
 use TypescriptSchema\Data\Enum\SerializationMode;
 use TypescriptSchema\Utils\Serialize;
 
-final class Issue extends Exception implements JsonSerializable
+final class Issue extends Exception implements JsonSerializable, Stringable
 {
     private const array REMOVE_METADATA_IN_LIMITED_MODE = ['actual'];
 
@@ -175,5 +176,10 @@ final class Issue extends Exception implements JsonSerializable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    public function __toString(): string
+    {
+        return $this->message;
     }
 }
