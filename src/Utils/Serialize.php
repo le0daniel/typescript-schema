@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Utils;
 
+use Closure;
 use stdClass;
 
 final class Serialize
@@ -12,9 +13,12 @@ final class Serialize
         return match (gettype($type)) {
             'string' => "string<'{$type}'>",
             'integer' => "int<{$type}>",
+            'double' => "float<{$type}>",
             'object' => self::safePrintObject($type),
             'boolean' => self::safePrintBoolean($type),
-            default => gettype($type),
+            'array' => 'array',
+            'NULL' => 'NULL',
+            default => 'unknown',
         };
     }
 
@@ -30,8 +34,18 @@ final class Serialize
             return 'object';
         }
 
-        $className = get_class($object);
-        return "object<{$className}>";
+        if ($object instanceof Closure) {
+            return 'closure';
+        }
+
+        $parts = explode('\\', $object::class);
+        $basename = end($parts);
+
+        if ($object instanceof \UnitEnum) {
+            return "enum<{$basename}::{$object->name}>";
+        }
+
+        return "object<{$basename}>";
     }
 
 }

@@ -6,18 +6,11 @@ use UnitEnum;
 
 final class Typescript
 {
-
-    public static function wrapInSingleQuote(string $input): string
-    {
-        $stringSafeInput = addslashes($input);
-        return "'{$stringSafeInput}'";
-    }
-
     public static function literal(string|int|float|bool|null $value): string
     {
         return match (gettype($value)) {
             'integer', 'double' => (string) $value,
-            'boolean' => self::bool($value),
+            'boolean' => self::boolToStringLiteral($value),
             'string' => self::wrapInSingleQuote($value),
             default => 'null',
         };
@@ -44,8 +37,14 @@ DOCBLOCK;
         return self::literal($enum->value);
     }
 
-    private static function bool(bool $value): string
+    private static function boolToStringLiteral(bool $value): string
     {
         return $value ? 'true' : 'false';
+    }
+
+    private static function wrapInSingleQuote(string $input): string
+    {
+        $stringSafeInput = addslashes($input);
+        return "'{$stringSafeInput}'";
     }
 }

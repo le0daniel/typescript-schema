@@ -32,11 +32,8 @@ class UtilsTest extends TestCase
         self::assertSame(null, Utils::extractValue('test', ['test' => null]));
         self::assertSame(null, Utils::extractValue('test', ['other' => null]));
 
-        $object = new \stdClass();
-        $object->test = 'one';
-
-        self::assertSame('one', Utils::extractValue('test', $object));
-        self::assertSame(null, Utils::extractValue('other', $object));
+        self::assertSame('one', Utils::extractValue('test', GettersMock::standardObject(['test' => 'one'])));
+        self::assertSame(null, Utils::extractValue('other', GettersMock::standardObject(['test' => 1])));
 
         self::assertSame('two', Utils::extractValue('test', new GettersMock(['test' => 'two'])));
         self::assertSame(null, Utils::extractValue('other', new GettersMock([])));

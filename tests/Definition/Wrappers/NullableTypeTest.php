@@ -27,7 +27,7 @@ class NullableTypeTest extends TestCase
         NullableWrapper::make(
             TransformWrapper::make(
                 NullableWrapper::make(StringType::make()),
-                fn() => Typescript::wrapInSingleQuote('my val'),
+                fn() => Typescript::literal('my val'),
             )
         );
     }

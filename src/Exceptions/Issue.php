@@ -6,10 +6,13 @@ use Exception;
 use JsonSerializable;
 use Throwable;
 use TypescriptSchema\Data\Enum\IssueType;
+use TypescriptSchema\Data\Enum\SerializationMode;
 use TypescriptSchema\Utils\Serialize;
 
 final class Issue extends Exception implements JsonSerializable
 {
+    private const array REMOVE_METADATA_IN_LIMITED_MODE = ['actual'];
+
     private array $basePath = [];
 
     private bool $isFatal = false;
@@ -18,7 +21,7 @@ final class Issue extends Exception implements JsonSerializable
         public readonly IssueType $type,
         string                    $message,
         public readonly array     $metadata = [],
-        protected readonly array     $path = [],
+        protected readonly array  $path = [],
         Throwable                 $previous = null
     )
     {
@@ -141,13 +144,36 @@ final class Issue extends Exception implements JsonSerializable
         ];
     }
 
-    public function jsonSerialize(): array
+    public function toArray($mode = SerializationMode::LIMITED): array
     {
-        return [
-            ... $this->metadata,
+        $metadata = $this->metadata;
+        if ($mode === SerializationMode::LIMITED) {
+            foreach (self::REMOVE_METADATA_IN_LIMITED_MODE as $key) {
+                unset($metadata[$key]);
+            }
+        }
+
+        $data = [
+            ... $metadata,
             'type' => $this->type->jsonSerialize(),
             'message' => $this->getMessage(),
             'path' => $this->getPath(),
         ];
+
+        if ($mode === SerializationMode::ALL_WITH_DEBUG && $this->getPrevious()) {
+            $data['previous'] = [
+                'message' => $this->getPrevious()->getMessage(),
+                'file' => $this->getPrevious()->getFile(),
+                'line' => $this->getPrevious()->getLine(),
+                'trace' => $this->getPrevious()->getTrace(),
+            ];
+        }
+
+        return $data;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 }
