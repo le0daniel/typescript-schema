@@ -67,6 +67,8 @@ final class DiscriminatedUnionType extends BaseType
 
             return $this->types[$key];
         }
+
+        return null;
     }
 
     protected function validateAndParseType(mixed $value, Context $context): mixed
