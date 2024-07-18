@@ -6,6 +6,7 @@ use RuntimeException;
 use TypescriptSchema\Data\Enum\Status;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Exceptions\ParsingException;
 
 final readonly class Result implements \JsonSerializable
 {
@@ -28,6 +29,13 @@ final readonly class Result implements \JsonSerializable
             empty($this->issues) => Status::SUCCESS,
             !empty($this->issues) => Status::PARTIAL,
         };
+    }
+
+    public function toThrowable(): ParsingException
+    {
+        return new ParsingException(
+            $this->issues
+        );
     }
 
     public function getData(): mixed

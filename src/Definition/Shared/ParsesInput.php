@@ -26,7 +26,7 @@ trait ParsesInput
     {
         $result = $this->safeParse($value);
         if (!$result->isSuccess()) {
-            throw new ParsingException($result->issues);
+            throw $result->toThrowable();
         }
         return $result->getData();
     }
