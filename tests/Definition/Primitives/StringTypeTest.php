@@ -40,6 +40,21 @@ class StringTypeTest extends TestCase
         }
     }
 
+    private static function stringable(string $value): \Stringable
+    {
+        return new class ($value) implements \Stringable
+        {
+            public function __construct(private readonly string $value)
+            {
+            }
+
+            public function __toString(): string
+            {
+                return $this->value;
+            }
+        };
+    }
+
     public static function successfulPassesDataProvider(): array {
         return [
             'simple string' => [
@@ -94,7 +109,11 @@ class StringTypeTest extends TestCase
                 StringType::make()->nonEmpty(),
                 '  a',
                 [PHP_EOL, '', ' ', '    ', "     \n\r\t\0"]
-            ]
+            ],
+            'stringable' => [
+                StringType::make(),
+                self::stringable('value'),
+            ],
         ];
     }
 

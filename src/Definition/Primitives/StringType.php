@@ -15,7 +15,7 @@ class StringType extends PrimitiveType
 
     protected function parsePrimitiveType(mixed $value): string
     {
-        if (!is_string($value)) {
+        if (!is_string($value) && !$value instanceof \Stringable) {
             throw Issue::invalidType($this->toDefinition()->input, $value);
         }
 
