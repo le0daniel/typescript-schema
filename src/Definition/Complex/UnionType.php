@@ -28,6 +28,11 @@ final class UnionType extends BaseType
 
     protected function validateAndParseType(mixed $value, Context $context): mixed
     {
+        if ($value === null) {
+            $context->addIssue(Issue::invalidType('array', $value));
+            return Value::INVALID;
+        }
+
         // Need to handle the partial mode differently, as null barriers will be accepted.
         if ($context->allowPartialFailures) {
             return $this->parseInPartialMode($value, $context);

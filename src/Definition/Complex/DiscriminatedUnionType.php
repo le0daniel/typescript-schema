@@ -73,6 +73,11 @@ final class DiscriminatedUnionType extends BaseType
 
     protected function validateAndParseType(mixed $value, Context $context): mixed
     {
+        if ($value === null) {
+            $context->addIssue(Issue::invalidType('array', $value));
+            return Value::INVALID;
+        }
+
         $matchedType = $this->findMatchingType($value, $probingContext = $context->cloneForProbing());
 
         if (!$matchedType) {

@@ -16,7 +16,7 @@ final class ObjectType extends BaseType
 {
     use IsNullable;
 
-    private bool $passThrough = false;
+    private bool|Closure $passThrough = false;
 
     /**
      * @var array<Field>
@@ -39,13 +39,15 @@ final class ObjectType extends BaseType
      * Pass through additional data that is not declared as fields.
      * Those will have the type: [key: string]: unknown
      *
+     * If you pass a Closure, you can customize the logic of how pass through works.
+     *
+     * @param Closure(mixed): array|null $closure
      * @api
-     * @return $this
      */
-    public function passThrough(): ObjectType
+    public function passThrough(?Closure $closure = null): ObjectType
     {
         $instance = clone $this;
-        $instance->passThrough = true;
+        $instance->passThrough = $closure ?? true;
         return $instance;
     }
 
@@ -98,14 +100,20 @@ final class ObjectType extends BaseType
             }
         }
 
-        if ($this->passThrough && is_array($value)) {
-            return [
-                ... $value,
-                ... $parsed,
-            ];
+        if (!$this->passThrough) {
+            return $parsed;
         }
 
-        return $parsed;
+        $valuesToPassThrough = match (true) {
+            $this->passThrough instanceof Closure => ($this->passThrough)($value),
+            is_array($value) => $value,
+            default => []
+        };
+
+        return [
+            ... $valuesToPassThrough,
+            ... $parsed,
+        ];
     }
 
     /**

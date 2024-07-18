@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Tests\Definition\Complex;
 
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Data\Enum\IssueType;
 use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Primitives\IntType;
@@ -31,6 +32,26 @@ class ObjectTypeTest extends TestCase
         self::assertTrue($type->toDefinition()->input === $type->toDefinition()->output);
         self::assertSame('{id: string; name: string|null; opt?: string|null; [key: string]: unknown;}', $type->passThrough()->toDefinition()->output);
         self::assertTrue($type->passThrough()->toDefinition()->input === $type->passThrough()->toDefinition()->output);
+    }
+
+    public function testPassThroughAsClosure(): void
+    {
+        $type = ObjectType::make([
+            'id' => StringType::make(),
+        ])->passThrough(fn() => ['key' => 'value', 'id' => 123]);
+
+        self::assertEquals(['id' => '345', 'key' => 'value'], $type->parse(['id' => '345']));
+
+        $justPassThrough = $type->passThrough();
+        self::assertEquals(['id' => '345', 'other' => 'passed'], $justPassThrough->parse(['id' => '345', 'other' => 'passed']));
+    }
+
+    public function testCorrectFailureOnNull(): void
+    {
+        $object = ObjectType::make(['name' => StringType::make()]);
+        $result = $object->safeParse(null);
+        self::assertFalse($result->isSuccess());
+        self::assertEquals(IssueType::INVALID_TYPE, $result->issues[0]->type);
     }
 
     public function testOnlyOutputDefinition(): void
