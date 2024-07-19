@@ -15,6 +15,12 @@ class UnionTypeTest extends TestCase
 {
     use TestsParsing;
 
+    public function testImmutability(): void
+    {
+        $type = UnionType::make();
+        self::assertNotSame($type, $type->resolveTypeBy(fn() => null));
+    }
+
     public static function parsingDataProvider(): array
     {
         return [
@@ -26,8 +32,21 @@ class UnionTypeTest extends TestCase
                 [
                     null, new stdClass(), true, false, 1.1
                 ]
-            ]
+            ],
         ];
+    }
+
+    public function testManualResolver()
+    {
+        $type = UnionType::make(StringType::make()->coerce(), IntType::make());
+        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->parse(1));
+    }
+
+    public function testManualResolverWithNamedTypes()
+    {
+        $type = UnionType::make(string: StringType::make()->coerce(), int: IntType::make());
+        self::assertSame(1, $type->resolveTypeBy(fn() => 'int')->parse(1));
+        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->parse(1));
     }
 
     public function testCorrectHandlingWhenUsingSoftFailures(): void

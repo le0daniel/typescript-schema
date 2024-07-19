@@ -2,10 +2,13 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
+use Closure;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
+use TypescriptSchema\Definition\Primitives\IntType;
+use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Shared\IsNullable;
 use TypescriptSchema\Definition\Wrappers\WrapsType;
 use TypescriptSchema\Exceptions\Issue;
@@ -14,6 +17,11 @@ use TypescriptSchema\Helpers\Context;
 final class UnionType extends BaseType
 {
     use IsNullable;
+
+    /**
+     * @var Closure(mixed):(int|string)
+     */
+    private Closure $resolveType;
 
     /**
      * @param array<Type> $types
@@ -26,8 +34,37 @@ final class UnionType extends BaseType
         return new self($types);
     }
 
+    /**
+     * Define a closure that resolves the correct type based on the
+     * data passed in. If you use named parameters, you need to return
+     * a string, otherwise the index of the type.
+     *
+     * Example:
+     *
+     *     $type = UnionType::make(StringType::make(), IntType::make());
+     *     // This will always resolve the union to the type with index 1, so the IntType.
+     *     $type->resolveTypeBy(fn($value) => 1);
+     *
+     *     // With named arguments, you can use the index or name directly.
+     *     $type = UnionType::make(string: StringType::make(), int: IntType::make());
+     *     $type->resolveTypeBy(fn($value) => 'string');
+     *
+     * @param Closure(mixed):(int|string) $resolveType
+     * @return $this
+     */
+    public function resolveTypeBy(Closure $resolveType): self
+    {
+        $instance = clone $this;
+        $instance->resolveType = $resolveType;
+        return $instance;
+    }
+
     protected function validateAndParseType(mixed $value, Context $context): mixed
     {
+        if (isset($this->resolveType)) {
+            return $this->resolveByClosure($value, $context);
+        }
+
         // Need to handle the partial mode differently, as null barriers will be accepted.
         if ($context->allowPartialFailures) {
             return $this->parseInPartialMode($value, $context);
@@ -46,6 +83,18 @@ final class UnionType extends BaseType
         $context->mergeProbingIssues($validationContext);
 
         throw Issue::custom("Value did not match any of the union types.");
+    }
+
+    private function resolveByClosure(mixed $value, Context $context): mixed
+    {
+        $keyOrIndex = ($this->resolveType)($value);
+        if (is_int($keyOrIndex) && !array_is_list($this->types)) {
+            $key = array_keys($this->types)[$keyOrIndex];
+            return $this->types[$key]->execute($value, $context);
+        }
+
+        $type = $this->types[($this->resolveType)($value)];
+        return $type->execute($value, $context);
     }
 
     private function parseInPartialMode(mixed $value, Context $context): mixed
