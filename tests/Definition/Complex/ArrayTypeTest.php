@@ -8,6 +8,7 @@ use TypescriptSchema\Definition\Primitives\EnumType;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Tests\Definition\TestsParsing;
+use TypescriptSchema\Tests\Mocks\ArrayableMock;
 use TypescriptSchema\Tests\Mocks\TraversableMock;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 
@@ -38,6 +39,15 @@ class ArrayTypeTest extends TestCase
             'traversable' => [
                 ArrayType::make(StringType::make()),
                 new TraversableMock(['one', 'two', 'three']),
+            ],
+            'arrayable' => [
+                ArrayType::make(IntType::make()),
+                [
+                    new ArrayableMock([1,2,3])
+                ],
+                [
+                    new ArrayableMock(["one"])
+                ]
             ],
             'fail on non traversable' => [
                 ArrayType::make(IntType::make()),

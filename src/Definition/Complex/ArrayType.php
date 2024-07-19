@@ -30,7 +30,13 @@ final class ArrayType extends BaseType
 
     protected function validateAndParseType(mixed $value, Context $context): array|Value
     {
-        $value = $value instanceof Closure ? $value() : $value;
+        $value = match (true) {
+            is_iterable($value), $value instanceof Generator => $value,
+            $value instanceof Closure => $value(),
+            is_object($value) && method_exists($value, 'toArray') => $value->toArray(),
+            default => throw Issue::invalidType('iterable', $value),
+        };
+
         if (!is_iterable($value) && !$value instanceof Generator) {
             throw Issue::invalidType('iterable', $value);
         }
