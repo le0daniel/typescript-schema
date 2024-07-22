@@ -3,17 +3,12 @@
 namespace TypescriptSchema\Exceptions;
 
 use Exception;
-use JsonSerializable;
-use Stringable;
 use Throwable;
 use TypescriptSchema\Data\Enum\IssueType;
-use TypescriptSchema\Data\Enum\SerializationMode;
 use TypescriptSchema\Utils\Serialize;
 
-final class Issue extends Exception implements JsonSerializable, Stringable
+final class Issue extends Exception
 {
-    private const array REMOVE_METADATA_IN_LIMITED_MODE = ['actual'];
-
     private array $basePath = [];
 
     private bool $isFatal = false;
@@ -23,7 +18,8 @@ final class Issue extends Exception implements JsonSerializable, Stringable
         string                    $message,
         public readonly array     $metadata = [],
         protected readonly array  $path = [],
-        Throwable                 $previous = null
+        Throwable                 $previous = null,
+        private readonly ?string  $localizationKey = null,
     )
     {
         parent::__construct($message, previous: $previous);
@@ -73,7 +69,8 @@ final class Issue extends Exception implements JsonSerializable, Stringable
             IssueType::COERCION_FAILURE,
             "Failed to coerce value to {$expected}, got {$actual}",
             ['expected' => $expected, 'actual' => $actual],
-            $path
+            $path,
+            localizationKey: 'coercion_failure',
         );
     }
 
@@ -84,7 +81,8 @@ final class Issue extends Exception implements JsonSerializable, Stringable
             IssueType::INVALID_TYPE,
             "Expected {$expected}, got {$actual}",
             ['expected' => $expected, 'actual' => $actual],
-            $path
+            $path,
+            localizationKey: 'invalid_type',
         );
     }
 
@@ -95,17 +93,19 @@ final class Issue extends Exception implements JsonSerializable, Stringable
             IssueType::INVALID_KEY,
             "Expected keys to be of {$expected}, got {$actual}",
             ['expected' => $expected, 'actual' => $actual],
-            $path
+            $path,
+            localizationKey: 'invalid_key',
         );
     }
 
-    public static function custom(string $message, array $data = [], array $path = []): Issue
+    public static function custom(string $message, array $data = [], array $path = [], ?string $localizationKey = null): Issue
     {
         return new self(
             IssueType::CUSTOM,
             $message,
             $data,
-            $path
+            $path,
+            localizationKey: $localizationKey,
         );
     }
 
@@ -115,7 +115,8 @@ final class Issue extends Exception implements JsonSerializable, Stringable
             IssueType::CUSTOM,
             "Invalid data provided.",
             $data,
-            $path
+            $path,
+            localizationKey: 'generic_failure',
         );
     }
 
@@ -132,11 +133,13 @@ final class Issue extends Exception implements JsonSerializable, Stringable
             IssueType::INTERNAL_ERROR,
             'Internal error',
             previous: $throwable,
+            localizationKey: 'internal_error',
         );
         $issue->isFatal = true;
         return $issue;
     }
 
+    /** @api */
     public function getPath(): array
     {
         return [
@@ -145,41 +148,13 @@ final class Issue extends Exception implements JsonSerializable, Stringable
         ];
     }
 
-    public function toArray($mode = SerializationMode::LIMITED): array
+    public function getLocalizationKey(): string
     {
-        $metadata = $this->metadata;
-        if ($mode === SerializationMode::LIMITED) {
-            foreach (self::REMOVE_METADATA_IN_LIMITED_MODE as $key) {
-                unset($metadata[$key]);
-            }
-        }
-
-        $data = [
-            ... $metadata,
-            'type' => $this->type->jsonSerialize(),
-            'message' => $this->getMessage(),
-            'path' => $this->getPath(),
-        ];
-
-        if ($mode === SerializationMode::ALL_WITH_DEBUG && $this->getPrevious()) {
-            $data['previous'] = [
-                'message' => $this->getPrevious()->getMessage(),
-                'file' => $this->getPrevious()->getFile(),
-                'line' => $this->getPrevious()->getLine(),
-                'trace' => $this->getPrevious()->getTrace(),
-            ];
-        }
-
-        return $data;
+        return $this->localizationKey ?? $this->getMessage();
     }
 
-    public function jsonSerialize(): array
+    public function pathAsString(): string
     {
-        return $this->toArray();
-    }
-
-    public function __toString(): string
-    {
-        return $this->message;
+        return implode('.', $this->getPath());
     }
 }
