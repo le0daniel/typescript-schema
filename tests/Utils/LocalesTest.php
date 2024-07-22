@@ -15,5 +15,9 @@ class LocalesTest extends TestCase
         self::assertEquals(['de', 'CH'], Locales::explodeIntoLanguageAndCountry('de_CH'));
         self::assertEquals(['de', 'CH'], Locales::explodeIntoLanguageAndCountry('de-CH'));
         self::assertEquals(['de', 'CH'], Locales::explodeIntoLanguageAndCountry('de-ch'));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Invalid locale given: de@CH');
+        Locales::explodeIntoLanguageAndCountry('de@CH');
     }
 }
