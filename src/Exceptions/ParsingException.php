@@ -45,13 +45,13 @@ class ParsingException extends Exception implements JsonSerializable
     {
         $groupedIssues = [];
         foreach ($this->issues as $issue) {
-            $groupedIssues[$issue->pathAsString()][] = $this->getLocalizer()->localize(
+            $groupedIssues[$issue->pathAsString()][] = $this->getLocalizer()->translate(
                 $this->locale, $issue->getLocalizationKey(), $issue->metadata,
             );
         }
 
         return [
-            'message' => $this->getLocalizer()->localize($this->locale, 'failed'),
+            'message' => $this->getLocalizer()->translate($this->locale, 'failed'),
             'issues' => $groupedIssues,
         ];
     }

@@ -20,16 +20,16 @@ class LocalizerTest extends TestCase
             default => null,
         });
 
-        self::assertEquals('Irgendein Wert: test', $localizer->localize('de', 'some_value', ['value' => 'test']));
-        self::assertEquals('Irgendein Wert: test', $localizer->localize('de-CH', 'some_value', ['value' => 'test']));
-        self::assertEquals('Irgendein Wert: test', $localizer->localize('de-ch', 'some_value', ['value' => 'test']));
-        self::assertEquals('Irgendein Wert: test', $localizer->localize('de_ch', 'some_value', ['value' => 'test']));
-        self::assertEquals('Irgendein Wert: test', $localizer->localize('de_CH', 'some_value', ['value' => 'test']));
+        self::assertEquals('Irgendein Wert: test', $localizer->translate('de', 'some_value', ['value' => 'test']));
+        self::assertEquals('Irgendein Wert: test', $localizer->translate('de-CH', 'some_value', ['value' => 'test']));
+        self::assertEquals('Irgendein Wert: test', $localizer->translate('de-ch', 'some_value', ['value' => 'test']));
+        self::assertEquals('Irgendein Wert: test', $localizer->translate('de_ch', 'some_value', ['value' => 'test']));
+        self::assertEquals('Irgendein Wert: test', $localizer->translate('de_CH', 'some_value', ['value' => 'test']));
 
-        self::assertEquals('Some value: test', $localizer->localize('en-GB', 'some_value', ['value' => 'test']));
+        self::assertEquals('Some value: test', $localizer->translate('en-GB', 'some_value', ['value' => 'test']));
 
-        self::assertEquals('some_value', $localizer->localize('fr', 'some_value', ['value' => 'test']));
-        self::assertEquals('Default', $localizer->localize('fr', 'some_value', ['value' => 'test'], 'Default'));
+        self::assertEquals('some_value', $localizer->translate('fr', 'some_value', ['value' => 'test']));
+        self::assertEquals('Default', $localizer->translate('fr', 'some_value', ['value' => 'test'], 'Default'));
     }
 
     public function testLocalesLoadingOnce()
@@ -42,8 +42,8 @@ class LocalizerTest extends TestCase
             ];
         });
 
-        self::assertEquals('translation', $localizer->localize('fr', 'some'));
-        self::assertEquals('other', $localizer->localize('fr', 'other'));
+        self::assertEquals('translation', $localizer->translate('fr', 'some'));
+        self::assertEquals('other', $localizer->translate('fr', 'other'));
         self::assertEquals(1, $count);
     }
 
@@ -60,16 +60,16 @@ class LocalizerTest extends TestCase
             default => null,
         });
 
-        self::assertEquals('Irgend en Wert: test', $localizer->localize('de_CH', 'some_value', ['value' => 'test']));
-        self::assertEquals('Irgendein Wert: test', $localizer->localize('de', 'some_value', ['value' => 'test']));
-        self::assertEquals('Anderer Wert: test', $localizer->localize('de_CH', 'other', ['value' => 'test']));
+        self::assertEquals('Irgend en Wert: test', $localizer->translate('de_CH', 'some_value', ['value' => 'test']));
+        self::assertEquals('Irgendein Wert: test', $localizer->translate('de', 'some_value', ['value' => 'test']));
+        self::assertEquals('Anderer Wert: test', $localizer->translate('de_CH', 'other', ['value' => 'test']));
     }
 
     public function testDefaultLocalizer()
     {
         $localizer = new Localizer();
-        self::assertEquals('Invalid data', $localizer->localize('en', 'failed'));
-        self::assertEquals('Ungültige Daten', $localizer->localize('de', 'failed'));
+        self::assertEquals('Invalid data', $localizer->translate('en', 'failed'));
+        self::assertEquals('Ungültige Daten', $localizer->translate('de', 'failed'));
     }
 
     public function testPrepareParameters()

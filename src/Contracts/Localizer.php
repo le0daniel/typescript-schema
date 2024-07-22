@@ -5,6 +5,5 @@ namespace TypescriptSchema\Contracts;
 interface Localizer
 {
 
-    public function localize(string $locale, string $key, array $parameters = [], ?string $default = null): string;
-
+    public function translate(string $locale, string $key, array $parameters = [], ?string $default = null): string;
 }

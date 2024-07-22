@@ -39,7 +39,7 @@ class Localizer implements Contracts\Localizer
         );
     }
 
-    public function localize(string $locale, string $key, array $parameters = [], ?string $default = null): string
+    public function translate(string $locale, string $key, array $parameters = [], ?string $default = null): string
     {
         $translated = $this->findTranslationForKey($locale, $key);
         if (!$translated) {
@@ -82,5 +82,4 @@ class Localizer implements Contracts\Localizer
         $this->loadedLocales[$locale] = true;
         $this->locales[$locale] = $translations;
     }
-
 }
