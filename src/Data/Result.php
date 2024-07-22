@@ -8,7 +8,7 @@ use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Exceptions\ParsingException;
 
-final readonly class Result implements \JsonSerializable
+final readonly class Result
 {
     public Status $status;
 
@@ -18,7 +18,7 @@ final readonly class Result implements \JsonSerializable
      */
     public function __construct(
         private mixed $data,
-        public array $issues,
+        public array  $issues,
     )
     {
         if ($this->data === Value::UNDEFINED) {
@@ -53,16 +53,8 @@ final readonly class Result implements \JsonSerializable
         return $this->status === Status::PARTIAL;
     }
 
-    public function isFailure(): bool {
-        return $this->status === Status::FAILURE;
-    }
-
-    public function jsonSerialize(): array
+    public function isFailure(): bool
     {
-        return [
-            'data' => $this->getData(),
-            'status' => $this->status->name,
-            'issues' => $this->issues,
-        ];
+        return $this->status === Status::FAILURE;
     }
 }
