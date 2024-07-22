@@ -34,10 +34,10 @@ class BoolTypeTest extends TestCase
 
     public function testToDefinition()
     {
-        self::assertEquals('bool', BoolType::make()->toDefinition()->input);
-        self::assertEquals('bool', BoolType::make()->toDefinition()->output);
+        self::assertEquals('boolean', BoolType::make()->toDefinition()->input);
+        self::assertEquals('boolean', BoolType::make()->toDefinition()->output);
 
-        self::assertEquals('bool', BoolType::make()->coerce()->toDefinition()->output);
-        self::assertEquals("bool|number|null|'true'|'false'", BoolType::make()->coerce()->toDefinition()->input);
+        self::assertEquals('boolean', BoolType::make()->coerce()->toDefinition()->output);
+        self::assertEquals("boolean|number|null|'true'|'false'", BoolType::make()->coerce()->toDefinition()->input);
     }
 }

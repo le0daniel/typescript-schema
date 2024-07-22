@@ -5,12 +5,11 @@ namespace TypescriptSchema\Exceptions;
 use Exception;
 use JsonSerializable;
 use TypescriptSchema\Contracts\Localizer;
+use TypescriptSchema\Helpers\SimpleLoaderLocalizer;
 
 class ParsingException extends Exception implements JsonSerializable
 {
     private const string DEFAULT_LOCALE = 'en';
-
-    private ?Localizer $localizer = null;
 
     private string $locale = self::DEFAULT_LOCALE;
 
@@ -18,15 +17,11 @@ class ParsingException extends Exception implements JsonSerializable
      * @param array<Issue> $issues
      */
     public function __construct(
-        public readonly array $issues
+        public readonly array $issues,
+        private Localizer $localizer = new SimpleLoaderLocalizer(),
     )
     {
         parent::__construct('Failed parsing the schema');
-    }
-
-    private function getLocalizer(): Localizer
-    {
-        return $this->localizer ??= new \TypescriptSchema\Helpers\SimpleLoaderLocalizer();
     }
 
     public function setLocalizer(Localizer $localizer): self
@@ -45,13 +40,13 @@ class ParsingException extends Exception implements JsonSerializable
     {
         $groupedIssues = [];
         foreach ($this->issues as $issue) {
-            $groupedIssues[$issue->pathAsString()][] = $this->getLocalizer()->translate(
+            $groupedIssues[$issue->pathAsString()][] = $this->localizer->translate(
                 $this->locale, $issue->getLocalizationKey(), $issue->metadata,
             );
         }
 
         return [
-            'message' => $this->getLocalizer()->translate($this->locale, 'failed'),
+            'message' => $this->localizer->translate($this->locale, 'failed'),
             'issues' => $groupedIssues,
         ];
     }

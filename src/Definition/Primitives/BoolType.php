@@ -17,7 +17,7 @@ final class BoolType extends PrimitiveType
             return $value;
         }
 
-        throw Issue::invalidType('bool', $value);
+        throw Issue::invalidType('boolean', $value);
     }
 
     protected function coerceValue(mixed $value): bool
@@ -25,7 +25,7 @@ final class BoolType extends PrimitiveType
         return match ($value) {
             true, 'true', 1, '1' => true,
             false, 'false', 0, '0' => false,
-            default => throw Issue::coercionFailure('bool', $value),
+            default => throw Issue::coercionFailure('boolean', $value),
         };
     }
 
@@ -33,12 +33,12 @@ final class BoolType extends PrimitiveType
     {
         if ($this->coerce) {
             return new Definition(
-                "bool|number|null|'true'|'false'",
-                'bool'
+                "boolean|number|null|'true'|'false'",
+                'boolean'
             );
         }
 
-        return Definition::same('bool');
+        return Definition::same('boolean');
     }
 
 
