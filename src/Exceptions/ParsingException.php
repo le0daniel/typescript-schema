@@ -26,7 +26,7 @@ class ParsingException extends Exception implements JsonSerializable
 
     private function getLocalizer(): Localizer
     {
-        return $this->localizer ??= new \TypescriptSchema\Helpers\Localizer();
+        return $this->localizer ??= new \TypescriptSchema\Helpers\SimpleLoaderLocalizer();
     }
 
     public function setLocalizer(Localizer $localizer): self

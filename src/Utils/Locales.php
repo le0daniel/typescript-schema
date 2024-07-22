@@ -5,15 +5,32 @@ namespace TypescriptSchema\Utils;
 final class Locales
 {
 
+    /**
+     * @throws \RuntimeException
+     */
     public static function explodeIntoLanguageAndCountry(string $locale): array
     {
-        if (preg_match('/^[a-z]{2}([_\-][a-zA-Z]{2})?$/', $locale) !== 1) {
+        if (!self::isValidLocaleString($locale)) {
             throw new \RuntimeException("Invalid locale given: {$locale}");
         }
 
         return strlen($locale) === 2
             ? [$locale, null]
             : [substr($locale, 0, 2,), strtoupper(substr($locale, 3, 2))];
+    }
+
+    public static function isValidLocaleString(string $locale): bool
+    {
+        return preg_match('/^[a-z]{2}([_\-][a-zA-Z]{2})?$/', $locale) === 1;
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    public static function normalizeLocaleString(string $locale): string
+    {
+        [$lang, $country] = self::explodeIntoLanguageAndCountry($locale);
+        return isset($country) ? "{$lang}_{$country}" : $lang;
     }
 
 }

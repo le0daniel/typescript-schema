@@ -7,7 +7,7 @@ use TypescriptSchema\Utils\Locales;
 use TypescriptSchema\Utils\Serialize;
 use TypescriptSchema\Contracts;
 
-class Localizer implements Contracts\Localizer
+class SimpleLoaderLocalizer implements Contracts\Localizer
 {
     /** @var array<string, bool> */
     private array $loadedLocales = [];
@@ -41,12 +41,32 @@ class Localizer implements Contracts\Localizer
 
     public function translate(string $locale, string $key, array $parameters = [], ?string $default = null): string
     {
-        $translated = $this->findTranslationForKey($locale, $key);
-        if (!$translated) {
-            return $default ?? $key;
+        if ($this->hasExactTranslation($locale, $key)) {
+            return $this->replaceParameters($this->locales[$locale][$key], $parameters);
         }
 
-        return $this->replaceParameters($translated, $parameters);
+        if ($this->hasTranslation($locale, $key)) {
+            [$language] = Locales::explodeIntoLanguageAndCountry($locale);
+            return $this->replaceParameters($this->locales[$language][$key], $parameters);
+        }
+
+        return $default ?? $key;
+    }
+
+    public function hasTranslation(string $locale, string $key): bool
+    {
+        if ($this->hasExactTranslation($locale, $key)) {
+            return true;
+        }
+
+        [$language, $country] = Locales::explodeIntoLanguageAndCountry($locale);
+        return $country && $this->hasExactTranslation($language, $key);
+    }
+
+    public function hasExactTranslation(string $locale, string $key): bool
+    {
+        $this->loadLocaleOnce($locale);
+        return isset($this->locales[$locale][$key]);
     }
 
     private function replaceParameters(string $target, array $parameters): string
@@ -56,24 +76,9 @@ class Localizer implements Contracts\Localizer
         return str_replace($keys, array_values($stringSafeParameters), $target);
     }
 
-    private function findTranslationForKey(string $locale, string $key): ?string
-    {
-        [$language, $country] = Locales::explodeIntoLanguageAndCountry($locale);
-
-        // Load the country locale with priority.
-        if ($country) {
-            $this->loadLocaleOnce("{$language}_{$country}");
-            if (isset($this->locales["{$language}_{$country}"][$key])) {
-                return $this->locales["{$language}_{$country}"][$key];
-            }
-        }
-
-        $this->loadLocaleOnce($language);
-        return $this->locales[$language][$key] ?? null;
-    }
-
     private function loadLocaleOnce(string $locale): void
     {
+        $locale = Locales::normalizeLocaleString($locale);
         if (isset($this->loadedLocales[$locale])) {
             return;
         }
