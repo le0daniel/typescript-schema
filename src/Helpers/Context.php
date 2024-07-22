@@ -6,10 +6,14 @@ use TypescriptSchema\Exceptions\Issue;
 
 class Context
 {
+    /** @var array<int|string>  */
+    private array $currentPath = [];
+
+    /** @var array<Issue>  */
+    private array $issues = [];
+
     public function __construct(
         public readonly bool $allowPartialFailures = false,
-        private array        $currentPath = [],
-        private array        $issues = [],
     )
     {
     }
@@ -24,22 +28,27 @@ class Context
         return $clone;
     }
 
-    public function issueCount(): int
-    {
-        return count($this->issues);
-    }
-
     public function mergeProbingIssues(Context $context): void
     {
         array_push($this->issues, ...$context->issues);
     }
 
+    /** @api */
     public function addIssue(Issue $issue): void
     {
         $this->issues[] = $issue->setBasePath($this->currentPath);
     }
 
+    /** @api */
+    public function addIssues(Issue ...$issues): void
+    {
+        foreach ($this->issues as $issue) {
+            $this->addIssue($issue);
+        }
+    }
+
     /**
+     * @api
      * @return array<Issue>
      */
     public function getIssues(): array
@@ -47,16 +56,19 @@ class Context
         return $this->issues;
     }
 
+    /** @api */
     public function hasIssues(): bool
     {
         return count($this->issues) > 0;
     }
 
+    /** @internal */
     public function enter(string|int $path): void
     {
         $this->currentPath[] = $path;
     }
 
+    /** @internal */
     public function leave(): void
     {
         array_pop($this->currentPath);
