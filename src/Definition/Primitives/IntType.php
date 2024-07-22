@@ -39,7 +39,11 @@ final class IntType extends PrimitiveType
     {
         return $this->addValidator(static function(int $value) use ($min) {
             if ($value < $min) {
-                throw Issue::custom("Expected value to be bigger than {$min}, got {$value}");
+                throw Issue::custom(
+                    "Expected value to be bigger than {$min}, got {$value}",
+                    ['min' => $min],
+                    localizationKey: 'int.invalid_min'
+                );
             }
             return true;
         });
@@ -48,7 +52,11 @@ final class IntType extends PrimitiveType
     public function max(int $max): static {
         return $this->addValidator(static function(int $value) use ($max) {
             if ($value > $max) {
-                throw Issue::custom("Expected value to be smaller than {$max}, got {$value}");
+                throw Issue::custom(
+                    "Expected value to be smaller than {$max}, got {$value}",
+                    ['max' => $max],
+                    localizationKey: 'int.invalid_max'
+                );
             }
             return true;
         });
