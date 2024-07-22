@@ -7,10 +7,7 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
-use TypescriptSchema\Definition\Primitives\IntType;
-use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Shared\IsNullable;
-use TypescriptSchema\Definition\Wrappers\WrapsType;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
@@ -27,9 +24,10 @@ final class UnionType extends BaseType
      * @param array<Type> $types
      */
     public function __construct(private readonly array $types)
-    {}
+    {
+    }
 
-    public static function make(Type... $types): self
+    public static function make(Type...$types): self
     {
         return new self($types);
     }
@@ -129,9 +127,7 @@ final class UnionType extends BaseType
             return null;
         }
 
-        foreach ($allIssues as $issue) {
-            $context->addIssue($issue);
-        }
+        $context->addIssues(...$allIssues);
         throw Issue::custom('Could not match union to any type');
     }
 
