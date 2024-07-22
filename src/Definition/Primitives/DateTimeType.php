@@ -81,6 +81,32 @@ final class DateTimeType extends PrimitiveType
         }, 'string');
     }
 
+    public function before(DateTimeImmutable $before): static
+    {
+        return $this->addValidator(function (DateTimeImmutable $value) use ($before) {
+            if ($value < $before) {
+                return true;
+            }
+
+            throw Issue::custom("Date needs to be before {$before->format($this->getFormat())}.", [
+                'before' => $before->format($this->getFormat()),
+            ], localizationKey: 'datetime.invalid_before');
+        });
+    }
+
+    public function after(DateTimeImmutable $after): static
+    {
+        return $this->addValidator(function (DateTimeImmutable $value) use ($after) {
+            if ($value > $after) {
+                return true;
+            }
+
+            throw Issue::custom("Date needs to be after {$after->format($this->getFormat())}.", [
+                'after' => $after->format($this->getFormat()),
+            ], localizationKey: 'datetime.invalid_after');
+        });
+    }
+
     public function toDefinition(): Definition
     {
         // Datetime has a different format for input and output, as by default when using json_serialize

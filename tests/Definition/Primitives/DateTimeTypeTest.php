@@ -32,7 +32,17 @@ class DateTimeTypeTest extends TestCase
                 DateTimeType::make('Y-m-d H:i:s'),
                 ['2023-12-29 18:56:01', new DateTimeImmutable('2023-12-29 18:56:01')],
                 [new \stdClass(), [], true, false, -100, '100']
-            ]
+            ],
+            'with before defined' => [
+                DateTimeType::make('Y-m-d H:i:s')->before(new DateTimeImmutable('2023-12-29 18:56:01')),
+                ['2023-12-29 18:56:00'],
+                ['2023-12-29 18:56:1']
+            ],
+            'with after defined' => [
+                DateTimeType::make('Y-m-d H:i:s')->after(new DateTimeImmutable('2023-12-29 18:56:01')),
+                ['2023-12-29 18:56:02'],
+                ['2023-12-29 18:56:01']
+            ],
         ];
     }
 }

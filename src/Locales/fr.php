@@ -17,4 +17,6 @@ return [
     'string.invalid_starts_with' => 'La valeur doit commencer par :startsWith',
     'int.invalid_min' => 'La valeur doit être au moins :min',
     'int.invalid_max' => 'La valeur doit être inférieure à :max',
+    'datetime.invalid_before' => 'La valeur doit être avant :before',
+    'datetime.invalid_after' => 'La valeur doit être après :after',
 ] ;
