@@ -53,10 +53,10 @@ class UnionTypeTest extends TestCase
     {
         $type = UnionType::make(StringType::make()->nullable(), IntType::make());
 
-        self::assertEquals('string', $type->safeParse('string', true)->getData());
-        self::assertEquals(1, $type->safeParse(1, true)->getData());
-        self::assertEquals(null, $type->safeParse(null, true)->getData());
-        self::assertEquals(null, $type->safeParse(new stdClass(), true)->getData());
+        self::assertSame('string', $type->safeParse('string', true)->getData());
+        self::assertSame(1, $type->safeParse(1, true)->getData());
+        self::assertSame(null, $type->safeParse(null, true)->getData());
+        self::assertSame(null, $type->safeParse(new stdClass(), true)->getData());
 
         $complexType = UnionType::make(
             ObjectType::make([

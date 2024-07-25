@@ -38,7 +38,7 @@ class ObjectTypeTest extends TestCase
     {
         $type = ObjectType::make([
             'id' => StringType::make(),
-        ])->passThrough(fn() => ['key' => 'value', 'id' => 123]);
+        ])->passThrough(fn(array $items) => ['key' => 'value', 'id' => 123]);
 
         self::assertEquals(['id' => '345', 'key' => 'value'], $type->parse(['id' => '345']));
 
@@ -125,6 +125,20 @@ DOC;
         } catch (ParsingException $exception) {
             var_dump($exception->issues);
         }
+    }
+
+    public function testShowsErrorsForAllFieldsOnFailure(): void
+    {
+        $schema = ObjectType::make([
+            'id' => IntType::make()->min(1),
+            'password' => StringType::make()->min(10),
+        ]);
+
+        $issues = $schema->safeParse(['id' => 0, 'password' => 'test'])->issues;
+
+        self::assertCount(2, $issues);
+        self::assertEquals("int.invalid_min", $issues[0]->getLocalizationKey());
+        self::assertEquals("string.invalid_min", $issues[1]->getLocalizationKey());
     }
 
 }

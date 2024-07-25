@@ -40,4 +40,14 @@ class TupleTypeTest extends TestCase
         self::assertEquals('[string, number]', $type->toDefinition()->input);
         self::assertEquals('[string, boolean]', $type->toDefinition()->output);
     }
+
+    public function testNumberOfIssuesCollected(): void
+    {
+        $type = TupleType::make(StringType::make(), IntType::make()->min(10));
+        $result = $type->safeParse([123, 9]);
+
+        self::assertCount(2, $result->issues);
+        self::assertEquals('invalid_type', $result->issues[0]->getLocalizationKey());
+        self::assertEquals('int.invalid_min', $result->issues[1]->getLocalizationKey());
+    }
 }

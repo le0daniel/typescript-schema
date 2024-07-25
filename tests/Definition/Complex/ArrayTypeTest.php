@@ -77,4 +77,15 @@ class ArrayTypeTest extends TestCase
         self::assertEquals("Array<'SUCCESS'|'FAILURE'>", $type->toDefinition()->input);
         self::assertEquals("Array<never>", $type->toDefinition()->output);
     }
+
+    public function testNumberOfIssues()
+    {
+        $type = new ArrayType(IntType::make());
+        $result = $type->safeParse([new \stdClass(), 1, 2, 'string', 'other']);
+        self::assertCount(3, $result->issues);
+
+        self::assertEquals([0], $result->issues[0]->getPath());
+        self::assertEquals([3], $result->issues[1]->getPath());
+        self::assertEquals([4], $result->issues[2]->getPath());
+    }
 }

@@ -77,6 +77,7 @@ final class ObjectType extends BaseType
 
         $parsed = [];
 
+        $isDirty = false;
         foreach ($this->fields() as $name => $field) {
             $context->enter($name);
             try {
@@ -88,7 +89,8 @@ final class ObjectType extends BaseType
 
                 $parsedValue = $field->getType()->execute(Value::undefinedToNull($fieldValue), $context);
                 if ($parsedValue === Value::INVALID) {
-                    return Value::INVALID;
+                    $isDirty = true;
+                    continue;
                 }
 
                 $parsed[$name] = $parsedValue;
@@ -98,6 +100,10 @@ final class ObjectType extends BaseType
             } finally {
                 $context->leave();
             }
+        }
+
+        if ($isDirty) {
+            return Value::INVALID;
         }
 
         if (!$this->passThrough) {

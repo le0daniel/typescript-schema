@@ -41,19 +41,22 @@ final class ArrayType extends BaseType
             throw Issue::invalidType('iterable', $value);
         }
 
+        $isDirty = false;
         $index = 0;
         $parsed = [];
         foreach ($value as $item) {
             $context->enter($index);
+            $index++;
+
             try {
                 $itemValue = $this->type->execute($item, $context);
+
                 if ($itemValue === Value::INVALID) {
-                    // Issues have been collected further down already.
-                    return Value::INVALID;
+                    $isDirty = true;
+                    continue;
                 }
 
                 $parsed[] = $itemValue;
-                $index++;
             } catch (Throwable $exception) {
                 $context->addIssue(Issue::captureThrowable($exception));
                 return Value::INVALID;
@@ -62,6 +65,11 @@ final class ArrayType extends BaseType
                 $context->leave();
             }
         }
+
+        if ($isDirty) {
+            return Value::INVALID;
+        }
+
         return $parsed;
     }
 

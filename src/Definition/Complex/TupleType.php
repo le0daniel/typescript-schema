@@ -46,19 +46,26 @@ final class TupleType extends BaseType
             throw Issue::custom("Amount of values did not match expected tuple values.");
         }
 
+        $isDirty = false;
         $parsed = [];
         foreach ($value as $index => $itemValue) {
             $context->enter($index);
             try{
                  $value = $this->types[$index]->execute($itemValue, $context);
                  if ($value === Value::INVALID) {
-                     return Value::INVALID;
+                     $isDirty = true;
+                     continue;
                  }
                 $parsed[] = $value;
             } finally {
                 $context->leave();
             }
         }
+
+        if ($isDirty) {
+            return Value::INVALID;
+        }
+
         return $parsed;
     }
 

@@ -61,4 +61,14 @@ class RecordTypeTest extends TestCase
         self::assertCount(1, $result->issues);
         self::assertEquals(['email'], $result->issues[0]->getPath());
     }
+
+    public function testNumberOfIssues()
+    {
+        $type = RecordType::make(StringType::make()->nonEmpty());
+        $result = $type->safeParse(['name' => 123, 'email' => '']);
+
+        self::assertCount(2, $result->issues);
+        self::assertEquals('invalid_type', $result->issues[0]->getLocalizationKey());
+        self::assertEquals('string.invalid_empty', $result->issues[1]->getLocalizationKey());
+    }
 }

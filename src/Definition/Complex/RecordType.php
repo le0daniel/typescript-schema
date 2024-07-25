@@ -30,6 +30,7 @@ final class RecordType extends BaseType
             throw Issue::invalidType('iterable', $value);
         }
 
+        $isDirty = false;
         $values = [];
         foreach ($value as $name => $itemValue) {
             $context->enter($name);
@@ -37,12 +38,14 @@ final class RecordType extends BaseType
             try {
                 if (!is_string($name)) {
                     $context->addIssue(Issue::invalidKey("string", $name));
-                    return Value::INVALID;
+                    $isDirty = true;
+                    continue;
                 }
 
                 $value = $this->ofType->execute($itemValue, $context);
                 if ($value === Value::INVALID) {
-                    return Value::INVALID;
+                    $isDirty = true;
+                    continue;
                 }
                 $values[$name] = $value;
             } catch (Throwable $exception) {
@@ -52,6 +55,10 @@ final class RecordType extends BaseType
             finally {
                 $context->leave();
             }
+        }
+
+        if ($isDirty) {
+            return Value::INVALID;
         }
 
         return $values;
