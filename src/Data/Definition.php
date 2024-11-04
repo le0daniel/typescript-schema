@@ -2,54 +2,41 @@
 
 namespace TypescriptSchema\Data;
 
-use Closure;
-use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Utils\Typescript;
 
-final readonly class Definition implements \Stringable
+final readonly class Definition implements SchemaDefinition
 {
 
     public function __construct(
-        public readonly string $input,
-        public readonly string $output,
+        public array $input,
+        public array $output,
     )
     {
     }
 
-    public static function same(string $definition): self
+    public static function same(array $definition): Definition
     {
-        return new self($definition, $definition);
+        return new Definition($definition, $definition);
     }
 
-    public function __toString(): string
+    public function toInputSchema(): array
+    {
+        return $this->input;
+    }
+
+    public function toOutputSchema(): array
     {
         return $this->output;
     }
 
-    public static function join(string $joiner, Type ... $definitions): self
+    public function toTypescriptInput(): string
     {
-        return new self(
-            implode($joiner, array_map(fn(Type $definition) => $definition->toDefinition()->input, $definitions)),
-            implode($joiner, array_map(fn(Type $definition) => $definition->toDefinition()->output, $definitions)),
-        );
+        return Typescript::fromJsonSchema($this->input);
     }
 
-    public function wrap(Closure $wrapper): self
+    public function toTypescriptOutput(): string
     {
-        return new self(
-            $wrapper($this->input),
-            $wrapper($this->output),
-        );
-    }
-
-    public function overwriteOutput(string|Closure|null $output): self
-    {
-        return new self(
-            $this->input,
-            match (true) {
-                is_string($output) => $output,
-                $output instanceof Closure => $output($this),
-                default => 'unknown',
-            }
-        );
+        return Typescript::fromJsonSchema($this->output);
     }
 }

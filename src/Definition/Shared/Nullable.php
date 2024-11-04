@@ -2,14 +2,21 @@
 
 namespace TypescriptSchema\Definition\Shared;
 
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 
-trait IsNullable
+/**
+ * @template T of Type
+ */
+trait Nullable
 {
+
     /**
-     * @return $this
+     * @return NullableWrapper<T>
      */
-    public function nullable(): mixed {
+    public function nullable(): NullableWrapper
+    {
         return NullableWrapper::make($this);
     }
+
 }

@@ -3,15 +3,23 @@
 namespace TypescriptSchema\Definition\Primitives;
 
 use ReflectionEnum;
+use TypescriptSchema\Contracts\LeafType;
+use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Definition\Shared\Coerce;
 use TypescriptSchema\Definition\Shared\InternalTransformers;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Utils\Typescript;
 use UnitEnum;
 
-class EnumType extends PrimitiveType
+class EnumType implements LeafType
 {
-    use InternalTransformers;
+    /** @uses Nullable<EnumType> */
+    use Nullable;
 
     /**
      * @template T of UnitEnum
@@ -21,78 +29,59 @@ class EnumType extends PrimitiveType
     {
     }
 
-    public function asString(): static
-    {
-        return $this->addInternalTransformer(function (UnitEnum $enum): string {
-            return $enum->name;
-        }, implode('|', array_map(Typescript::enumString(...), $this->enumClassName::cases())));
-    }
-
     /**
      * @template T of UnitEnum
-     * @param class-string<T>|null $enumClassName
-     * @return EnumType
+     * @param class-string<T> $enumClassName
      */
-    public static function make(?string $enumClassName = null): static
+    public static function make(string $enumClassName): EnumType
     {
         return new self($enumClassName);
     }
 
-    /**
-     * @throws \ReflectionException
-     */
-    public function toDefinition(): Definition
+    private function parseStringValueToEnum(string|UnitEnum $value): UnitEnum
     {
-        $inputDefinition = implode('|', array_map(Typescript::enumString(...), $this->enumClassName::cases()));
+        /** @var UnitEnum $enumClass */
+        $enumClass = $this->enumClassName;
+        $cases = $enumClass::cases();
 
-        if ($this->overwrittenOutputType) {
-            return new Definition($inputDefinition, $this->overwrittenOutputType);
-        }
 
-        $reflection = new ReflectionEnum($this->enumClassName);
-        if (!$reflection->isBacked()) {
-            // Unit enums fail to serialize to json, so the output type is never.
-            return new Definition($inputDefinition, 'never');
-        }
-
-        // As backed enums are serialized to values in PHP, by default, we add the types as
-        // a union of literal values.
-        return new Definition(
-            $inputDefinition,
-            implode('|', array_map(Typescript::enumValueString(...), $this->enumClassName::cases())),
-        );
-    }
-
-    protected function parsePrimitiveType(mixed $value): mixed
-    {
-        if ($value instanceof $this->enumClassName) {
-            return $value;
-        }
-
-        if (!is_string($value)) {
-            throw Issue::invalidType('enum-string', $value);
-        }
-
-        foreach ($this->enumClassName::cases() as $enumClass) {
-            if ($value === $enumClass->name) {
-                return $enumClass;
+        foreach ($cases as $case) {
+            if ($case === $value || $case->name === $value) {
+                return $case;
             }
         }
 
-        throw Issue::invalidType('enum-string', $value);
+
+
+        return Value::INVALID;
     }
 
-    protected function coerceValue(mixed $value): mixed
+    public function parseAndValidate(mixed $value, Context $context): Value|UnitEnum
     {
-        if (!is_string($value) && !is_int($value)) {
-            return $value;
+        $enumValue = $this->parseStringValueToEnum($value);
+        if ($enumValue === Value::INVALID) {
+            $context->addIssue(Issue::invalidType('Enum value', $value));
+            return Value::INVALID;
         }
 
-        $reflection = new ReflectionEnum($this->enumClassName);
-        if (!$reflection->isBacked()) {
-            return $value;
-        }
+        return $enumValue;
+    }
 
-        return $this->enumClassName::tryFrom($value) ?? $value;
+    public function validateAndSerialize(mixed $value, Context $context): Value|string
+    {
+        $enumValue = $this->parseStringValueToEnum($value);
+        if ($enumValue === Value::INVALID) {
+            $context->addIssue(Issue::invalidType('Enum value', $value));
+            return Value::INVALID;
+        }
+        return $enumValue->name;
+    }
+
+    public function toDefinition(): SchemaDefinition
+    {
+        $cases = $this->enumClassName::cases();
+        return Definition::same([
+            'enum' => array_map(fn(UnitEnum $case): string => $case->name, $cases),
+        ]);
     }
 }

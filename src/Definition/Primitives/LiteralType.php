@@ -2,77 +2,67 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
-use BackedEnum;
-use RuntimeException;
+use TypescriptSchema\Contracts\LeafType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Data\Definition;
-use TypescriptSchema\Definition\Shared\InternalTransformers;
-use TypescriptSchema\Exceptions\Issue;
-use TypescriptSchema\Utils\Typescript;
+use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Helpers\Context;
 use UnitEnum;
 
-/**
- * @extends PrimitiveType<string|int|bool|UnitEnum>
- */
-final class LiteralType extends PrimitiveType 
+final class LiteralType implements LeafType
 {
-    use InternalTransformers;
+    /** @uses Nullable<LiteralType> */
+    use Nullable;
 
-    public function __construct(private readonly string|int|float|bool|UnitEnum|null $literalValue)
+    public function __construct(private readonly string|int|float|bool|UnitEnum $literalValue)
     {
     }
 
-    public static function make(string|int|float|bool|UnitEnum|null $literalValue = null): static
+    public static function make(string|int|float|bool|UnitEnum|null $literalValue): static
     {
         return new self($literalValue);
     }
 
-    /**
-     * Ensures that enums are of type string after validation is successful.
-     * This is useful for serialization, as you can not JSON serialize UnitEnums that are not backed.
-     * @return self
-     */
-    public function enumAsNameString(): static
+    public function toDefinition(): SchemaDefinition
     {
-        return $this->addInternalTransformer(static function (mixed $value) {
-            if ($value instanceof UnitEnum) {
-                return $value->name;
-            }
+        $definition = $this->literalValue instanceof UnitEnum
+            ? $this->literalValue->name
+            : $this->literalValue;
 
-            return $value;
-        }, $this->literalValue instanceof UnitEnum ? Typescript::enumString($this->literalValue) : null);
+        return Definition::same([
+            'const' => $definition
+        ]);
     }
 
-    protected function parsePrimitiveType(mixed $value): mixed
+    public function parseAndValidate(mixed $value, Context $context): mixed
     {
-        if ($this->literalValue === null) {
-            throw new RuntimeException('Literal value cannot be null.');
-        }
-
         if ($this->literalValue instanceof UnitEnum && $value === $this->literalValue->name) {
             return $this->literalValue;
         }
 
         if ($value !== $this->literalValue) {
-            throw Issue::invalidType($this->literalValue, $value);
+            return Value::INVALID;
         }
 
         return $value;
     }
 
-    protected function coerceValue(mixed $value): mixed
+    public function validateAndSerialize(mixed $value, Context $context): mixed
     {
+        // Ensure enums are serialized as strings
+        if ($this->literalValue instanceof UnitEnum && $value === $this->literalValue->name) {
+            return $this->literalValue->name;
+        }
+
+        if ($value !== $this->literalValue) {
+            return Value::INVALID;
+        }
+
+        if ($value instanceof UnitEnum) {
+            return $value->name;
+        }
+
         return $value;
-    }
-
-    public function toDefinition(): Definition
-    {
-        $definition = $this->literalValue instanceof UnitEnum
-            ? new Definition(
-                Typescript::enumString($this->literalValue),
-                Typescript::enumValueString($this->literalValue)
-            )
-            : Definition::same(Typescript::literal($this->literalValue));
-
-        return $this->applyTransformerToDefinition($definition);
     }
 }

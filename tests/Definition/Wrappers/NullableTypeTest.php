@@ -4,6 +4,7 @@ namespace TypescriptSchema\Tests\Definition\Wrappers;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Definition\Primitives\StringType;
@@ -78,7 +79,7 @@ class NullableTypeTest extends TestCase
                 return ['value'];
             }
 
-            public function toDefinition(): Definition
+            public function toDefinition(): SchemaDefinition
             {
                 return Definition::same('something');
             }

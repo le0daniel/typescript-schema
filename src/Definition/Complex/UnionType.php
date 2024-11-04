@@ -3,17 +3,22 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use Closure;
+use RuntimeException;
+use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\BaseType;
-use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Schema;
 
-final class UnionType extends BaseType
+final class UnionType implements ComplexType
 {
-    use IsNullable;
+    /** @uses Nullable<UnionType> */
+    use Nullable;
 
     /**
      * @var Closure(mixed):(int|string)
@@ -83,16 +88,20 @@ final class UnionType extends BaseType
         throw Issue::custom("Value did not match any of the union types.");
     }
 
-    private function resolveByClosure(mixed $value, Context $context): mixed
+    /**
+     * @param mixed $value
+     * @return Type
+     * @throws RuntimeException
+     */
+    private function resolveByClosure(mixed $value): Type
     {
         $keyOrIndex = ($this->resolveType)($value);
         if (is_int($keyOrIndex) && !array_is_list($this->types)) {
             $key = array_keys($this->types)[$keyOrIndex];
-            return $this->types[$key]->execute($value, $context);
+            return $this->types[$key];
         }
 
-        $type = $this->types[($this->resolveType)($value)];
-        return $type->execute($value, $context);
+        return $this->types[($this->resolveType)($value)];
     }
 
     private function parseInPartialMode(mixed $value, Context $context): mixed
@@ -131,8 +140,31 @@ final class UnionType extends BaseType
         throw Issue::custom('Could not match union to any type');
     }
 
-    public function toDefinition(): Definition
+    public function toDefinition(): SchemaDefinition
     {
-        return Definition::join('|', ... $this->types);
+        return Definition::same([
+            'oneOf' => array_map(fn(Type $type) => $type->toDefinition(), $this->types)
+        ]);
+    }
+
+    public function resolve(mixed $value, Context $context): mixed
+    {
+        if (isset($this->resolveType)) {
+            return Executor::execute($this->resolveByClosure($value), $value, $context);
+        }
+
+        $validationContext = $context->cloneForProbing();
+
+        foreach ($this->types as $type) {
+            $result = Executor::execute($type, $value, $validationContext);
+            if ($result !== Value::INVALID) {
+                return $result;
+            }
+        }
+
+        // Add all issues that occurred during union resolving.
+        $context->mergeProbingIssues($validationContext);
+        $context->addIssue(Issue::custom("Value did not match any of the union types."));
+        return Value::INVALID;
     }
 }

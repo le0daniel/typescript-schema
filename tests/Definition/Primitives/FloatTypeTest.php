@@ -4,7 +4,7 @@ namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use TypescriptSchema\Definition\Primitives\FloatType;
+use TypescriptSchema\Definition\Primitives\NumberType;
 
 class FloatTypeTest extends TestCase
 {
@@ -12,7 +12,7 @@ class FloatTypeTest extends TestCase
     #[DataProvider('successfulParsingOfValuesDataProvider')]
     public function testSuccessfulParsingOfValues(mixed $value): void
     {
-        self::assertTrue(FloatType::make()->safeParse($value)->isSuccess());
+        self::assertTrue(NumberType::make()->safeParse($value)->isSuccess());
     }
 
     public static function successfulParsingOfValuesDataProvider(): array {
@@ -25,7 +25,7 @@ class FloatTypeTest extends TestCase
     #[DataProvider('successfulWithCoercionDataProvider')]
     public function testSuccessfulWithCoercion(float $expected, mixed $value): void
     {
-        self::assertSame($expected, FloatType::make()->coerce()->parse($value));
+        self::assertSame($expected, NumberType::make()->coerce()->parse($value));
     }
 
     public static function successfulWithCoercionDataProvider(): array {
@@ -42,8 +42,8 @@ class FloatTypeTest extends TestCase
 
     public function testDefinition():void
     {
-        self::assertEquals('number', FloatType::make()->toDefinition()->output);
-        self::assertEquals('number', FloatType::make()->toDefinition()->input);
+        self::assertEquals('number', NumberType::make()->toDefinition()->output);
+        self::assertEquals('number', NumberType::make()->toDefinition()->input);
     }
 
 }

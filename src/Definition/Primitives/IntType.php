@@ -3,67 +3,93 @@
 namespace TypescriptSchema\Definition\Primitives;
 
 use Throwable;
+use TypescriptSchema\Contracts\LeafType;
+use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Definition\Shared\Coerce;
+use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\Context;
 
-/**
- * @extends PrimitiveType<int>
- */
-final class IntType extends PrimitiveType
+final class IntType implements LeafType
 {
-    protected function parsePrimitiveType(mixed $value): int
-    {
-        if (!is_int($value)) {
-            throw Issue::invalidType('int', $value);
-        }
+    /** @uses Nullable<IntType> */
+    use Coerce, Nullable, Validators;
 
-        return (int) $value;
-    }
-
-    protected function coerceValue(mixed $value): int
+    private function coerceValue(mixed $value): mixed
     {
         try {
-            return (int) $value;
+            return match ($value) {
+                'true' => 1,
+                'false' => 0,
+                default => (int) $value
+            };
         } catch (Throwable) {
-            throw Issue::coercionFailure('int', $value);
+            return $value;
         }
     }
 
-    /**
-     * @template T
-     * @psalm-param T $this
-     * @param int $min
-     * @return T
-     */
-    public function min(int $min): static
+    public static function make(): self
     {
-        return $this->addValidator(static function(int $value) use ($min) {
-            if ($value < $min) {
-                throw Issue::custom(
-                    "Expected value to be bigger than {$min}, got {$value}",
-                    ['min' => $min],
-                    localizationKey: 'int.invalid_min'
-                );
-            }
-            return true;
-        });
+        return new self();
     }
 
-    public function max(int $max): static {
-        return $this->addValidator(static function(int $value) use ($max) {
-            if ($value > $max) {
-                throw Issue::custom(
-                    "Expected value to be smaller than {$max}, got {$value}",
-                    ['max' => $max],
-                    localizationKey: 'int.invalid_max'
-                );
-            }
-            return true;
-        });
+    public function toDefinition(): SchemaDefinition
+    {
+        return Definition::same(['type' => 'integer']);
     }
 
-    public function toDefinition(): Definition
+    public function min(int $minValue, bool $including = true): IntType
     {
-        return Definition::same('number');
+        return $this->addValidator(static function (int $value) use ($minValue, $including): bool {
+            return $including ? $value >= $minValue : $value > $minValue;
+        }, 'Value must be greater than or equal to ' . $minValue);
+    }
+
+    public function max(int $maxValue, bool $including = true): IntType
+    {
+        return $this->addValidator(static function (int $value) use ($maxValue, $including): bool {
+            return $including ? $value <= $maxValue : $value < $maxValue;
+        }, 'Value must be smaller than or equal to ' . $maxValue);
+    }
+
+    public function parseAndValidate(mixed $value, Context $context): Value|int
+    {
+        // Coercion is ONLY applied on input.
+        $value = $this->applyCoercionIfEnabled($value);
+
+        if (!is_int($value)) {
+            $context->addIssue(Issue::invalidType('integer', $value));
+            return Value::INVALID;
+        }
+
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+        return $value;
+    }
+
+    public function validateAndSerialize(mixed $value, Context $context): Value|int
+    {
+        if (!is_int($value)) {
+            $context->addIssue(Issue::invalidType('integer', $value));
+            return Value::INVALID;
+        }
+
+        // In case validation is disabled, we only guarantee the type
+        // All other validations are disabled. This can be useful in production
+        // to reduce the memory consumption.
+        if (!$context->validateOnSerialize) {
+            return $value;
+        }
+
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+
+        return $value;
     }
 }

@@ -2,52 +2,34 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use Throwable;
+use TypescriptSchema\Contracts\LeafType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Data\Definition;
-use TypescriptSchema\Definition\Shared\InternalTransformers;
+use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Definition\Shared\Coerce;
+use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\Context;
 
-/**
- * @extends PrimitiveType<string>
- */
-class StringType extends PrimitiveType 
+class StringType implements LeafType
 {
-    use InternalTransformers;
+    /** @uses Nullable<StringType> */
+    use Nullable, Validators, Coerce;
 
-    protected function parsePrimitiveType(mixed $value): string
+    public static function make(): StringType
     {
-        if (!is_string($value) && !$value instanceof \Stringable) {
-            throw Issue::invalidType($this->toDefinition()->input, $value);
-        }
-
-        return (string) $value;
+        return new self();
     }
 
-    protected function coerceValue(mixed $value): string
+    protected function coerceValue(mixed $value): string|Value
     {
         try {
             return (string) $value;
-        } catch (\Throwable) {
-            throw Issue::coercionFailure('string', $value);
+        } catch (Throwable) {
+            return $value;
         }
-    }
-
-    /**
-     * Transforms the result to uppercase after successful validation.
-     * @return self
-     */
-    public function upperCase(): static
-    {
-        return $this->addInternalTransformer(strtoupper(...));
-    }
-
-    public function lowerCase(): static
-    {
-        return $this->addInternalTransformer(strtolower(...));
-    }
-
-    public function trim(): static
-    {
-        return $this->addInternalTransformer(static fn(string $value) => trim($value));
     }
 
     public function regex(string $regex): static
@@ -74,7 +56,7 @@ class StringType extends PrimitiveType
         });
     }
 
-    public function min(int $min): static
+    public function minLength(int $min): static
     {
         return $this->addValidator(static function (string $value) use ($min) {
             if (strlen($value) < $min) {
@@ -115,7 +97,7 @@ class StringType extends PrimitiveType
         });
     }
 
-    public function max(int $max): static
+    public function maxLength(int $max): static
     {
         return $this->addValidator(static function (string $value) use ($max) {
             if (strlen($value) > $max) {
@@ -157,8 +139,36 @@ class StringType extends PrimitiveType
         });
     }
 
-    public function toDefinition(): Definition
+    public function toDefinition(): SchemaDefinition
     {
-        return Definition::same('string');
+        return Definition::same([
+            'type' => 'string'
+        ]);
+    }
+
+    public function parseAndValidate(mixed $value, Context $context): mixed
+    {
+        $value = $this->applyCoercionIfEnabled($value);
+        if (!is_string($value)) {
+            $context->addIssue(Issue::invalidType('string', $value));
+            return Value::INVALID;
+        }
+
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+
+        return $value;
+    }
+
+    public function validateAndSerialize(mixed $value, Context $context): mixed
+    {
+        $value = (string) $value;
+
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+
+        return $value;
     }
 }

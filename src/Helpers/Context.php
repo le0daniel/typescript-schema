@@ -2,18 +2,21 @@
 
 namespace TypescriptSchema\Helpers;
 
+use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Exceptions\Issue;
 
 class Context
 {
-    /** @var array<int|string>  */
+    /** @var array<int|string> */
     private array $currentPath = [];
 
-    /** @var array<Issue>  */
+    /** @var array<Issue> */
     private array $issues = [];
 
     public function __construct(
-        public readonly bool $allowPartialFailures = false,
+        public readonly ExecutionMode $mode = ExecutionMode::SERIALIZE,
+        public readonly bool          $allowPartialFailures = false,
+        public readonly bool          $validateOnSerialize = true,
     )
     {
     }
@@ -48,8 +51,8 @@ class Context
     }
 
     /**
-     * @api
      * @return array<Issue>
+     * @api
      */
     public function getIssues(): array
     {

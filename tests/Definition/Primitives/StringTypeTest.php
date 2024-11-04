@@ -4,18 +4,17 @@ namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\StringType;
-use TypescriptSchema\Definition\Wrappers\NullableWrapper;
+use TypescriptSchema\Helpers\Context;
 
 class StringTypeTest extends TestCase
 {
     public function testTypescriptDefinition(): void
     {
-        self::assertSame('string', StringType::make()->toDefinition()->input);
-        self::assertSame('string', StringType::make()->toDefinition()->output);
-        self::assertSame('string', StringType::make()->lowerCase()->toDefinition()->output);
-        self::assertSame('string', StringType::make()->upperCase()->toDefinition()->output);
-        self::assertSame('string', StringType::make()->trim()->toDefinition()->output);
+        self::assertSame(['type' => 'string'], StringType::make()->toDefinition()->toInputSchema());
+        self::assertSame(['type' => 'string'], StringType::make()->toDefinition()->toOutputSchema());
     }
 
     private function wrap(mixed $value): array
@@ -24,19 +23,18 @@ class StringTypeTest extends TestCase
     }
 
     #[DataProvider('successfulPassesDataProvider')]
-    public function testSuccessfulPasses(StringType|NullableWrapper $type, mixed $successful, mixed $failing = null): void
+    public function testSuccessfulPasses(Type $type, mixed $successful, mixed $failing = null): void
     {
         $successful = $this->wrap($successful ?? []);
         $failing = $this->wrap($failing ?? []);
 
         foreach ($successful as $value) {
-            $result = $type->safeParse($value);
-            self::assertTrue($result->isSuccess(), 'Failed for value: ' . $value);
+            $result = $type->parseAndValidate($value, new Context());
+            self::assertNotSame(Value::INVALID, $result);
         }
 
         foreach ($failing as $value) {
-            $result = $type->safeParse($value);
-            self::assertFalse($result->isSuccess(), "Success for value '{$value}'.");
+            self::assertSame(Value::INVALID,  $type->parseAndValidate($value, new Context()));
         }
     }
 
@@ -62,12 +60,12 @@ class StringTypeTest extends TestCase
                 'My String',
             ],
             'exact min length' => [
-                StringType::make()->min(6),
+                StringType::make()->minLength(6),
                 'String',
                 'Strin'
             ],
             'exact max length' => [
-                StringType::make()->max(6),
+                StringType::make()->maxLength(6),
                 'String',
                 'string+1'
             ],
@@ -111,35 +109,13 @@ class StringTypeTest extends TestCase
                 [PHP_EOL, '', ' ', '    ', "     \n\r\t\0"]
             ],
             'stringable' => [
-                StringType::make(),
+                StringType::make()->coerce(),
                 self::stringable('value'),
             ],
-        ];
-    }
-
-    #[DataProvider('transformDataProvider')]
-    public function testTransform(StringType $type, mixed $value, mixed $expected): void
-    {
-        self::assertEquals($expected, $type->parse($value));
-    }
-
-    public static function transformDataProvider(): array
-    {
-        return [
-            'uppercase' => [
-                StringType::make()->upperCase(),
-                'my-string',
-                'MY-STRING',
-            ],
-            'lowercase' => [
-                StringType::make()->lowerCase(),
-                'MY-STRING',
-                'my-string',
-            ],
-            'trim' => [
-                StringType::make()->trim(),
-                '   My String  ',
-                'My String',
+            'stringable failure without coercion' => [
+                StringType::make(),
+                [],
+                self::stringable('value')
             ],
         ];
     }

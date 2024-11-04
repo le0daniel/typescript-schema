@@ -2,109 +2,39 @@
 
 namespace TypescriptSchema;
 
-use Closure;
+use RuntimeException;
+use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\LeafType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Definition\Complex\ArrayType;
-use TypescriptSchema\Definition\Complex\DiscriminatedUnionType;
-use TypescriptSchema\Definition\Complex\ObjectType;
-use TypescriptSchema\Definition\Complex\RecordType;
-use TypescriptSchema\Definition\Complex\TupleType;
-use TypescriptSchema\Definition\Complex\UnionType;
-use TypescriptSchema\Definition\Primitives\AnyType;
-use TypescriptSchema\Definition\Primitives\BoolType;
-use TypescriptSchema\Definition\Primitives\DateTimeType;
-use TypescriptSchema\Definition\Primitives\EnumType;
-use TypescriptSchema\Definition\Primitives\IntType;
-use TypescriptSchema\Definition\Primitives\LiteralType;
-use TypescriptSchema\Definition\Primitives\StringType;
-use TypescriptSchema\Definition\Primitives\UnknownType;
-use UnitEnum;
+use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Data\Enum\ExecutionMode;
+use TypescriptSchema\Execution\Executor;
+use TypescriptSchema\Helpers\Context;
 
-/**
- * Inherit form this class to create your own shortcuts. All types are immutable, so you can reuse them if needed without any issues.
- */
-class Schema
+final class Schema
 {
-    public static function any(): AnyType
+    public function __construct(private readonly Type $type)
     {
-        return new AnyType();
     }
 
-    public static function unknown(): UnknownType
+    public static function make(Type $type): self
     {
-        return new UnknownType();
+        return new self($type);
     }
 
-    public static function string(): StringType
+    public function serialize(mixed $data, array $options = [])
     {
-        return StringType::make();
+        return Executor::execute($this->type, $data, new Context(mode: ExecutionMode::SERIALIZE));
     }
 
-    public static function int(): IntType
+    public function parse(mixed $data, array $options = [])
     {
-        return IntType::make();
+        return Executor::execute($this->type, $data, new Context(mode: ExecutionMode::PARSE));
     }
 
-    public static function dateTime(?string $format = null): DateTimeType
+    public function toDefinition(): SchemaDefinition
     {
-        return DateTimeType::make($format);
+        return $this->type->toDefinition();
     }
-
-    public static function bool(): BoolType
-    {
-        return BoolType::make();
-    }
-
-    public static function literal(string|int|float|bool|UnitEnum $value): LiteralType
-    {
-        return LiteralType::make($value);
-    }
-
-    /**
-     * @template T of UnitEnum
-     * @param class-string<T> $className
-     * @return EnumType
-     */
-    public static function enum(string $className): EnumType
-    {
-        return EnumType::make($className);
-    }
-
-    public static function array(Type $type): ArrayType
-    {
-        return new ArrayType($type);
-    }
-
-    public static function record(Type $ofType): RecordType
-    {
-        return new RecordType($ofType);
-    }
-
-    public static function object(array|Closure $definition): ObjectType
-    {
-        return ObjectType::make($definition);
-    }
-
-    public static function tuple(Type ... $types): TupleType
-    {
-        return TupleType::make(...$types);
-    }
-
-    public static function union(Type... $types): UnionType
-    {
-        return UnionType::make(...$types);
-    }
-
-    public static function discriminatedUnion(string $discriminator, Type ... $types): DiscriminatedUnionType
-    {
-        return DiscriminatedUnionType::make($discriminator, ...$types);
-    }
-
-    public static function literalUnion(array $literals): UnionType
-    {
-        return UnionType::make(
-            ... array_map(fn($literal) => new LiteralType($literal), $literals)
-        );
-    }
-
 }

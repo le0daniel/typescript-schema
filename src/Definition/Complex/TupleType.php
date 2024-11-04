@@ -3,17 +3,21 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use RuntimeException;
+use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\BaseType;
-use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Schema;
 
-final class TupleType extends BaseType
+final class TupleType implements ComplexType
 {
-    use IsNullable;
+    /** @uses Nullable<TupleType> */
+    use Nullable;
 
     /**
      * @param array<Type> $types
@@ -27,35 +31,59 @@ final class TupleType extends BaseType
         }
     }
 
-    public static function make(Type ... $types): self
+    public static function make(Type ...$types): self
     {
         return new self($types);
     }
 
-    protected function validateAndParseType(mixed $value, Context $context): array|Value
+    public function toDefinition(): SchemaDefinition
+    {
+        $inputDef = array_map(fn(Type $type): array => $type->toDefinition()->toOutputSchema(), $this->types);
+        $outputDef = array_map(fn(Type $type): array => $type->toDefinition()->toInputSchema(), $this->types);
+
+        return new Definition(
+            ['type' => 'array', 'prefixItems' => $inputDef, 'items' => false],
+            ['type' => 'array', 'prefixItems' => $outputDef, 'items' => false],
+        );
+    }
+
+    private function verifyValue(mixed $value, Context $context): array|Value
     {
         if (!is_array($value)) {
-            throw Issue::invalidType('array', $value);
+            $context->addIssue(Issue::invalidType('array', $value));
+            return Value::INVALID;
         }
 
         if (!array_is_list($value)) {
-            throw Issue::custom("Expected list array, got non list array, check the array keys.");
+            $context->addIssue(Issue::custom("Expected list array, got non list array, check the array keys."));
+            return Value::INVALID;
         }
 
         if (count($this->types) !== count($value)) {
-            throw Issue::custom("Amount of values did not match expected tuple values.");
+            $context->addIssue(Issue::custom("Amount of values did not match expected tuple values."));
+            return Value::INVALID;
+        }
+
+        return $value;
+    }
+
+    public function resolve(mixed $value, Context $context): mixed
+    {
+        $value = $this->verifyValue($value, $context);
+        if ($value === Value::INVALID) {
+            return Value::INVALID;
         }
 
         $isDirty = false;
         $parsed = [];
         foreach ($value as $index => $itemValue) {
             $context->enter($index);
-            try{
-                 $value = $this->types[$index]->execute($itemValue, $context);
-                 if ($value === Value::INVALID) {
-                     $isDirty = true;
-                     continue;
-                 }
+            try {
+                $value = Executor::execute($this->types[$index], $itemValue, $context);
+                if ($value === Value::INVALID) {
+                    $isDirty = true;
+                    continue;
+                }
                 $parsed[] = $value;
             } finally {
                 $context->leave();
@@ -67,16 +95,5 @@ final class TupleType extends BaseType
         }
 
         return $parsed;
-    }
-
-    public function toDefinition(): Definition
-    {
-        $inputDef = array_map(fn(Type $type): string => $type->toDefinition()->input, $this->types);
-        $outputDef = array_map(fn(Type $type): string => $type->toDefinition()->output, $this->types);
-
-        return new Definition(
-            '[' . implode(', ', $inputDef) . ']',
-            '[' . implode(', ', $outputDef) . ']'
-        );
     }
 }

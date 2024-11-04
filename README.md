@@ -18,7 +18,7 @@ Define your schema for input or output.
 use TypescriptSchema\Schema;
 
 $user = Schema::object([
-    'name' => Schema::string()->nonEmpty()->min(1)->max(255),
+    'name' => Schema::string()->nonEmpty()->minLength(1)->maxLength(255),
     'email' => Schema::string()->email()->endsWith('.com')
 ]);
 

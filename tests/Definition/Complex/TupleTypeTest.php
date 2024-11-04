@@ -2,52 +2,39 @@
 
 namespace TypescriptSchema\Tests\Definition\Complex;
 
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Complex\TupleType;
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
-use TypescriptSchema\Tests\Definition\TestsParsing;
+use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Utils\Typescript;
 
 class TupleTypeTest extends TestCase
 {
-    use TestsParsing;
-
-    public static function parsingDataProvider(): array
+    public function testParsing()
     {
-        return [
-            'array' => [
-                TupleType::make(StringType::make(), IntType::make()),
-                [
-                    ['one', 1],
-                ],
-                [
-                    [],
-                    ['one'],
-                    ['one' => 'one'],
-                    [null, null],
-                ]
-            ]
-        ];
+        $type = TupleType::make(StringType::make(), IntType::make());
+        self::assertSame(['one', 1], $type->parseAndValidate(['one', 1], new Context()));
+        self::assertSame(Value::INVALID, $type->parseAndValidate(['one'], new Context()));
+        self::assertSame(Value::INVALID, $type->parseAndValidate([1, 'one'], new Context()));
+        self::assertSame(Value::INVALID, $type->parseAndValidate(['one' => 'one', 1], new Context()));
+        self::assertSame(Value::INVALID, $type->parseAndValidate([], new Context()));
     }
 
     public function testToDefinition(): void
     {
         $type = TupleType::make(StringType::make(), IntType::make());
-        self::assertEquals('[string, number]', $type->toDefinition()->input);
-        self::assertEquals('[string, number]', $type->toDefinition()->output);
-
-        $type = TupleType::make(StringType::make(), IntType::make()->transform(fn() => true, 'boolean'));
-        self::assertEquals('[string, number]', $type->toDefinition()->input);
-        self::assertEquals('[string, boolean]', $type->toDefinition()->output);
+        self::assertEquals('[string,number]', Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
+        self::assertEquals('[string,number]', Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
     }
 
     public function testNumberOfIssuesCollected(): void
     {
-        $type = TupleType::make(StringType::make(), IntType::make()->min(10));
-        $result = $type->safeParse([123, 9]);
+        $type = TupleType::make(StringType::make(), IntType::make());
+        $result = $type->parseAndValidate([123, "9"], $context = new Context());
 
-        self::assertCount(2, $result->issues);
-        self::assertEquals('invalid_type', $result->issues[0]->getLocalizationKey());
-        self::assertEquals('int.invalid_min', $result->issues[1]->getLocalizationKey());
+        self::assertSame(Value::INVALID, $result);
+        self::assertCount(2, $context->getIssues());
     }
 }

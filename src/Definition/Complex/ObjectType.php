@@ -3,18 +3,21 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use Closure;
-use Throwable;
+use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\BaseType;
-use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Schema;
 
-final class ObjectType extends BaseType
+final class ObjectType implements ComplexType
 {
-    use IsNullable;
+    /** @uses Nullable<ObjectType> */
+    use Nullable;
 
     private bool|Closure $passThrough = false;
 
@@ -30,7 +33,7 @@ final class ObjectType extends BaseType
     {
     }
 
-    public static function make(array|Closure $definition): self
+    public static function make(array|Closure $definition): ObjectType
     {
         return new self($definition);
     }
@@ -63,20 +66,54 @@ final class ObjectType extends BaseType
     }
 
     /**
-     * @param mixed $value
-     * @param Context $context
-     * @return array|null
+     * This is used internally to locate a field by its name.
      * @internal
      */
-    protected function validateAndParseType(mixed $value, Context $context): array|Value
+    public function getFieldByName(string $name): Field
     {
-        if ($value === null) {
+        return $this->fields()[$name];
+    }
+
+    public function toDefinition(): SchemaDefinition
+    {
+        $required = [];
+
+        foreach ($this->fields() as $name => $field) {
+            if (!$field->isOptional()) {
+                $required[] = $name;
+            }
+        }
+
+        return new Definition(
+            [
+                'type' => 'object',
+                'properties' => array_map(static fn(Field $field) => [
+                    ...$field->getType()->toDefinition()->toInputSchema(),
+                    'description' => $field->getDescription(),
+                ], $this->fields),
+                'additionalProperties' => !!$this->passThrough,
+                'required' => $required,
+            ],
+            [
+                'type' => 'object',
+                'properties' => array_map(static fn(Field $field) => [
+                    'type' => $field->getType()->toDefinition()->toOutputSchema(),
+                    'description' => $field->getDescription(),
+                ], $this->fields),
+                'additionalProperties' => !!$this->passThrough,
+                'required' => $required,
+            ]
+        );
+    }
+
+    public function resolve(mixed $value, Context $context): mixed
+    {
+        if (!is_array($value)) {
             $context->addIssue(Issue::invalidType('array', $value));
             return Value::INVALID;
         }
 
         $parsed = [];
-
         $isDirty = false;
         foreach ($this->fields() as $name => $field) {
             $context->enter($name);
@@ -87,16 +124,13 @@ final class ObjectType extends BaseType
                     continue;
                 }
 
-                $parsedValue = $field->getType()->execute(Value::undefinedToNull($fieldValue), $context);
+                $parsedValue = Executor::execute($field->getType(), Value::undefinedToNull($fieldValue), $context);
                 if ($parsedValue === Value::INVALID) {
                     $isDirty = true;
                     continue;
                 }
 
                 $parsed[$name] = $parsedValue;
-            } catch (Throwable $exception) {
-                $context->addIssue(Issue::captureThrowable($exception));
-                return Value::INVALID;
             } finally {
                 $context->leave();
             }
@@ -110,49 +144,15 @@ final class ObjectType extends BaseType
             return $parsed;
         }
 
-        $valuesToPassThrough = match (true) {
+        $passthroughs = match (true) {
             $this->passThrough instanceof Closure => ($this->passThrough)($value),
             is_array($value) => $value,
             default => []
         };
 
         return [
-            ... $valuesToPassThrough,
-            ... $parsed,
+            ... $passthroughs,
+            ... $parsed
         ];
-    }
-
-    /**
-     * This is used internally to locate a field by its name.
-     * @internal
-     */
-    public function getFieldByName(string $name): Field
-    {
-        return $this->fields()[$name];
-    }
-
-    public function toDefinition(): Definition
-    {
-        $definitions = [];
-
-        foreach ($this->fields() as $name => $field) {
-            $typeName = $field->isOptional() ? "{$name}?" : $name;
-            $definitions[] = [
-                $field->isIsOnlyOutput() ? '' : "{$field->getDocBlock()}{$typeName}: {$field->getType()->toDefinition()->input};",
-                "{$field->getDocBlock()}{$typeName}: {$field->getType()->toDefinition()->output};",
-            ];
-        }
-
-        if ($this->passThrough) {
-            $definitions[] = [
-                '[key: string]: unknown;',
-                '[key: string]: unknown;',
-            ];
-        }
-
-        return new Definition(
-            '{' . implode(' ', array_column($definitions, 0)) . '}',
-            '{' . implode(' ', array_column($definitions, 1)) . '}'
-        );
     }
 }

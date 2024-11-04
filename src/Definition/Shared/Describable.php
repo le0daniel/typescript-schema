@@ -6,7 +6,7 @@ trait Describable
 {
     private readonly string|null $description;
     public function getDescription(): string|null {
-        return $this->description;
+        return $this->description ?? null;
     }
 
     public function describe(string $description): static

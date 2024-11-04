@@ -5,15 +5,22 @@ namespace TypescriptSchema\Definition\Primitives;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Throwable;
+use TypescriptSchema\Contracts\LeafType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Data\Definition;
-use TypescriptSchema\Definition\Shared\InternalTransformers;
+use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\Context;
 
-final class DateTimeType extends PrimitiveType
+final class DateTimeType implements LeafType
 {
-    use InternalTransformers;
+    /** @uses Nullable<DateTimeType> */
+    use Validators, Nullable;
 
-    private static string $DEFAULT_FORMAT = DateTime::ATOM;
+    private static string $DEFAULT_FORMAT = DateTimeInterface::ATOM;
 
     /**
      * Use this to globally change the date time format to whatever fits your need.
@@ -36,25 +43,17 @@ final class DateTimeType extends PrimitiveType
     }
 
     /**
-     * @throws Issue
+     * Accepts formatted string and returns the
+     *
+     * @param string|DateTime $value
+     * @return DateTimeImmutable
      */
-    protected function parsePrimitiveType(mixed $value): DateTimeImmutable
+    private function parseDateTime(string|DateTime $value): DateTimeImmutable
     {
-        if (is_string($value)) {
-            return $this->parseDateTimeString($value);
+        if ($value instanceof DateTimeInterface) {
+            return DateTimeImmutable::createFromInterface($value);
         }
 
-        if (!$value instanceof DateTimeInterface) {
-            throw Issue::invalidType('DateTime', $value);
-        }
-
-        return $value instanceof DateTimeImmutable
-            ? $value
-            : DateTimeImmutable::createFromInterface($value);
-    }
-
-    protected function parseDateTimeString(string $value): DateTimeImmutable
-    {
         $dateTime = DateTimeImmutable::createFromFormat($this->getFormat(), $value);
         if ($dateTime && $dateTime->format($this->getFormat()) === $value) {
             return $dateTime;
@@ -63,22 +62,9 @@ final class DateTimeType extends PrimitiveType
         throw Issue::invalidType("DateTimeString<format: {$this->getFormat()}>", $value);
     }
 
-    protected function coerceValue(mixed $value): mixed
-    {
-        return $value;
-    }
-
     private function getFormat(): string
     {
         return $this->format ?? self::$DEFAULT_FORMAT;
-    }
-
-    public function asFormattedString(?string $format = null): static
-    {
-        $format ??= $this->format;
-        return $this->addInternalTransformer(static function (DateTimeImmutable $timeImmutable) use ($format): string {
-            return $timeImmutable->format($format ?? DateTimeType::$DEFAULT_FORMAT);
-        }, 'string');
     }
 
     public function before(DateTimeImmutable $before): static
@@ -107,15 +93,54 @@ final class DateTimeType extends PrimitiveType
         });
     }
 
-    public function toDefinition(): Definition
+    public function toDefinition(): SchemaDefinition
     {
-        // Datetime has a different format for input and output, as by default when using json_serialize
-        // it creates an object containing, date, timezone_type and timezone.
-        return $this->applyTransformerToDefinition(
-            new Definition(
-                'string',
-                '{date: string, timezone_type: number, timezone: string}'
-            )
+        return new Definition(
+            [
+                'type' => 'string',
+                'description' => "Date Time string with Format: {$this->getFormat()}",
+            ],
+            [
+                'type' => 'string',
+                'description' => "Date Time string with Format: {$this->getFormat()}",
+            ]
         );
+    }
+
+    public function parseAndValidate(mixed $value, Context $context): DateTimeImmutable|Value
+    {
+        if (!is_string($value)) {
+            $context->addIssue(Issue::invalidType('DateTimeString', $value));
+            return Value::INVALID;
+        }
+
+        try {
+            $value = $this->parseDateTime($value);
+        } catch (Throwable) {
+            $context->addIssue(Issue::invalidType('DateTimeString', $value));
+            return Value::INVALID;
+        }
+
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+
+        return $value;
+    }
+
+    public function validateAndSerialize(mixed $value, Context $context): string|Value
+    {
+        try {
+            $dateTime = $this->parseDateTime($value);
+        } catch (Throwable) {
+            $context->addIssue(Issue::invalidType('DateTimeString', $value));
+            return Value::INVALID;
+        }
+
+        if (!$this->runValidators($dateTime, $context)) {
+            return Value::INVALID;
+        }
+
+        return $dateTime->format($this->getFormat());
     }
 }

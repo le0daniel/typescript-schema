@@ -11,8 +11,8 @@ final class ComplextSchemaTest extends TestCase
     public function testObjectRefinement(): void
     {
         $schema = Schema::object([
-            'password' => Schema::string()->min(8),
-            'password_confirm' => Schema::string()->min(8),
+            'password' => Schema::string()->minLength(8),
+            'password_confirm' => Schema::string()->minLength(8),
         ])->refine(
             fn(array $data): bool => $data['password'] === $data['password_confirm'],
             fn() => Issue::custom('Password did not match confirmed password.', path: ['password']),

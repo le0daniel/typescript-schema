@@ -3,17 +3,21 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use Throwable;
+use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\BaseType;
-use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Schema;
 
-final class RecordType extends BaseType
+final class RecordType implements ComplexType
 {
-    use IsNullable;
+    /** @uses Nullable<RecordType> */
+    use Nullable;
 
     public function __construct(private readonly Type $ofType)
     {
@@ -24,10 +28,25 @@ final class RecordType extends BaseType
         return new self($ofType);
     }
 
-    protected function validateAndParseType(mixed $value, Context $context): array|Value
+    public function toDefinition(): SchemaDefinition
     {
-        if (!is_iterable($value)) {
-            throw Issue::invalidType('iterable', $value);
+        return new Definition(
+            [
+                'type' => 'object',
+                'additionalProperties' => $this->ofType->toDefinition()->toInputSchema(),
+            ],
+            [
+                'type' => 'object',
+                'additionalProperties' => $this->ofType->toDefinition()->toInputSchema(),
+            ]
+        );
+    }
+
+    public function resolve(mixed $value, Context $context): mixed
+    {
+        if (!is_array($value)) {
+            $context->addIssue(Issue::invalidType('array', $value));
+            return Value::INVALID;
         }
 
         $isDirty = false;
@@ -42,17 +61,13 @@ final class RecordType extends BaseType
                     continue;
                 }
 
-                $value = $this->ofType->execute($itemValue, $context);
+                $value = Executor::execute($this->ofType, $itemValue, $context);
                 if ($value === Value::INVALID) {
                     $isDirty = true;
                     continue;
                 }
                 $values[$name] = $value;
-            } catch (Throwable $exception) {
-                $context->addIssue(Issue::captureThrowable($exception));
-                return Value::INVALID;
-            }
-            finally {
+            } finally {
                 $context->leave();
             }
         }
@@ -62,13 +77,5 @@ final class RecordType extends BaseType
         }
 
         return $values;
-    }
-
-    public function toDefinition(): Definition
-    {
-        return new Definition(
-            "Record<string,{$this->ofType->toDefinition()->input}>",
-            "Record<string,{$this->ofType->toDefinition()->output}>",
-        );
     }
 }

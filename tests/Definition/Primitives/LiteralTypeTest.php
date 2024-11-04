@@ -5,7 +5,9 @@ namespace TypescriptSchema\Tests\Definition\Primitives;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\LiteralType;
+use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Tests\Mocks\IntBackedEnumMock;
 use TypescriptSchema\Tests\Mocks\StringBackedEnumMock;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
@@ -13,11 +15,18 @@ use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 class LiteralTypeTest extends TestCase
 {
     #[DataProvider('parsingDataProvider')]
-    public function testParsing(bool $success, Type|LiteralType $type, mixed $value, mixed $expectedValue = null): void
+    public function testParsing(bool $success, Type $type, mixed $value, mixed $expectedValue = null): void
     {
-        $result = $type->safeParse($value);
-        self::assertEquals($success, $result->isSuccess());
-        self::assertEquals($success ? ($expectedValue ?? $value) : null, $result->getData());
+        $result = $type->parseAndValidate($value, new Context());
+        if (!$success) {
+            self::assertTrue( $result === Value::INVALID);
+            return;
+        }
+
+        self::assertTrue( $result !== Value::INVALID);
+        if (isset($expectedValue)) {
+            self::assertEquals($expectedValue, $result);
+        }
     }
 
     public static function parsingDataProvider(): array
@@ -103,41 +112,28 @@ class LiteralTypeTest extends TestCase
         ];
     }
 
-    public function testEnumAsNameString()
-    {
-        $type = LiteralType::make(UnitEnumMock::SUCCESS);
-        self::assertEquals('SUCCESS', $type->enumAsNameString()->parse('SUCCESS'));
-        self::assertEquals(UnitEnumMock::SUCCESS, $type->parse('SUCCESS'));
-    }
-
     public function testEnumAsStringChangesReturnTypeCorrectly(): void
     {
         foreach ([UnitEnumMock::SUCCESS, StringBackedEnumMock::ERROR, IntBackedEnumMock::FAILURE] as $enum) {
-            $type = LiteralType::make($enum)->enumAsNameString();
-            self::assertEquals("'{$enum->name}'", $type->toDefinition()->output);
-            self::assertEquals("'{$enum->name}'", $type->toDefinition()->input);
-        }
+            $type = LiteralType::make($enum);
+            self::assertEquals($enum, $type->parseAndValidate($enum->name, new Context()));
+            self::assertEquals($enum, $type->parseAndValidate($enum, new Context()));
 
-        $type = LiteralType::make(123)->enumAsNameString();
-        self::assertEquals("123", $type->toDefinition()->output);
+            self::assertEquals($enum->name, $type->validateAndSerialize($enum->name, new Context()));
+            self::assertEquals($enum->name, $type->validateAndSerialize($enum, new Context()));
+        }
     }
 
     public function testToDefinition(): void
     {
-        self::assertEquals("'Test'", LiteralType::make('Test')->toDefinition()->output);
-        self::assertEquals('true', LiteralType::make(true)->toDefinition()->output);
-        self::assertEquals('false', LiteralType::make(false)->toDefinition()->output);
-        self::assertEquals('145', LiteralType::make(145)->toDefinition()->output);
+        self::assertEquals("Test", LiteralType::make('Test')->toDefinition()->toOutputSchema()['const']);
+        self::assertEquals(true, LiteralType::make(true)->toDefinition()->toOutputSchema()['const']);
+        self::assertEquals(false, LiteralType::make(false)->toDefinition()->toOutputSchema()['const']);
+        self::assertEquals(145, LiteralType::make(145)->toDefinition()->toOutputSchema()['const']);
 
-        self::assertEquals("never", LiteralType::make(UnitEnumMock::SUCCESS)->toDefinition()->output);
-        self::assertEquals("'SUCCESS'", LiteralType::make(UnitEnumMock::SUCCESS)->toDefinition()->input);
-
-        self::assertEquals("0", LiteralType::make(IntBackedEnumMock::SUCCESS)->toDefinition()->output);
-        self::assertEquals("'SUCCESS'", LiteralType::make(IntBackedEnumMock::SUCCESS)->toDefinition()->input);
-
-        self::assertEquals("'success'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toDefinition()->output);
-        self::assertEquals("'SUCCESS'", LiteralType::make(StringBackedEnumMock::SUCCESS)->toDefinition()->input);
-
+        self::assertEquals("SUCCESS", LiteralType::make(UnitEnumMock::SUCCESS)->toDefinition()->toOutputSchema()['const']);
+        self::assertEquals("SUCCESS", LiteralType::make(IntBackedEnumMock::SUCCESS)->toDefinition()->toInputSchema()['const']);
+        self::assertEquals("SUCCESS", LiteralType::make(StringBackedEnumMock::SUCCESS)->toDefinition()->toInputSchema()['const']);
     }
 
 }

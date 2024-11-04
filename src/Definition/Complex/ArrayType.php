@@ -2,20 +2,23 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
-use Closure;
+
 use Generator;
-use Throwable;
+use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\BaseType;
-use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Data\WrappedDefinition;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Schema;
 
-final class ArrayType extends BaseType
+final class ArrayType implements ComplexType
 {
-    use IsNullable;
+    use Nullable;
 
     public function __construct(
         private readonly Type $type,
@@ -28,55 +31,42 @@ final class ArrayType extends BaseType
         return new self($type);
     }
 
-    protected function validateAndParseType(mixed $value, Context $context): array|Value
+    public function toDefinition(): SchemaDefinition
     {
-        $value = match (true) {
-            is_iterable($value), $value instanceof Generator => $value,
-            $value instanceof Closure => $value(),
-            is_object($value) && method_exists($value, 'toArray') => $value->toArray(),
-            default => throw Issue::invalidType('iterable', $value),
-        };
+        return WrappedDefinition::same(
+            $this->type->toDefinition(), static fn(array $def) => [
+                'type' => 'array',
+                'items' => $this->type->toDefinition()->toInputSchema()
+            ]
+        );
+    }
 
+    public function resolve(mixed $value, Context $context): mixed
+    {
+        // We accept more types when serializing
         if (!is_iterable($value) && !$value instanceof Generator) {
-            throw Issue::invalidType('iterable', $value);
+            $context->addIssue(Issue::invalidType('iterable', $value));
+            return Value::INVALID;
         }
 
-        $isDirty = false;
-        $index = 0;
         $parsed = [];
+        $index = 0;
         foreach ($value as $item) {
             $context->enter($index);
             $index++;
 
             try {
-                $itemValue = $this->type->execute($item, $context);
-
+                $itemValue = Executor::execute($this->type, $item, $context);
                 if ($itemValue === Value::INVALID) {
-                    $isDirty = true;
-                    continue;
+                    return Value::INVALID;
                 }
 
                 $parsed[] = $itemValue;
-            } catch (Throwable $exception) {
-                $context->addIssue(Issue::captureThrowable($exception));
-                return Value::INVALID;
-            }
-            finally {
+            } finally {
                 $context->leave();
             }
         }
 
-        if ($isDirty) {
-            return Value::INVALID;
-        }
-
         return $parsed;
-    }
-
-    public function toDefinition(): Definition
-    {
-        return $this->type
-            ->toDefinition()
-            ->wrap(fn(string $definition) => "Array<{$definition}>");
     }
 }

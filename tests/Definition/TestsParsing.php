@@ -5,7 +5,9 @@ namespace TypescriptSchema\Tests\Definition;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\BaseType;
+use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Utils\Serialize;
 
 /**
@@ -31,13 +33,13 @@ trait TestsParsing
         $failing = $this->wrap($failing ?? []);
 
         foreach ($successful as $data) {
-            $result = $type->safeParse($data);
-            self::assertTrue($result->isSuccess(), "Expected success, got failure for: " . Serialize::safeType($data));
+            $result = $type->parseAndValidate($data, new Context());
+            self::assertTrue($result !== Value::INVALID, "Expected success, got failure for: " . Serialize::safeType($data));
         }
 
         foreach ($failing as $data) {
-            $result = $type->safeParse($data);
-            self::assertFalse($result->isSuccess(), "Expected failure, got success for: " . Serialize::safeType($data));
+            $result = $type->parseAndValidate($data, new Context());
+            self::assertFalse($result === Value::INVALID, "Expected failure, got success for: " . Serialize::safeType($data));
         }
     }
 

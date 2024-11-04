@@ -2,23 +2,29 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use TypescriptSchema\Contracts\LeafType;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Data\Definition;
-use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Helpers\Context;
 
-final class AnyType extends BaseType
+final class AnyType implements LeafType
 {
     public static function make(): self
     {
         return new self();
     }
 
-    public function toDefinition(): Definition
+    public function toDefinition(): SchemaDefinition
     {
-        return Definition::same('any');
+        return Definition::same([]);
     }
 
-    protected function validateAndParseType(mixed $value, Context $context): mixed
+    public function parseAndValidate(mixed $value, Context $context): mixed
+    {
+        return $value;
+    }
+
+    public function validateAndSerialize(mixed $value, Context $context): mixed
     {
         return $value;
     }

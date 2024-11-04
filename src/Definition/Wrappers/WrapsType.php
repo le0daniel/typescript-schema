@@ -3,17 +3,13 @@
 namespace TypescriptSchema\Definition\Wrappers;
 
 use RuntimeException;
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
-use TypescriptSchema\Definition\Shared\ParsesInput;
-use TypescriptSchema\Helpers\Context;
 
 
-abstract class WrapsType implements Type
+abstract class WrapsType implements ComplexType
 {
     private const int RESOLVING_MAX_DEPTH = 10;
-
-    use ParsesInput;
 
     protected function __construct(protected Type $type)
     {
@@ -73,15 +69,5 @@ abstract class WrapsType implements Type
         }
 
         return $type;
-    }
-
-    public function execute(mixed $value, Context $context): mixed
-    {
-        return $this->type->execute($value, $context);
-    }
-
-    public function toDefinition(): Definition
-    {
-        return $this->type->toDefinition();
     }
 }

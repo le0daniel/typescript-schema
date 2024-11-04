@@ -4,19 +4,19 @@ namespace TypescriptSchema\Definition\Complex;
 
 use RuntimeException;
 use Throwable;
+use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\BaseType;
 use TypescriptSchema\Definition\Primitives\LiteralType;
-use TypescriptSchema\Definition\Shared\IsNullable;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
 final class DiscriminatedUnionType extends BaseType
 {
-    use IsNullable;
+    use Nullable;
 
     /**
      * @param string $discriminatorFieldName
@@ -88,7 +88,7 @@ final class DiscriminatedUnionType extends BaseType
         return $matchedType->execute($value, $context);
     }
 
-    public function toDefinition(): Definition
+    public function toDefinition(): SchemaDefinition
     {
         return Definition::join('|', ...$this->types);
     }
