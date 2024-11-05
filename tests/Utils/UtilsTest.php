@@ -2,7 +2,7 @@
 
 namespace TypescriptSchema\Tests\Utils;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Tests\Mocks\ArrayAccessMock;
 use TypescriptSchema\Tests\Mocks\GettersMock;
 use TypescriptSchema\Utils\Utils;

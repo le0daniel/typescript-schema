@@ -2,7 +2,7 @@
 
 namespace TypescriptSchema\Tests\Definition\Complex;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Primitives\StringType;
 
@@ -15,69 +15,6 @@ class FieldTest extends TestCase
         self::assertNotSame($field, $field->optional());
         self::assertNotSame($field, $field->describe('Something'));
         self::assertNotSame($field, $field->deprecated('Something'));
-        self::assertNotSame($field, $field->onlyOutput());
-    }
-
-    public function testDescriptionDocBlock(): void
-    {
-        self::assertNull(Field::ofType(StringType::make())->getDocBlock());
-        self::assertEquals(
-            <<<DOC
-/**
- * This is a super field
- * With multiple lines
- */
-DOC,
-            Field::ofType(StringType::make())->describe("This is a super field\nWith multiple lines")->getDocBlock()
-        );
-
-        self::assertEquals(
-            <<<DOC
-/**
- * This is a super field
- * With multiple lines
- * 
- * @deprecated Use this instead. Removal Date: 2022-01-25
- */
-DOC,
-            Field::ofType(StringType::make())
-                ->deprecated('Use this instead', \DateTime::createFromFormat('Y-m-d', '2022-01-25'))
-                ->describe("This is a super field\nWith multiple lines")
-                ->getDocBlock()
-        );
-
-        self::assertEquals(
-            <<<DOC
-/**
- * @deprecated Use this instead. Removal Date: 2022-01-25
- */
-DOC,
-            Field::ofType(StringType::make())
-                ->deprecated('Use this instead', \DateTime::createFromFormat('Y-m-d', '2022-01-25'))
-                ->getDocBlock()
-        );
-
-        self::assertEquals(
-            <<<DOC
-/**
- * @deprecated Removal Date: 2022-01-25
- */
-DOC,
-            Field::ofType(StringType::make())
-                ->deprecated(removalDateTime: \DateTime::createFromFormat('Y-m-d', '2022-01-25'))
-                ->getDocBlock()
-        );
-
-        self::assertEquals(
-            <<<DOC
-/**
- * @deprecated
- */
-DOC,
-            Field::ofType(StringType::make())
-                ->deprecated()
-                ->getDocBlock()
-        );
     }
 
     public function testDefaultResolver()

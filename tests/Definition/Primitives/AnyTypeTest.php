@@ -2,9 +2,10 @@
 
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Primitives\AnyType;
 use TypescriptSchema\Tests\Definition\TestsParsing;
+use TypescriptSchema\Utils\Typescript;
 
 class AnyTypeTest extends TestCase
 {
@@ -12,8 +13,8 @@ class AnyTypeTest extends TestCase
 
     public function testToDefinition()
     {
-        self::assertEquals('any', AnyType::make()->toDefinition()->input);
-        self::assertEquals('any', AnyType::make()->toDefinition()->output);
+        self::assertEquals('any', Typescript::fromJsonSchema(AnyType::make()->toDefinition()->toInputSchema()));
+        self::assertEquals('any', Typescript::fromJsonSchema(AnyType::make()->toDefinition()->toOutputSchema()));
     }
 
     public static function parsingDataProvider(): array

@@ -46,20 +46,24 @@ final class DateTimeType implements LeafType
      * Accepts formatted string and returns the
      *
      * @param string|DateTime $value
-     * @return DateTimeImmutable
+     * @return DateTimeImmutable|Value
      */
-    private function parseDateTime(string|DateTime $value): DateTimeImmutable
+    private function parseDateTime(string|DateTime $value): DateTimeImmutable|Value
     {
         if ($value instanceof DateTimeInterface) {
             return DateTimeImmutable::createFromInterface($value);
         }
 
-        $dateTime = DateTimeImmutable::createFromFormat($this->getFormat(), $value);
-        if ($dateTime && $dateTime->format($this->getFormat()) === $value) {
-            return $dateTime;
+        try {
+            $dateTime = DateTimeImmutable::createFromFormat($this->getFormat(), $value);
+            if ($dateTime && $dateTime->format($this->getFormat()) === $value) {
+                return $dateTime;
+            }
+        } catch (Throwable $e) {
+            return Value::INVALID;
         }
 
-        throw Issue::invalidType("DateTimeString<format: {$this->getFormat()}>", $value);
+        return Value::INVALID;
     }
 
     private function getFormat(): string
@@ -114,26 +118,24 @@ final class DateTimeType implements LeafType
             return Value::INVALID;
         }
 
-        try {
-            $value = $this->parseDateTime($value);
-        } catch (Throwable) {
-            $context->addIssue(Issue::invalidType('DateTimeString', $value));
+        $dateTime = $this->parseDateTime($value);
+        if ($dateTime === Value::INVALID) {
+            $context->addIssue(Issue::invalidType("DateTimeString<format: {$this->getFormat()}>", $value));
             return Value::INVALID;
         }
 
-        if (!$this->runValidators($value, $context)) {
+        if (!$this->runValidators($dateTime, $context)) {
             return Value::INVALID;
         }
 
-        return $value;
+        return $dateTime;
     }
 
     public function validateAndSerialize(mixed $value, Context $context): string|Value
     {
-        try {
-            $dateTime = $this->parseDateTime($value);
-        } catch (Throwable) {
-            $context->addIssue(Issue::invalidType('DateTimeString', $value));
+        $dateTime = $this->parseDateTime($value);
+        if ($dateTime === Value::INVALID) {
+            $context->addIssue(Issue::invalidType("DateTimeString<format: {$this->getFormat()}>", $value));
             return Value::INVALID;
         }
 

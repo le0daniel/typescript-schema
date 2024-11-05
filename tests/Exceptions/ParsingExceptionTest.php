@@ -4,7 +4,7 @@ namespace TypescriptSchema\Tests\Exceptions;
 
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Exceptions\ParsingException;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 
 class ParsingExceptionTest extends TestCase
 {

@@ -2,22 +2,22 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
-use Throwable;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Schema;
 
 final class RecordType implements ComplexType
 {
     /** @uses Nullable<RecordType> */
-    use Nullable;
+    use Nullable, Refinable, Transformable;
 
     public function __construct(private readonly Type $ofType)
     {
@@ -37,14 +37,14 @@ final class RecordType implements ComplexType
             ],
             [
                 'type' => 'object',
-                'additionalProperties' => $this->ofType->toDefinition()->toInputSchema(),
+                'additionalProperties' => $this->ofType->toDefinition()->toOutputSchema(),
             ]
         );
     }
 
     public function resolve(mixed $value, Context $context): mixed
     {
-        if (!is_array($value)) {
+        if (!is_iterable($value)) {
             $context->addIssue(Issue::invalidType('array', $value));
             return Value::INVALID;
         }

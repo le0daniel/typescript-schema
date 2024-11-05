@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Execution;
 
+use RuntimeException;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\Type;
@@ -34,7 +35,7 @@ final class Executor
             return $type->resolve($data, $context);
         }
 
-        throw new \RuntimeException("Failed to resolve.");
+        throw new RuntimeException("Failed to resolve.");
     }
 
 }

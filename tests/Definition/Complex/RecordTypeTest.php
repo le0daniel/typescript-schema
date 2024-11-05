@@ -3,12 +3,14 @@
 namespace TypescriptSchema\Tests\Definition\Complex;
 
 use TypescriptSchema\Definition\Complex\RecordType;
-use PHPUnit\Framework\TestCase;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Tests\Definition\TestsParsing;
 use TypescriptSchema\Tests\Mocks\TraversableMock;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
+use TypescriptSchema\Tests\TestCase;
+use TypescriptSchema\Utils\Typescript;
 
 class RecordTypeTest extends TestCase
 {
@@ -17,12 +19,12 @@ class RecordTypeTest extends TestCase
     public function testDefinition()
     {
         $same = RecordType::make(StringType::make());
-        self::assertEquals('Record<string,string>', $same->toDefinition()->input);
-        self::assertEquals('Record<string,string>', $same->toDefinition()->output);
+        self::assertEquals("{[key: string]:string}", Typescript::fromJsonSchema($same->toDefinition()->toInputSchema()));
+        self::assertEquals("{[key: string]:string}", Typescript::fromJsonSchema($same->toDefinition()->toOutputSchema()));
 
         $different = RecordType::make(LiteralType::make(UnitEnumMock::SUCCESS));
-        self::assertEquals("Record<string,'SUCCESS'>", $different->toDefinition()->input);
-        self::assertEquals('Record<string,never>', $different->toDefinition()->output);
+        self::assertEquals("{[key: string]:'SUCCESS'}", Typescript::fromJsonSchema($different->toDefinition()->toInputSchema()));
+        self::assertEquals("{[key: string]:'SUCCESS'}", Typescript::fromJsonSchema($different->toDefinition()->toOutputSchema()));
     }
 
     public static function parsingDataProvider(): array
@@ -56,19 +58,17 @@ class RecordTypeTest extends TestCase
     public function testPathOfIssues()
     {
         $record = RecordType::make(StringType::make());
-        $result = $record->safeParse(['name' => 'value', 'email' => null]);
 
-        self::assertCount(1, $result->issues);
-        self::assertEquals(['email'], $result->issues[0]->getPath());
+        self::assertFailure($record->resolve(['name' => 'value', 'email' => null], new Context()));
+        self::assertIssuesCount(1, $record,['name' => 'value', 'email' => null]);
+
+        $record->resolve(['name' => 'value', 'email' => null], $context = new Context());
+        self::assertEquals(['email'], $context->getIssues()[0]->getPath());
     }
 
     public function testNumberOfIssues()
     {
         $type = RecordType::make(StringType::make()->nonEmpty());
-        $result = $type->safeParse(['name' => 123, 'email' => '']);
-
-        self::assertCount(2, $result->issues);
-        self::assertEquals('invalid_type', $result->issues[0]->getLocalizationKey());
-        self::assertEquals('string.invalid_empty', $result->issues[1]->getLocalizationKey());
+        self::assertIssuesCount(2, $type, ['name' => 123, 'email' => '']);
     }
 }

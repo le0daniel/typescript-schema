@@ -2,18 +2,13 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
-use ReflectionEnum;
 use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
-use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\Shared\Coerce;
-use TypescriptSchema\Definition\Shared\InternalTransformers;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Utils\Typescript;
 use UnitEnum;
 
 class EnumType implements LeafType
@@ -51,8 +46,6 @@ class EnumType implements LeafType
             }
         }
 
-
-
         return Value::INVALID;
     }
 
@@ -69,12 +62,10 @@ class EnumType implements LeafType
 
     public function validateAndSerialize(mixed $value, Context $context): Value|string
     {
-        $enumValue = $this->parseStringValueToEnum($value);
-        if ($enumValue === Value::INVALID) {
-            $context->addIssue(Issue::invalidType('Enum value', $value));
-            return Value::INVALID;
-        }
-        return $enumValue->name;
+        $enumValue = $this->parseAndValidate($value, $context);
+        return $enumValue === Value::INVALID
+            ? Value::INVALID
+            : $enumValue->name;
     }
 
     public function toDefinition(): SchemaDefinition

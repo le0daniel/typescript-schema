@@ -3,7 +3,8 @@
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Execution\Executor;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Helpers\Context;
@@ -18,10 +19,12 @@ class IntTypeTest extends TestCase
         self::assertSame(1, IntType::make()->parseAndValidate(1, new Context()));
         self::assertSame(123, IntType::make()->parseAndValidate(123, new Context()));
         self::assertSame(123, IntType::make()->coerce()->parseAndValidate('123',  new Context()));
-        self::assertSame(null, IntType::make()->nullable()->parseAndValidate(null, new Context()));
-        self::assertSame(123, IntType::make()->nullable()->parseAndValidate(123, new Context()));
-        self::assertSame(null, IntType::make()->nullable()->parseAndValidate('abc', new Context(true)));
-        self::assertSame(Value::INVALID, IntType::make()->nullable()->parseAndValidate('abc', new Context(false)));
+
+        self::assertSame(null, Executor::execute(IntType::make()->nullable(),null, new Context()));
+        self::assertSame(123, Executor::execute(IntType::make()->nullable(),123, new Context()));
+        self::assertSame(null, Executor::execute(IntType::make()->nullable(),'abc', new Context(allowPartialFailures: true)));
+
+        self::assertSame(Value::INVALID, Executor::execute(IntType::make()->nullable(),'abc', new Context()));
     }
 
     public function testDefinition(): void

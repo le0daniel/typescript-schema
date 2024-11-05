@@ -2,11 +2,13 @@
 
 namespace TypescriptSchema\Tests\Definition\Complex;
 
+use RuntimeException;
 use TypescriptSchema\Definition\Complex\DiscriminatedUnionType;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Tests\Definition\TestsParsing;
+use TypescriptSchema\Utils\Typescript;
 
 class DiscriminatedUnionTypeTest extends TestCase
 {
@@ -14,7 +16,7 @@ class DiscriminatedUnionTypeTest extends TestCase
 
     public function testFailureWithOnlyOneType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("A discriminatory union type must have at least two types.");
         DiscriminatedUnionType::make('type', ObjectType::make(['type' => LiteralType::make('success')]));
     }
@@ -27,8 +29,8 @@ class DiscriminatedUnionTypeTest extends TestCase
             ObjectType::make(['type' => LiteralType::make('failure')])
         );
 
-        self::assertEquals("{type: 'success';}|{type: 'failure';}", $type->toDefinition()->input);
-        self::assertEquals("{type: 'success';}|{type: 'failure';}", $type->toDefinition()->output);
+        self::assertEquals("{type:'success'}|{type:'failure'}", Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
+        self::assertEquals("{type:'success'}|{type:'failure'}", Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
     }
 
 

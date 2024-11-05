@@ -4,7 +4,8 @@ namespace TypescriptSchema\Definition\Shared;
 
 trait Describable
 {
-    private readonly string|null $description;
+    private string|null $description;
+
     public function getDescription(): string|null {
         return $this->description ?? null;
     }

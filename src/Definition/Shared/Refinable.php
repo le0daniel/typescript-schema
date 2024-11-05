@@ -4,6 +4,7 @@ namespace TypescriptSchema\Definition\Shared;
 
 use Closure;
 use Throwable;
+use TypescriptSchema\Definition\Complex\RefineType;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\ClosureValidator;
 use TypescriptSchema\Helpers\Context;
@@ -20,37 +21,10 @@ trait Refinable
      *
      * @param Closure(mixed):bool $refine
      * @param string|Closure(mixed): Issue|null $message
-     * @return static
+     * @return RefineType
      */
-    public function refine(Closure $refine, string|Closure|null $message = null): static
+    public function refine(Closure $refine, string|Closure|null $message = null): RefineType
     {
-        $instance = clone $this;
-        $instance->refiners[] = new ClosureValidator($refine, $message);
-        return $instance;
+        return new RefineType($this, new ClosureValidator($refine, $message));
     }
-
-    private function runRefiners(mixed $value, Context $context): bool
-    {
-        $isDirty = false;
-        foreach ($this->refiners as $validator) {
-            try {
-                if ($validator->validate($value)) {
-                    continue;
-                }
-
-                $issue = $validator->produceIssue($value);
-            } catch (Throwable $exception) {
-                $issue = Issue::captureThrowable($exception);
-            }
-
-            $isDirty = true;
-            $context->addIssue($issue);
-            if ($issue->isFatal()) {
-                return false;
-            }
-        }
-
-        return !$isDirty;
-    }
-
 }

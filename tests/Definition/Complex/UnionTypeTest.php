@@ -3,9 +3,11 @@
 namespace TypescriptSchema\Tests\Definition\Complex;
 
 use stdClass;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Complex\UnionType;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Tests\Definition\TestsParsing;
@@ -39,24 +41,24 @@ class UnionTypeTest extends TestCase
     public function testManualResolver()
     {
         $type = UnionType::make(StringType::make()->coerce(), IntType::make());
-        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->parse(1));
+        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->resolve(1, new Context()));
     }
 
     public function testManualResolverWithNamedTypes()
     {
         $type = UnionType::make(string: StringType::make()->coerce(), int: IntType::make());
-        self::assertSame(1, $type->resolveTypeBy(fn() => 'int')->parse(1));
-        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->parse(1));
+        self::assertSame(1, $type->resolveTypeBy(fn() => 'int')->resolve(1, new Context()));
+        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->resolve(1, new Context()));
     }
 
     public function testCorrectHandlingWhenUsingSoftFailures(): void
     {
         $type = UnionType::make(StringType::make()->nullable(), IntType::make());
 
-        self::assertSame('string', $type->safeParse('string', true)->getData());
-        self::assertSame(1, $type->safeParse(1, true)->getData());
-        self::assertSame(null, $type->safeParse(null, true)->getData());
-        self::assertSame(null, $type->safeParse(new stdClass(), true)->getData());
+        self::assertSame('string', $type->resolve('string', new Context()));
+        self::assertSame(1, $type->resolve(1, new Context()));
+        self::assertSame(null, $type->resolve(null, new Context()));
+        self::assertSame(Value::INVALID, $type->resolve(new stdClass(), new Context()));
 
         $complexType = UnionType::make(
             ObjectType::make([
@@ -66,21 +68,17 @@ class UnionTypeTest extends TestCase
             StringType::make()->nullable(),
         );
 
-        $result = $complexType->safeParse(['id' => 5, 'name' => 123], true);
-        self::assertEquals(['id' => 5, 'name' => null], $result->getData());
-        self::assertFalse($result->isSuccess());
-        self::assertCount(1, $result->issues);
-        self::assertEquals(['name'], $result->issues[0]->getPath());
+        $result = $complexType->resolve(['id' => 5, 'name' => 123], $context = new Context(allowPartialFailures: true));
+        self::assertEquals(['id' => 5, 'name' => null], $result);
+        self::assertTrue($context->hasIssues());
+        self::assertCount(1, $context->getIssues());
+        self::assertEquals(['name'], $context->getIssues()[0]->getPath());
     }
 
     public function testToDefinition()
     {
         $type = UnionType::make(StringType::make(), IntType::make());
-        self::assertEquals('string|number', $type->toDefinition()->input);
-        self::assertEquals('string|number', $type->toDefinition()->output);
-
-        $type = UnionType::make(StringType::make(), IntType::make()->transform(fn() => 'some', Typescript::literal('some')));
-        self::assertEquals('string|number', $type->toDefinition()->input);
-        self::assertEquals('string|\'some\'', $type->toDefinition()->output);
+        self::assertEquals('string|number', Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
+        self::assertEquals('string|number', Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
     }
 }

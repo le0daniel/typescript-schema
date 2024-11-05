@@ -79,13 +79,6 @@ final class IntType implements LeafType
             return Value::INVALID;
         }
 
-        // In case validation is disabled, we only guarantee the type
-        // All other validations are disabled. This can be useful in production
-        // to reduce the memory consumption.
-        if (!$context->validateOnSerialize) {
-            return $value;
-        }
-
         if (!$this->runValidators($value, $context)) {
             return Value::INVALID;
         }

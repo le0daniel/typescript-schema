@@ -7,18 +7,18 @@ use Generator;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\WrappedDefinition;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Schema;
 
 final class ArrayType implements ComplexType
 {
-    use Nullable;
+    use Nullable, Refinable, Transformable;
 
     public function __construct(
         private readonly Type $type,

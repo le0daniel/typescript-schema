@@ -3,8 +3,10 @@
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Primitives\NumberType;
+use TypescriptSchema\Utils\Typescript;
 
 class FloatTypeTest extends TestCase
 {
@@ -12,7 +14,7 @@ class FloatTypeTest extends TestCase
     #[DataProvider('successfulParsingOfValuesDataProvider')]
     public function testSuccessfulParsingOfValues(mixed $value): void
     {
-        self::assertTrue(NumberType::make()->safeParse($value)->isSuccess());
+        self::assertSuccess(NumberType::make()->parseAndValidate($value, new Context()));
     }
 
     public static function successfulParsingOfValuesDataProvider(): array {
@@ -25,7 +27,7 @@ class FloatTypeTest extends TestCase
     #[DataProvider('successfulWithCoercionDataProvider')]
     public function testSuccessfulWithCoercion(float $expected, mixed $value): void
     {
-        self::assertSame($expected, NumberType::make()->coerce()->parse($value));
+        self::assertSame($expected, NumberType::make()->coerce()->parseAndValidate($value, new Context()));
     }
 
     public static function successfulWithCoercionDataProvider(): array {
@@ -36,14 +38,13 @@ class FloatTypeTest extends TestCase
             'integer as string' => [19, '19'],
             'boolean true' => [1, true],
             'boolean false' => [0, false],
-
         ];
     }
 
     public function testDefinition():void
     {
-        self::assertEquals('number', NumberType::make()->toDefinition()->output);
-        self::assertEquals('number', NumberType::make()->toDefinition()->input);
+        self::assertEquals('number', Typescript::fromJsonSchema(NumberType::make()->toDefinition()->toInputSchema()));
+        self::assertEquals('number', Typescript::fromJsonSchema(NumberType::make()->toDefinition()->toOutputSchema()));
     }
 
 }

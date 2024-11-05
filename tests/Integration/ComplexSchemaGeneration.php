@@ -2,9 +2,9 @@
 
 namespace TypescriptSchema\Tests\Integration;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Complex\Field;
-use TypescriptSchema\Schema;
+use TypescriptSchema\Definition\Wrappers\Schema;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 
 final class ComplexSchemaGeneration extends TestCase

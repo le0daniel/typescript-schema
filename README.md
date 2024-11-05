@@ -15,7 +15,7 @@ This library is heavily inspired by GraphQL and Zod. It first parses, then valid
 Define your schema for input or output.
 
 ```php
-use TypescriptSchema\Schema;
+use TypescriptSchema\Definition\Wrappers\Schema;
 
 $user = Schema::object([
     'name' => Schema::string()->nonEmpty()->minLength(1)->maxLength(255),
@@ -104,8 +104,7 @@ instead of the DateTimeImmutableInstance.
 An Enum type expects the input to be the Enum instance or a string with the name of the enum.
 
 ```php
-use TypescriptSchema\Schema;
-use TypescriptSchema\Exceptions\ParsingException;
+use TypescriptSchema\Definition\Wrappers\Schema;
 
 enum MyEnum {
     case SUCCESS;
@@ -137,7 +136,7 @@ Backed enums can be serialized to Json, so the output type is eiter `literals<nu
 Example
 
 ```php
-use TypescriptSchema\Schema;
+use TypescriptSchema\Definition\Wrappers\Schema;
 
 enum MyEnum: string {
     case SUCCESS = 'success';
@@ -169,7 +168,7 @@ $type->coerce()->parse('success') // => MyEnum::SUCCESS
 Both the unknown and any type pass all data through in the form it was before.
 
 ```php
-use TypescriptSchema\Schema;
+use TypescriptSchema\Definition\Wrappers\Schema;
 
 $type = Schema::any();
 $type->parse(null) // => null
@@ -197,7 +196,7 @@ Represents an Object in json with key value pairs that are known and typed. Obje
 in PHP, where the key needs to be a string and the value a Type or a Field.
 
 ```php
-use TypescriptSchema\Schema;
+use TypescriptSchema\Definition\Wrappers\Schema;
 
 $user = Schema::object([
     'name' => Schema::string(),
@@ -212,8 +211,7 @@ By default, resolving a value to a field is done by checking if the key exists i
 In some cases, you might want to customize this resolution (Ex: you have a computed output field).
 
 ```php
-use TypescriptSchema\Schema;
-use TypescriptSchema\Definition\Complex\Field;
+use TypescriptSchema\Definition\Complex\Field;use TypescriptSchema\Definition\Wrappers\Schema;
 
 $user = Schema::object([
     'fullName' => Field::ofType(Schema::string())
@@ -222,9 +220,9 @@ $user = Schema::object([
 ```
 
 Using fields adds more benefits. You can describe the field or even deprecate it. This is especially useful for output types that serialize your Data.
+
 ```php
-use TypescriptSchema\Schema;
-use TypescriptSchema\Definition\Complex\Field;
+use TypescriptSchema\Definition\Complex\Field;use TypescriptSchema\Definition\Wrappers\Schema;
 
 $user = Schema::object([
     'fullName' => Field::ofType(Schema::string())

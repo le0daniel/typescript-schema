@@ -9,20 +9,21 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Schema;
 
 final class TupleType implements ComplexType
 {
     /** @uses Nullable<TupleType> */
-    use Nullable;
+    use Nullable, Refinable, Transformable;
 
     /**
      * @param array<Type> $types
      */
-    protected function __construct(
+    public function __construct(
         protected readonly array $types,
     )
     {

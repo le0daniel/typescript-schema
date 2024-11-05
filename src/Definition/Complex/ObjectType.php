@@ -9,15 +9,16 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Schema;
 
 final class ObjectType implements ComplexType
 {
     /** @uses Nullable<ObjectType> */
-    use Nullable;
+    use Nullable, Refinable, Transformable;
 
     private bool|Closure $passThrough = false;
 
@@ -87,19 +88,21 @@ final class ObjectType implements ComplexType
         return new Definition(
             [
                 'type' => 'object',
-                'properties' => array_map(static fn(Field $field) => [
+                'properties' => array_map(static fn(Field $field) => ([
                     ...$field->getType()->toDefinition()->toInputSchema(),
                     'description' => $field->getDescription(),
-                ], $this->fields),
+                    'deprecated' => $field->isDeprecated()
+                ]), $this->fields),
                 'additionalProperties' => !!$this->passThrough,
                 'required' => $required,
             ],
             [
                 'type' => 'object',
-                'properties' => array_map(static fn(Field $field) => [
-                    'type' => $field->getType()->toDefinition()->toOutputSchema(),
+                'properties' => array_map(static fn(Field $field) => ([
+                    ...$field->getType()->toDefinition()->toOutputSchema(),
                     'description' => $field->getDescription(),
-                ], $this->fields),
+                    'deprecated' => $field->isDeprecated()
+                ]), $this->fields),
                 'additionalProperties' => !!$this->passThrough,
                 'required' => $required,
             ]
@@ -108,11 +111,6 @@ final class ObjectType implements ComplexType
 
     public function resolve(mixed $value, Context $context): mixed
     {
-        if (!is_array($value)) {
-            $context->addIssue(Issue::invalidType('array', $value));
-            return Value::INVALID;
-        }
-
         $parsed = [];
         $isDirty = false;
         foreach ($this->fields() as $name => $field) {

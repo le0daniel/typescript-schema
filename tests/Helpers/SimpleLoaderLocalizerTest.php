@@ -3,7 +3,7 @@
 namespace TypescriptSchema\Tests\Helpers;
 
 use TypescriptSchema\Helpers\SimpleLoaderLocalizer;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 
 class SimpleLoaderLocalizerTest extends TestCase
 {

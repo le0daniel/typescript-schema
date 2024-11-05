@@ -19,7 +19,7 @@ final class LiteralType implements LeafType
     {
     }
 
-    public static function make(string|int|float|bool|UnitEnum|null $literalValue): static
+    public static function make(string|int|float|bool|UnitEnum $literalValue): static
     {
         return new self($literalValue);
     }

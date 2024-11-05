@@ -6,7 +6,7 @@ use TypescriptSchema\Tests\Mocks\IntBackedEnumMock;
 use TypescriptSchema\Tests\Mocks\StringBackedEnumMock;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Utils\Typescript;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 
 class TypescriptTest extends TestCase
 {
@@ -44,14 +44,14 @@ class TypescriptTest extends TestCase
             ]
         ]));
 
-        self::assertEquals("{name?:boolean,[key: string]:unknown}",  Typescript::fromJsonSchema([
+        self::assertEquals("{name?:boolean;[key: string]:unknown}",  Typescript::fromJsonSchema([
             'type' => 'object',
             'properties' => [
                 'name' => ['type' => 'boolean']
             ]
         ]));
 
-        self::assertEquals("{name:boolean,[key: string]:unknown}",  Typescript::fromJsonSchema([
+        self::assertEquals("{name:boolean;[key: string]:unknown}",  Typescript::fromJsonSchema([
             'type' => 'object',
             'properties' => [
                 'name' => ['type' => 'boolean']
@@ -68,7 +68,7 @@ class TypescriptTest extends TestCase
             'additionalProperties' => false
         ]));
 
-        self::assertEquals("{name:boolean,[key: string]:true}",  Typescript::fromJsonSchema([
+        self::assertEquals("{name:boolean;[key: string]:true}",  Typescript::fromJsonSchema([
             'type' => 'object',
             'properties' => [
                 'name' => ['type' => 'boolean']
@@ -95,20 +95,6 @@ class TypescriptTest extends TestCase
         self::assertEquals("true", Typescript::literal(true));
         self::assertEquals("false", Typescript::literal(false));
         self::assertEquals("null", Typescript::literal(null));
-    }
-
-    public function testEnumString(): void
-    {
-        self::assertEquals("'SUCCESS'", Typescript::enumString(IntBackedEnumMock::SUCCESS));
-        self::assertEquals("'SUCCESS'", Typescript::enumString(StringBackedEnumMock::SUCCESS));
-        self::assertEquals("'SUCCESS'", Typescript::enumString(UnitEnumMock::SUCCESS));
-    }
-
-    public function testEnumValueString(): void
-    {
-        self::assertEquals('never', Typescript::enumValueString(UnitEnumMock::SUCCESS));
-        self::assertEquals("'success'", Typescript::enumValueString(StringBackedEnumMock::SUCCESS));
-        self::assertEquals("0", Typescript::enumValueString(IntBackedEnumMock::SUCCESS));
     }
 
     public function testDocWithLines(): void

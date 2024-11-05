@@ -21,6 +21,13 @@ class Context
     {
     }
 
+    public function shouldRunValidators(): bool
+    {
+        return $this->mode === ExecutionMode::PARSE
+            ? true
+            : $this->validateOnSerialize;
+    }
+
     /**
      * @internal
      */

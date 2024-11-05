@@ -17,6 +17,11 @@ final class NumberType implements LeafType
     /** @uses Nullable<NumberType> */
     use Coerce, Nullable, Validators;
 
+    public static function make(): NumberType
+    {
+        return new NumberType();
+    }
+
     public function toDefinition(): SchemaDefinition
     {
         return Definition::same([
@@ -57,6 +62,12 @@ final class NumberType implements LeafType
             return Value::INVALID;
         }
 
-        return (float) $value;
+        $value = (float) $value;
+
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+
+        return $value;
     }
 }

@@ -2,21 +2,27 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
+use Generator;
 use RuntimeException;
 use Throwable;
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class DiscriminatedUnionType extends BaseType
+final class DiscriminatedUnionType implements ComplexType
 {
-    use Nullable;
+    /** @uses Nullable<DiscriminatedUnionType> */
+    use Nullable, Refinable, Transformable;
 
     /**
      * @param string $discriminatorFieldName
@@ -33,9 +39,9 @@ final class DiscriminatedUnionType extends BaseType
     }
 
     /**
-     * @return \Generator<Field>
+     * @return Generator<Field>
      */
-    public function discriminatorFields(): \Generator
+    public function discriminatorFields(): Generator
     {
         foreach ($this->types as $key => $type) {
             $field = $type->getFieldByName($this->discriminatorFieldName);
@@ -56,7 +62,7 @@ final class DiscriminatedUnionType extends BaseType
         foreach ($this->discriminatorFields() as $key => $field) {
             try {
                 $fieldValue = $field->resolveValue($this->discriminatorFieldName, $value);
-                $result = $field->getType()->execute($fieldValue, $context);
+                $result = Executor::execute($field->getType(), $fieldValue, $context);
                 if ($result === Value::INVALID) {
                     continue;
                 }
@@ -71,7 +77,16 @@ final class DiscriminatedUnionType extends BaseType
         return null;
     }
 
-    protected function validateAndParseType(mixed $value, Context $context): mixed
+    public function toDefinition(): SchemaDefinition
+    {
+        return new Definition([
+            'oneOf' => array_map(fn(Type $type) => $type->toDefinition()->toInputSchema(), $this->types),
+        ], [
+            'oneOf' => array_map(fn(Type $type) => $type->toDefinition()->toOutputSchema(), $this->types),
+        ]);
+    }
+
+    public function resolve(mixed $value, Context $context): mixed
     {
         if ($value === null) {
             $context->addIssue(Issue::invalidType('array', $value));
@@ -82,14 +97,10 @@ final class DiscriminatedUnionType extends BaseType
 
         if (!$matchedType) {
             $context->mergeProbingIssues($probingContext);
-            throw Issue::custom("Value did not match the union types (field: {$this->discriminatorFieldName}).");
+            $context->addIssue(Issue::custom("Value did not match the union types (field: {$this->discriminatorFieldName})."));
+            return Value::INVALID;
         }
 
-        return $matchedType->execute($value, $context);
-    }
-
-    public function toDefinition(): SchemaDefinition
-    {
-        return Definition::join('|', ...$this->types);
+        return Executor::execute($matchedType, $value, $context);
     }
 }

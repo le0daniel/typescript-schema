@@ -11,7 +11,6 @@ use TypescriptSchema\Data\NullableDefinition;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Schema;
 
 /**
  * @template T of Type

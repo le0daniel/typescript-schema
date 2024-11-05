@@ -3,10 +3,11 @@
 namespace TypescriptSchema\Tests\Definition;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\BaseType;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Utils\Serialize;
 
@@ -21,7 +22,7 @@ trait TestsParsing
     }
 
     /**
-     * @param BaseType $type
+     * @param Type $type
      * @param mixed $successful
      * @param mixed $failing
      * @return void
@@ -33,13 +34,15 @@ trait TestsParsing
         $failing = $this->wrap($failing ?? []);
 
         foreach ($successful as $data) {
-            $result = $type->parseAndValidate($data, new Context());
+            $result = Executor::execute($type, $data, new Context(mode: ExecutionMode::PARSE));
             self::assertTrue($result !== Value::INVALID, "Expected success, got failure for: " . Serialize::safeType($data));
         }
 
         foreach ($failing as $data) {
-            $result = $type->parseAndValidate($data, new Context());
-            self::assertFalse($result === Value::INVALID, "Expected failure, got success for: " . Serialize::safeType($data));
+            $result = Executor::execute($type, $data, new Context(mode: ExecutionMode::PARSE));
+            self::assertTrue($result === Value::INVALID,
+                "Expected failure, got success for: " . json_encode(['input' => $data, 'output' => Serialize::safeType($result)], JSON_PRETTY_PRINT)
+            );
         }
     }
 

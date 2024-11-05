@@ -3,13 +3,18 @@
 namespace TypescriptSchema\Definition\Shared;
 
 use Closure;
-use TypescriptSchema\Definition\Wrappers\TransformWrapper;
+use TypescriptSchema\Definition\Complex\TransformType;
 
 trait Transformable
 {
-    public function transform(Closure $transformer, string|Closure|null $outputType = null): TransformWrapper
+
+    /**
+     * @param Closure(mixed): mixed $transformer
+     * @return TransformType
+     */
+    public function transform(Closure $transformer, ?array $outputType = null): TransformType
     {
-        return TransformWrapper::make($this, $transformer, $outputType);
+        return new TransformType($this, $transformer, $outputType);
     }
 
 }

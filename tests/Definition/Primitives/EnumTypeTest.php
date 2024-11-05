@@ -2,7 +2,7 @@
 
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\EnumType;
 use TypescriptSchema\Helpers\Context;

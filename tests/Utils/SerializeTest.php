@@ -5,7 +5,7 @@ namespace TypescriptSchema\Tests\Utils;
 use TypescriptSchema\Tests\Mocks\ArrayAccessMock;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Utils\Serialize;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 
 class SerializeTest extends TestCase
 {

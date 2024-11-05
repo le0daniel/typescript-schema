@@ -2,7 +2,7 @@
 
 namespace TypescriptSchema\Tests\Data;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use stdClass;
 use TypescriptSchema\Exceptions\Issue;
 

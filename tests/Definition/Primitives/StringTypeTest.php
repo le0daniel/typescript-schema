@@ -3,7 +3,9 @@
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Data\Enum\ExecutionMode;
+use TypescriptSchema\Execution\Executor;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\StringType;
@@ -29,12 +31,12 @@ class StringTypeTest extends TestCase
         $failing = $this->wrap($failing ?? []);
 
         foreach ($successful as $value) {
-            $result = $type->parseAndValidate($value, new Context());
+            $result = Executor::execute($type, $value, new Context(mode: ExecutionMode::PARSE));
             self::assertNotSame(Value::INVALID, $result);
         }
 
         foreach ($failing as $value) {
-            self::assertSame(Value::INVALID,  $type->parseAndValidate($value, new Context()));
+            self::assertSame(Value::INVALID,  Executor::execute($type, $value, new Context(mode: ExecutionMode::PARSE)));
         }
     }
 

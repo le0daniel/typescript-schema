@@ -10,15 +10,16 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Schema;
 
 final class UnionType implements ComplexType
 {
     /** @uses Nullable<UnionType> */
-    use Nullable;
+    use Nullable, Refinable, Transformable;
 
     /**
      * @var Closure(mixed):(int|string)
@@ -112,7 +113,7 @@ final class UnionType implements ComplexType
 
         foreach ($this->types as $type) {
             $validationContext = $context->cloneForProbing();
-            $result = $type->execute($value, $validationContext);
+            $result = Executor::execute($type, $value, $validationContext);
 
             if ($result === Value::INVALID) {
                 array_push($allIssues, ...$validationContext->getIssues());
@@ -137,20 +138,30 @@ final class UnionType implements ComplexType
         }
 
         $context->addIssues(...$allIssues);
-        throw Issue::custom('Could not match union to any type');
+        $context->addIssue(Issue::custom('Could not match union to any type'));
+        return Value::INVALID;
     }
 
     public function toDefinition(): SchemaDefinition
     {
-        return Definition::same([
-            'oneOf' => array_map(fn(Type $type) => $type->toDefinition(), $this->types)
-        ]);
+        return new Definition(
+            [
+                'oneOf' =>  array_map(fn(Type $type) => $type->toDefinition()->toInputSchema(), $this->types)
+            ],
+            [
+                'oneOf' =>  array_map(fn(Type $type) => $type->toDefinition()->toOutputSchema(), $this->types)
+            ],
+        );
     }
 
     public function resolve(mixed $value, Context $context): mixed
     {
         if (isset($this->resolveType)) {
             return Executor::execute($this->resolveByClosure($value), $value, $context);
+        }
+
+        if ($context->allowPartialFailures) {
+            return $this->parseInPartialMode($value, $context);
         }
 
         $validationContext = $context->cloneForProbing();

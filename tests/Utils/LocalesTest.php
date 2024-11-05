@@ -3,7 +3,7 @@
 namespace TypescriptSchema\Tests\Utils;
 
 use TypescriptSchema\Utils\Locales;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 
 class LocalesTest extends TestCase
 {

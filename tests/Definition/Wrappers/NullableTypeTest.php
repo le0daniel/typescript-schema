@@ -2,21 +2,19 @@
 
 namespace TypescriptSchema\Tests\Definition\Wrappers;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use RuntimeException;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
-use TypescriptSchema\Definition\Wrappers\TransformWrapper;
 use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Utils\Typescript;
 
 class NullableTypeTest extends TestCase
 {
-
     public function testNotWrappableInsideItself()
     {
         $this->expectException(RuntimeException::class);
@@ -25,44 +23,40 @@ class NullableTypeTest extends TestCase
 
     public function testNotWrappableInsideItselfWithOtherWrappedTypeBetween()
     {
+
+
         $this->expectException(RuntimeException::class);
         NullableWrapper::make(
-            TransformWrapper::make(
-                NullableWrapper::make(StringType::make()),
-                fn() => Typescript::literal('my val'),
-            )
+            NullableWrapper::make(StringType::make()),
         );
-    }
-
-    public function testResolvesCorrectlyWhenTypeHasDefaultValue()
-    {
-        $schema = NullableWrapper::make(StringType::make()->default('test value'));
-        self::assertEquals('test value', $schema->parse(null));
     }
 
     public function testErrorBoundary(): void
     {
-        $schema = NullableWrapper::make(StringType::make()->min(5));
-        $result = $schema->safeParse('one', true);
-        self::assertFalse($result->isSuccess());
-        self::assertTrue($result->isPartial());
-        self::assertFalse($result->isFailure());
-        self::assertEquals(null, $result->getData());
+        $type = NullableWrapper::make(StringType::make()->minLength(5));
+        self::assertSuccess(
+            $type->resolve('one-one', new Context())
+        );
 
-        $this->expectException(ParsingException::class);
-        $schema->parse('one');
+        self::assertFailure(
+            $type->resolve('one', new Context())
+        );
+
+        self::assertSuccess(
+            $type->resolve('one', $context = new Context(allowPartialFailures: true))
+        );
+        self::assertCount(1, $context->getIssues());
     }
 
     public function testDefinition()
     {
-        self::assertEquals('string|null', StringType::make()->nullable()->toDefinition()->output);
-        self::assertEquals('string|null', StringType::make()->nullable()->toDefinition()->input);
+        self::assertEquals('string|null', Typescript::fromJsonSchema(StringType::make()->nullable()->toDefinition()->toOutputSchema()));
+        self::assertEquals('string|null', Typescript::fromJsonSchema(StringType::make()->nullable()->toDefinition()->toInputSchema()));
     }
 
     public function testProxyFunctionality(): void
     {
-        $mockType = new class implements Type
-        {
+        $mockType = new class implements Type {
 
             public function testProxy(): string
             {
@@ -81,23 +75,21 @@ class NullableTypeTest extends TestCase
 
             public function toDefinition(): SchemaDefinition
             {
-                return Definition::same('something');
+                return Definition::same(['type' => 'boolean']);
             }
         };
 
         $nullable = NullableWrapper::make($mockType);
         self::assertEquals('this is a string', $nullable->testProxy());
-        self::assertEquals('something|null', $nullable->toDefinition()->input);
-        self::assertEquals('something|null', $nullable->toDefinition()->output);
 
         $changedType = $nullable->changeToString();
         self::assertNotSame($changedType, $nullable);
         self::assertInstanceOf(NullableWrapper::class, $changedType);
 
-        self::assertEquals('string|null', $changedType->toDefinition()->input);
-        self::assertEquals('string|null', $changedType->toDefinition()->output);
-        self::assertEquals('something|null', $nullable->toDefinition()->input);
-        self::assertEquals('something|null', $nullable->toDefinition()->output);
+        self::assertEquals('string|null', Typescript::fromJsonSchema($changedType->toDefinition()->toInputSchema()));
+        self::assertEquals('string|null', Typescript::fromJsonSchema($changedType->toDefinition()->toOutputSchema()));
+        self::assertEquals('boolean|null', Typescript::fromJsonSchema($nullable->toDefinition()->toInputSchema()));
+        self::assertEquals('boolean|null', Typescript::fromJsonSchema($nullable->toDefinition()->toOutputSchema()));
 
         self::assertInstanceOf(StringType::class, $changedType->unwrap());
     }

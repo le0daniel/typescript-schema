@@ -3,10 +3,10 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use Closure;
+use DateTimeInterface;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\Describable;
-use TypescriptSchema\Utils\Typescript;
 use TypescriptSchema\Utils\Utils;
 
 class Field
@@ -20,13 +20,6 @@ class Field
 
     public function __construct(protected Type $type)
     {
-    }
-
-    public function onlyOutput(): self
-    {
-        $instance = clone $this;
-        $instance->isOnlyOutput = true;
-        return $instance;
     }
 
     public function optional(): self
@@ -57,15 +50,6 @@ class Field
         $instance = clone $this;
         $instance->resolvedBy = $resolvedBy;
         return $instance;
-    }
-
-    /**
-     * @internal
-     * @return bool
-     */
-    public function isIsOnlyOutput(): bool
-    {
-        return $this->isOnlyOutput;
     }
 
     private function defaultResolver(mixed $data, string $fieldName): mixed
@@ -113,67 +97,16 @@ class Field
         return $this->isOptional;
     }
 
-    public function deprecated(?string $reason = null, ?\DateTimeInterface $removalDateTime = null): self
+    public function deprecated(?string $reason = null, ?DateTimeInterface $removalDateTime = null): self
     {
         $instance = clone $this;
         $instance->deprecated = [$reason, $removalDateTime];
         return $instance;
     }
 
-    /**
-     * @internal
-     */
-    public function hasDocBlock(): bool
+    /** @internal  */
+    public function isDeprecated(): bool
     {
-        return !empty($this->description);
-    }
-
-    private function descriptionAsLines(): array
-    {
-        return empty($this->description)
-            ? []
-            : explode(PHP_EOL, $this->description);
-    }
-
-    private function deprecatedLine(): ?string
-    {
-        if (!isset($this->deprecated)) {
-            return null;
-        }
-
-        /** @var \DateTimeInterface|null $removalDateTime */
-        /** @var ?string $reason */
-        [$reason, $removalDateTime] = $this->deprecated;
-        return match (true) {
-            isset($reason) && isset($removalDateTime) => "@deprecated {$reason}. Removal Date: {$removalDateTime->format('Y-m-d')}",
-            isset($reason) => "@deprecated {$reason}",
-            isset($removalDateTime) => "@deprecated Removal Date: {$removalDateTime->format('Y-m-d')}",
-            default => "@deprecated",
-        };
-    }
-
-    /**
-     * @internal
-     */
-    public function getDocBlock(): ?string
-    {
-        $hasDescription = !empty($this->description);
-        $isDeprecated = $this->deprecated !== null;
-
-        if (!$hasDescription && !$isDeprecated) {
-            return null;
-        }
-
-        $lines = match (true) {
-            $hasDescription && $isDeprecated => [
-                ... $this->descriptionAsLines(),
-                '',
-                $this->deprecatedLine(),
-            ],
-            $hasDescription => $this->descriptionAsLines(),
-            $isDeprecated => [$this->deprecatedLine()],
-        };
-
-        return Typescript::doc($lines);
+        return !!$this->deprecated ?? false;
     }
 }

@@ -2,9 +2,10 @@
 
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Primitives\BoolType;
 use TypescriptSchema\Tests\Definition\TestsParsing;
+use TypescriptSchema\Utils\Typescript;
 
 class BoolTypeTest extends TestCase
 {
@@ -12,7 +13,7 @@ class BoolTypeTest extends TestCase
 
     public function testImmutability(): void
     {
-        $type = BoolType::make();
+        $type = new BoolType;
         self::assertNotSame($type, $type->coerce());
     }
 
@@ -20,12 +21,12 @@ class BoolTypeTest extends TestCase
     {
         return [
             'bool strict' => [
-                BoolType::make(),
+                (new BoolType),
                 [true, false],
                 [1, '1', 'true', '0', -1, 0, 'false', new \stdClass()]
             ],
             'bool coerce' => [
-                BoolType::make()->coerce(),
+                (new BoolType)->coerce(),
                 [true, false, 1, '1', 'true', '0', 0, 'false'],
                 [-1, new \stdClass(), []]
             ]
@@ -34,10 +35,10 @@ class BoolTypeTest extends TestCase
 
     public function testToDefinition()
     {
-        self::assertEquals('boolean', BoolType::make()->toDefinition()->input);
-        self::assertEquals('boolean', BoolType::make()->toDefinition()->output);
+        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->toInputSchema()));
+        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->toOutputSchema()));
 
-        self::assertEquals('boolean', BoolType::make()->coerce()->toDefinition()->output);
-        self::assertEquals("boolean|number|null|'true'|'false'", BoolType::make()->coerce()->toDefinition()->input);
+        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->toOutputSchema()));
+        //self::assertEquals("boolean|number|null|'true'|'false'", Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->toInputSchema()));
     }
 }

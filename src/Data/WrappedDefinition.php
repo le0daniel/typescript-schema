@@ -2,20 +2,21 @@
 
 namespace TypescriptSchema\Data;
 
+use Closure;
 use TypescriptSchema\Contracts\SchemaDefinition;
 
-final class WrappedDefinition implements SchemaDefinition
+final readonly class WrappedDefinition implements SchemaDefinition
 {
 
     public function __construct(
-        private readonly SchemaDefinition $definition,
-        private readonly \Closure         $toInput,
-        private readonly \Closure         $toOutput,
+        private SchemaDefinition $definition,
+        private Closure          $toInput,
+        private Closure          $toOutput,
     )
     {
     }
 
-    public static function same(SchemaDefinition $definition, \Closure $closure)
+    public static function same(SchemaDefinition $definition, Closure $closure): WrappedDefinition
     {
         return new self($definition, $closure, $closure);
     }

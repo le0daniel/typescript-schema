@@ -3,7 +3,7 @@
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use stdClass;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\DateTimeType;

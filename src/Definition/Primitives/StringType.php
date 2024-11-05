@@ -9,6 +9,8 @@ use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\Coerce;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
@@ -16,7 +18,7 @@ use TypescriptSchema\Helpers\Context;
 class StringType implements LeafType
 {
     /** @uses Nullable<StringType> */
-    use Nullable, Validators, Coerce;
+    use Nullable, Validators, Coerce, Refinable, Transformable;
 
     public static function make(): StringType
     {
@@ -146,7 +148,7 @@ class StringType implements LeafType
         ]);
     }
 
-    public function parseAndValidate(mixed $value, Context $context): mixed
+    public function parseAndValidate(mixed $value, Context $context): Value|string
     {
         $value = $this->applyCoercionIfEnabled($value);
         if (!is_string($value)) {
@@ -163,7 +165,10 @@ class StringType implements LeafType
 
     public function validateAndSerialize(mixed $value, Context $context): mixed
     {
-        $value = (string) $value;
+        if (!is_string($value)) {
+            $context->addIssue(Issue::invalidType('string', $value));
+            return Value::INVALID;
+        }
 
         if (!$this->runValidators($value, $context)) {
             return Value::INVALID;

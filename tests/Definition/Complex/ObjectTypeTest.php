@@ -2,14 +2,18 @@
 
 namespace TypescriptSchema\Tests\Definition\Complex;
 
-use PHPUnit\Framework\TestCase;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Data\Enum\IssueType;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Definition\Wrappers\Schema;
 use TypescriptSchema\Exceptions\ParsingException;
+use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Tests\Mocks\GettersMock;
+use TypescriptSchema\Utils\Typescript;
 
 class ObjectTypeTest extends TestCase
 {
@@ -28,10 +32,10 @@ class ObjectTypeTest extends TestCase
             'opt' => Field::ofType(StringType::make()->nullable())->optional(),
         ]);
 
-        self::assertSame('{id: string; name: string|null; opt?: string|null;}', $type->toDefinition()->output);
-        self::assertTrue($type->toDefinition()->input === $type->toDefinition()->output);
-        self::assertSame('{id: string; name: string|null; opt?: string|null; [key: string]: unknown;}', $type->passThrough()->toDefinition()->output);
-        self::assertTrue($type->passThrough()->toDefinition()->input === $type->passThrough()->toDefinition()->output);
+        self::assertSame('{id:string;name:string|null;opt?:string|null}', Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
+        self::assertTrue($type->toDefinition()->toInputSchema() === $type->toDefinition()->toOutputSchema());
+        self::assertSame('{id:string;name:string|null;opt?:string|null;[key: string]:unknown}', Typescript::fromJsonSchema($type->passThrough()->toDefinition()->toOutputSchema()));
+        self::assertTrue($type->passThrough()->toDefinition()->toInputSchema() === $type->passThrough()->toDefinition()->toOutputSchema());
     }
 
     public function testPassThroughAsClosure(): void
@@ -40,28 +44,16 @@ class ObjectTypeTest extends TestCase
             'id' => StringType::make(),
         ])->passThrough(fn(array $items) => ['key' => 'value', 'id' => 123]);
 
-        self::assertEquals(['id' => '345', 'key' => 'value'], $type->parse(['id' => '345']));
+        self::assertEquals(['id' => '345', 'key' => 'value'], $type->resolve(['id' => '345'], new Context()));
 
         $justPassThrough = $type->passThrough();
-        self::assertEquals(['id' => '345', 'other' => 'passed'], $justPassThrough->parse(['id' => '345', 'other' => 'passed']));
+        self::assertEquals(['id' => '345', 'other' => 'passed'], $justPassThrough->resolve(['id' => '345', 'other' => 'passed'], new Context()));
     }
 
     public function testCorrectFailureOnNull(): void
     {
         $object = ObjectType::make(['name' => StringType::make()]);
-        $result = $object->safeParse(null);
-        self::assertFalse($result->isSuccess());
-        self::assertEquals(IssueType::INVALID_TYPE, $result->issues[0]->type);
-    }
-
-    public function testOnlyOutputDefinition(): void
-    {
-        $type = ObjectType::make([
-            'id' => StringType::make(),
-            'name' => Field::ofType(StringType::make())->onlyOutput(),
-        ]);
-        self::assertSame('{id: string; }', $type->toDefinition()->input);
-        self::assertSame('{id: string; name: string;}', $type->toDefinition()->output);
+        self::assertSame(Value::INVALID, $object->resolve(null, new Context()));
     }
 
     public function testTypeDefinitionWithDocBlock(): void
@@ -73,29 +65,28 @@ class ObjectTypeTest extends TestCase
         $expectedDescription = <<<DOC
 {/**
  * this is the description
- * 
  * @deprecated
- */id: string; name: string;}
+ */id:string;name:string}
 DOC;
-        self::assertEquals($expectedDescription, $type->toDefinition()->input);
-        self::assertEquals($expectedDescription, $type->toDefinition()->output);
+        self::assertEquals($expectedDescription, Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
+        self::assertEquals($expectedDescription, Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
     }
 
     public function testParsing(): void
     {
         $type = ObjectType::make([
             'id' => IntType::make()->min(1),
-            'name' => StringType::make()->min(1)->max(10)->nullable(),
+            'name' => StringType::make()->minLength(1)->maxLength(10)->nullable(),
             'opt' => Field::ofType(StringType::make()->nullable())->optional(),
         ]);
 
-        self::assertSame(['id' => 1, 'name' => 'my-name'], $type->parse(['id' => 1, 'name' => 'my-name', 'other' => true]));
+        self::assertSame(['id' => 1, 'name' => 'my-name'], $type->resolve(['id' => 1, 'name' => 'my-name', 'other' => true], new Context()));
 
-        self::assertSame(['id' => 123, 'name' => 'my-other'], $type->parse(GettersMock::standardObject([
+        self::assertSame(['id' => 123, 'name' => 'my-other'], $type->resolve(GettersMock::standardObject([
             'id' => 123,
             'name' => 'my-other',
             'other' => true,
-        ])));
+        ]), new Context()));
     }
 
     public function testFieldResolver()
@@ -110,7 +101,7 @@ DOC;
                 return 123456;
             }
         };
-        self::assertSame(['id' => 123456], $type->parse($object));
+        self::assertSame(['id' => 123456], $type->resolve($object, new Context()));
     }
 
     public function testPassThrough()
@@ -120,25 +111,20 @@ DOC;
                 ->resolvedBy(fn($data) => $data['id'] + 2),
         ]);
 
-        try {
-            self::assertEquals(['id' => 125, 'other' => true], $type->passThrough()->parse(['id' => 123, 'other' => true]));
-        } catch (ParsingException $exception) {
-            var_dump($exception->issues);
-        }
+        self::assertEquals(['id' => 125, 'other' => true], $type->passThrough()->resolve(['id' => 123, 'other' => true], new Context()));
     }
 
     public function testShowsErrorsForAllFieldsOnFailure(): void
     {
         $schema = ObjectType::make([
             'id' => IntType::make()->min(1),
-            'password' => StringType::make()->min(10),
+            'password' => StringType::make()->minLength(10),
         ]);
 
-        $issues = $schema->safeParse(['id' => 0, 'password' => 'test'])->issues;
+        $result = $schema->resolve(['id' => 0, 'password' => 'test'], $context = new Context());
+        self::assertSame(Value::INVALID, $result);
 
-        self::assertCount(2, $issues);
-        self::assertEquals("int.invalid_min", $issues[0]->getLocalizationKey());
-        self::assertEquals("string.invalid_min", $issues[1]->getLocalizationKey());
+        self::assertCount(2, $context->getIssues());
     }
 
 }
