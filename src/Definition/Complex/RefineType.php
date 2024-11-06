@@ -22,7 +22,7 @@ final class RefineType implements Type
     {
     }
 
-    public function resolve(mixed $value, Context $context): mixed
+    public function parse(mixed $value, Context $context): mixed
     {
         $value = Executor::execute($this->type, $value, $context);
         if (!$context->shouldRunValidators()) {

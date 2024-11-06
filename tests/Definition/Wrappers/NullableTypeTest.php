@@ -34,15 +34,15 @@ class NullableTypeTest extends TestCase
     {
         $type = NullableWrapper::make(StringType::make()->minLength(5));
         self::assertSuccess(
-            $type->resolve('one-one', new Context())
+            $type->parse('one-one', new Context())
         );
 
         self::assertFailure(
-            $type->resolve('one', new Context())
+            $type->parse('one', new Context())
         );
 
         self::assertSuccess(
-            $type->resolve('one', $context = new Context(allowPartialFailures: true))
+            $type->parse('one', $context = new Context(allowPartialFailures: true))
         );
         self::assertCount(1, $context->getIssues());
     }
@@ -77,7 +77,7 @@ class NullableTypeTest extends TestCase
                 return Definition::same(['type' => 'boolean']);
             }
 
-            public function resolve(mixed $value, Context $context): mixed
+            public function parse(mixed $value, Context $context): mixed
             {
                 return 'Value';
             }

@@ -41,16 +41,16 @@ class ObjectTypeTest extends TestCase
             'id' => StringType::make(),
         ])->passThrough(fn(array $items) => ['key' => 'value', 'id' => 123]);
 
-        self::assertEquals(['id' => '345', 'key' => 'value'], $type->resolve(['id' => '345'], new Context()));
+        self::assertEquals(['id' => '345', 'key' => 'value'], $type->parse(['id' => '345'], new Context()));
 
         $justPassThrough = $type->passThrough();
-        self::assertEquals(['id' => '345', 'other' => 'passed'], $justPassThrough->resolve(['id' => '345', 'other' => 'passed'], new Context()));
+        self::assertEquals(['id' => '345', 'other' => 'passed'], $justPassThrough->parse(['id' => '345', 'other' => 'passed'], new Context()));
     }
 
     public function testCorrectFailureOnNull(): void
     {
         $object = ObjectType::make(['name' => StringType::make()]);
-        self::assertSame(Value::INVALID, $object->resolve(null, new Context()));
+        self::assertSame(Value::INVALID, $object->parse(null, new Context()));
     }
 
     public function testTypeDefinitionWithDocBlock(): void
@@ -77,9 +77,9 @@ DOC;
             'opt' => Field::ofType(StringType::make()->nullable())->optional(),
         ]);
 
-        self::assertSame(['id' => 1, 'name' => 'my-name'], $type->resolve(['id' => 1, 'name' => 'my-name', 'other' => true], new Context()));
+        self::assertSame(['id' => 1, 'name' => 'my-name'], $type->parse(['id' => 1, 'name' => 'my-name', 'other' => true], new Context()));
 
-        self::assertSame(['id' => 123, 'name' => 'my-other'], $type->resolve(GettersMock::standardObject([
+        self::assertSame(['id' => 123, 'name' => 'my-other'], $type->parse(GettersMock::standardObject([
             'id' => 123,
             'name' => 'my-other',
             'other' => true,
@@ -98,7 +98,7 @@ DOC;
                 return 123456;
             }
         };
-        self::assertSame(['id' => 123456], $type->resolve($object, new Context()));
+        self::assertSame(['id' => 123456], $type->parse($object, new Context()));
     }
 
     public function testPassThrough()
@@ -108,7 +108,7 @@ DOC;
                 ->resolvedBy(fn($data) => $data['id'] + 2),
         ]);
 
-        self::assertEquals(['id' => 125, 'other' => true], $type->passThrough()->resolve(['id' => 123, 'other' => true], new Context()));
+        self::assertEquals(['id' => 125, 'other' => true], $type->passThrough()->parse(['id' => 123, 'other' => true], new Context()));
     }
 
     public function testShowsErrorsForAllFieldsOnFailure(): void
@@ -118,7 +118,7 @@ DOC;
             'password' => StringType::make()->minLength(10),
         ]);
 
-        $result = $schema->resolve(['id' => 0, 'password' => 'test'], $context = new Context());
+        $result = $schema->parse(['id' => 0, 'password' => 'test'], $context = new Context());
         self::assertSame(Value::INVALID, $result);
 
         self::assertCount(2, $context->getIssues());

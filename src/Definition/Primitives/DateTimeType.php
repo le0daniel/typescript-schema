@@ -10,6 +10,7 @@ use TypescriptSchema\Contracts\SerializesOutputValue;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -20,7 +21,7 @@ use TypescriptSchema\Helpers\Context;
 final class DateTimeType implements Type, SerializesOutputValue
 {
     /** @uses Nullable<DateTimeType> */
-    use Validators, Nullable, Refinable, Transformable;
+    use Validators, Nullable, Refinable, Transformable, HasDefaultValue;
 
     private static string $DEFAULT_FORMAT = DateTimeInterface::ATOM;
 
@@ -113,8 +114,10 @@ final class DateTimeType implements Type, SerializesOutputValue
         );
     }
 
-    public function resolve(mixed $value, Context $context): DateTimeImmutable|Value
+    public function parse(mixed $value, Context $context): DateTimeImmutable|Value
     {
+        $value = $this->applyDefaultValue($value);
+
         if (!is_string($value) && !$value instanceof DateTimeInterface) {
             $context->addIssue(Issue::invalidType('DateTimeString', $value));
             return Value::INVALID;

@@ -24,7 +24,7 @@ final class Executor
      */
     public static function execute(Type $type, mixed $data, Context $context): mixed
     {
-        $value = $type->resolve($data, $context);
+        $value = $type->parse($data, $context);
         if ($context->mode !== ExecutionMode::SERIALIZE || $value === Value::INVALID) {
             return $value;
         }

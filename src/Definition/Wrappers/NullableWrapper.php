@@ -21,7 +21,7 @@ final class NullableWrapper extends WrapsType
     /**
      * @template M of Type
      * @param Type $type
-     * @return Type
+     * @return NullableWrapper<M>
      */
     public static function make(Type $type): NullableWrapper
     {
@@ -63,7 +63,7 @@ final class NullableWrapper extends WrapsType
         return new NullableDefinition($this->type->toDefinition());
     }
 
-    public function resolve(mixed $value, Context $context): mixed
+    public function parse(mixed $value, Context $context): mixed
     {
         if ($value === null) {
             return null;

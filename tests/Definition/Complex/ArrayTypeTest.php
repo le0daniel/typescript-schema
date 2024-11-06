@@ -12,12 +12,12 @@ class ArrayTypeTest extends TestCase
 
     public function testParsingWithArray(): void
     {
-        self::assertSame([1,2,5,7], ArrayType::make(IntType::make())->resolve([1,2,5,7], new Context()));
+        self::assertSame([1,2,5,7], ArrayType::make(IntType::make())->parse([1,2,5,7], new Context()));
     }
 
     public function testParsingWithArrayCoercion(): void
     {
-        self::assertSame([1,2,5,7], ArrayType::make(IntType::make())->resolve([1,2,5,7], new Context()));
+        self::assertSame([1,2,5,7], ArrayType::make(IntType::make())->parse([1,2,5,7], new Context()));
     }
 
 }

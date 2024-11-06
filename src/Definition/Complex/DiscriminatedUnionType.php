@@ -23,12 +23,12 @@ final class DiscriminatedUnionType implements Type
     /** @uses Nullable<DiscriminatedUnionType> */
     use Nullable, Refinable, Transformable;
 
-    /** @var array<int, Type>|array<string, Type> */
+    /** @var array<int, ObjectType>|array<string, ObjectType> */
     private readonly array $types;
 
     /**
      * @param string $discriminatorFieldName
-     * @param array<ObjectType|NullableWrapper<ObjectType>> $types
+     * @param Type|array ...$types
      */
     public function __construct(
         private readonly string $discriminatorFieldName,
@@ -90,7 +90,7 @@ final class DiscriminatedUnionType implements Type
         ]);
     }
 
-    public function resolve(mixed $value, Context $context): mixed
+    public function parse(mixed $value, Context $context): mixed
     {
         if ($value === null) {
             $context->addIssue(Issue::invalidType('array', $value));

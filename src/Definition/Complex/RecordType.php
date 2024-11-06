@@ -41,7 +41,7 @@ final class RecordType implements Type
         );
     }
 
-    public function resolve(mixed $value, Context $context): mixed
+    public function parse(mixed $value, Context $context): mixed
     {
         if (!is_iterable($value)) {
             $context->addIssue(Issue::invalidType('array', $value));

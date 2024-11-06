@@ -15,7 +15,7 @@ class TransformTypeTest extends TestCase
     private function mockedType(): Type
     {
         return new class implements Type {
-            public function resolve(mixed $value, Context $context): mixed
+            public function parse(mixed $value, Context $context): mixed
             {
                 return "String!";
             }
@@ -33,8 +33,8 @@ class TransformTypeTest extends TestCase
             return "I am the string now!";
         });
 
-        self::assertEquals('String!', $type->resolve(null, new Context()));
-        self::assertEquals("I am the string now!", $transformer->resolve(null, new Context()));
+        self::assertEquals('String!', $type->parse(null, new Context()));
+        self::assertEquals("I am the string now!", $transformer->parse(null, new Context()));
     }
 
     public function testToDefinitionWithoutOverwriting()

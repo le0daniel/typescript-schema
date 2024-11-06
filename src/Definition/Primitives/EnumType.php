@@ -7,6 +7,7 @@ use TypescriptSchema\Contracts\SerializesOutputValue;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -17,7 +18,7 @@ use UnitEnum;
 class EnumType implements Type, SerializesOutputValue
 {
     /** @uses Nullable<EnumType> */
-    use Nullable, Refinable, Transformable;
+    use Nullable, Refinable, Transformable, HasDefaultValue;
 
     /**
      * @template T of UnitEnum
@@ -52,9 +53,11 @@ class EnumType implements Type, SerializesOutputValue
         return Value::INVALID;
     }
 
-    public function resolve(mixed $value, Context $context): Value|UnitEnum
+    public function parse(mixed $value, Context $context): Value|UnitEnum
     {
-        $enumValue = $this->parseStringValueToEnum($value);
+        $enumValue = $this->parseStringValueToEnum(
+            $this->applyDefaultValue($value)
+        );
         if ($enumValue === Value::INVALID) {
             $context->addIssue(Issue::invalidType('Enum value', $value));
             return Value::INVALID;

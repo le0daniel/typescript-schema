@@ -40,7 +40,7 @@ final class ArrayType implements Type
         );
     }
 
-    public function resolve(mixed $value, Context $context): mixed
+    public function parse(mixed $value, Context $context): mixed
     {
         // We accept more types when serializing
         if (!is_iterable($value) && !$value instanceof Generator) {

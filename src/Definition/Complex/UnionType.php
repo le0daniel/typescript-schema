@@ -153,7 +153,7 @@ final class UnionType implements Type
         );
     }
 
-    public function resolve(mixed $value, Context $context): mixed
+    public function parse(mixed $value, Context $context): mixed
     {
         if (isset($this->resolveType)) {
             return Executor::execute($this->resolveByClosure($value), $value, $context);

@@ -7,6 +7,7 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
+use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -16,7 +17,7 @@ use TypescriptSchema\Helpers\Context;
 final class BoolType implements Type
 {
     /** @uses Nullable<BoolType> */
-    use Nullable, Coerce, Refinable, Transformable;
+    use Nullable, Coerce, Refinable, Transformable, HasDefaultValue;
 
     protected function coerceValue(mixed $value): mixed
     {
@@ -41,9 +42,11 @@ final class BoolType implements Type
     }
 
 
-    public function resolve(mixed $value, Context $context): Value|bool
+    public function parse(mixed $value, Context $context): Value|bool
     {
-        $value = $this->applyCoercionIfEnabled($value);
+        $value = $this->applyCoercionIfEnabled(
+            $this->applyDefaultValue($value)
+        );
 
         if (is_bool($value)) {
             return $value;

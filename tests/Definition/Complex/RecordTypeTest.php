@@ -59,10 +59,10 @@ class RecordTypeTest extends TestCase
     {
         $record = RecordType::make(StringType::make());
 
-        self::assertFailure($record->resolve(['name' => 'value', 'email' => null], new Context()));
+        self::assertFailure($record->parse(['name' => 'value', 'email' => null], new Context()));
         self::assertIssuesCount(1, $record,['name' => 'value', 'email' => null]);
 
-        $record->resolve(['name' => 'value', 'email' => null], $context = new Context());
+        $record->parse(['name' => 'value', 'email' => null], $context = new Context());
         self::assertEquals(['email'], $context->getIssues()[0]->getPath());
     }
 

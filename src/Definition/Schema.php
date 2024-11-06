@@ -10,6 +10,7 @@ use TypescriptSchema\Data\Options;
 use TypescriptSchema\Data\Result;
 use TypescriptSchema\Definition\Complex\ArrayType;
 use TypescriptSchema\Definition\Complex\DiscriminatedUnionType;
+use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Complex\RecordType;
 use TypescriptSchema\Definition\Complex\TupleType;
@@ -32,17 +33,21 @@ use UnitEnum;
  * @method static AnyType any()
  * @method static BoolType bool()
  * @method static IntType int()
- * @method static NumberType number()
  * @method static StringType string()
  * @method static LiteralType literal(string|int|float|bool|UnitEnum $literalValue)
+ * @method static NumberType number()
  * @method static DateTimeType dateTime(string $format = DateTimeInterface::ATOM)
  * @method static EnumType enum(string $enumClassName)
  *
- *
- * @method static ObjectType object(array|\Closure $definition)
  * @method static ArrayType array(Type $type)
+ * @method static ObjectType object(array|\Closure $definition)
  * @method static UnionType union(array $types)
+ * @method static DiscriminatedUnionType discriminatedUnion(string $fieldName, array $objectTypes)
+ * @method static TupleType tuple(array $types)
+ * @method static RecordType record(Type $type)
  *
+ * @method static Field field(Type $type)
+ * @method static Field property(Type $type)
  */
 final class Schema
 {
@@ -58,11 +63,28 @@ final class Schema
 
         'array' => ArrayType::class,
         'object' => ObjectType::class,
+        'union' => UnionType::class,
         'discriminatedUnion' => DiscriminatedUnionType::class,
         'tuple' => TupleType::class,
         'record' => RecordType::class,
-        'union' => UnionType::class,
+
+        'field' => Field::class,
+        'property' => Field::class,
     ];
+
+    public function __construct(private readonly Type $type)
+    {
+    }
+
+    /**
+     * Sugar syntax for chaining for PHP version < 8.4
+     * @param Type $type
+     * @return self
+     */
+    public static function make(Type $type): self
+    {
+        return new self($type);
+    }
 
     /**
      * @template T of Type
@@ -74,10 +96,12 @@ final class Schema
         return NullableWrapper::make($type);
     }
 
-    public function __construct(private readonly Type $type)
-    {
-    }
-
+    /**
+     * Helper to make a union of literals.
+     *
+     * @param string|int|float|bool|UnitEnum ...$literals
+     * @return UnionType
+     */
     public static function literalUnion(string|int|float|bool|UnitEnum ... $literals): UnionType
     {
         return new UnionType(
@@ -94,19 +118,15 @@ final class Schema
         return new $type(...$arguments);
     }
 
-    public static function make(Type $type): self
-    {
-        return new self($type);
-    }
-
     /** @throws ParsingException */
-    public function serializeOrFail(mixed $data, Options $options = new Options()): mixed
+    public function serializeOrFail(mixed $data, Options $options = new Options()): Result
     {
         $result = $this->run(ExecutionMode::SERIALIZE, $data, $options);
 
         if ($result->isFailure()) {
             throw $result->toThrowable();
         }
+
         return $result;
     }
 
@@ -116,7 +136,7 @@ final class Schema
     }
 
     /** @throws ParsingException */
-    public function parseOrFail(mixed $data, Options $options = new Options()): mixed
+    public function parseOrFail(mixed $data, Options $options = new Options()): Result
     {
         $result = $this->run(ExecutionMode::PARSE, $data, $options);
 

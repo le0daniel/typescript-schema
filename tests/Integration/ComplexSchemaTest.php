@@ -65,7 +65,7 @@ final class ComplexSchemaTest extends TestCase
             ->transform(fn(int $length): string => (string)$length)
             ->refine(fn($val) => $val === "11");
 
-        self::assertEquals("11", $schema->resolve('stringal911', new Context()));
+        self::assertEquals("11", $schema->parse('stringal911', new Context()));
     }
 
     public function testTupleParsing()
@@ -76,7 +76,7 @@ final class ComplexSchemaTest extends TestCase
             Schema::int(),
         ]);
 
-        [$name, $username, $age] = $tuple->resolve(['Hans', null, 99], new Context());
+        [$name, $username, $age] = $tuple->parse(['Hans', null, 99], new Context());
         self::assertEquals(['Hans', null, 99], [$name, $username, $age]);
     }
 
@@ -101,7 +101,7 @@ final class ComplexSchemaTest extends TestCase
         ]));
 
         self::assertSuccess(
-            $type->resolve([
+            $type->parse([
                 [],
                 ['name' => 0],
                 ['name' => 'hans']

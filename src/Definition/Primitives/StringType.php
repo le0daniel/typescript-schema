@@ -8,6 +8,7 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
+use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -18,7 +19,7 @@ use TypescriptSchema\Helpers\Context;
 class StringType implements Type
 {
     /** @uses Nullable<StringType> */
-    use Nullable, Coerce, Validators, Refinable, Transformable;
+    use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
 
     public static function make(): StringType
     {
@@ -148,9 +149,11 @@ class StringType implements Type
         ]);
     }
 
-    public function resolve(mixed $value, Context $context): Value|string
+    public function parse(mixed $value, Context $context): Value|string
     {
-        $value = $this->applyCoercionIfEnabled($value);
+        $value = $this->applyCoercionIfEnabled(
+            $this->applyDefaultValue($value)
+        );
         if (!is_string($value)) {
             $context->addIssue(Issue::invalidType('string', $value));
             return Value::INVALID;

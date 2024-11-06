@@ -8,6 +8,7 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
+use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -18,7 +19,7 @@ use TypescriptSchema\Helpers\Context;
 final class IntType implements Type
 {
     /** @uses Nullable<IntType> */
-    use Nullable, Coerce, Validators, Refinable, Transformable;
+    use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
 
     private function coerceValue(mixed $value): mixed
     {
@@ -76,9 +77,11 @@ final class IntType implements Type
         });
     }
 
-    public function resolve(mixed $value, Context $context): Value|int
+    public function parse(mixed $value, Context $context): Value|int
     {
-        $value = $this->applyCoercionIfEnabled($value);
+        $value = $this->applyCoercionIfEnabled(
+            $this->applyDefaultValue($value)
+        );
 
         if (!is_int($value)) {
             $context->addIssue(Issue::invalidType('integer', $value));

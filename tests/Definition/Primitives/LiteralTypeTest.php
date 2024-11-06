@@ -19,7 +19,7 @@ class LiteralTypeTest extends TestCase
     #[DataProvider('parsingDataProvider')]
     public function testParsing(bool $success, Type $type, mixed $value, mixed $expectedValue = null): void
     {
-        $result = $type->resolve($value, new Context());
+        $result = $type->parse($value, new Context());
         if (!$success) {
             self::assertTrue( $result === Value::INVALID);
             return;
@@ -118,8 +118,8 @@ class LiteralTypeTest extends TestCase
     {
         foreach ([UnitEnumMock::SUCCESS, StringBackedEnumMock::ERROR, IntBackedEnumMock::FAILURE] as $enum) {
             $type = LiteralType::make($enum);
-            self::assertEquals($enum, $type->resolve($enum->name, new Context()));
-            self::assertEquals($enum, $type->resolve($enum, new Context()));
+            self::assertEquals($enum, $type->parse($enum->name, new Context()));
+            self::assertEquals($enum, $type->parse($enum, new Context()));
 
             self::assertEquals($enum->name, Executor::execute($type, $enum->name, new Context(mode: ExecutionMode::SERIALIZE)));
             self::assertEquals($enum->name, Executor::execute($type, $enum, new Context(mode: ExecutionMode::SERIALIZE)));

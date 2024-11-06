@@ -67,7 +67,7 @@ final class TupleType implements Type
         return $value;
     }
 
-    public function resolve(mixed $value, Context $context): mixed
+    public function parse(mixed $value, Context $context): mixed
     {
         $value = $this->verifyValue($value, $context);
         if ($value === Value::INVALID) {

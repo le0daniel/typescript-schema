@@ -17,11 +17,11 @@ class TupleTypeTest extends TestCase
         $type = TupleType::make(StringType::make(), IntType::make());
 
 
-        self::assertSame(['one', 1], $type->resolve(['one', 1], new Context()));
-        self::assertSame(Value::INVALID, $type->resolve(['one'], new Context()));
-        self::assertSame(Value::INVALID, $type->resolve([1, 'one'], new Context()));
-        self::assertSame(Value::INVALID, $type->resolve(['one' => 'one', 1], new Context()));
-        self::assertSame(Value::INVALID, $type->resolve([], new Context()));
+        self::assertSame(['one', 1], $type->parse(['one', 1], new Context()));
+        self::assertSame(Value::INVALID, $type->parse(['one'], new Context()));
+        self::assertSame(Value::INVALID, $type->parse([1, 'one'], new Context()));
+        self::assertSame(Value::INVALID, $type->parse(['one' => 'one', 1], new Context()));
+        self::assertSame(Value::INVALID, $type->parse([], new Context()));
     }
 
     public function testToDefinition(): void

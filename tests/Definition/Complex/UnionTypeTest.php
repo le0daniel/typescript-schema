@@ -41,24 +41,24 @@ class UnionTypeTest extends TestCase
     public function testManualResolver()
     {
         $type = UnionType::make(StringType::make()->coerce(), IntType::make());
-        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->resolve(1, new Context()));
+        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->parse(1, new Context()));
     }
 
     public function testManualResolverWithNamedTypes()
     {
         $type = UnionType::make(string: StringType::make()->coerce(), int: IntType::make());
-        self::assertSame(1, $type->resolveTypeBy(fn() => 'int')->resolve(1, new Context()));
-        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->resolve(1, new Context()));
+        self::assertSame(1, $type->resolveTypeBy(fn() => 'int')->parse(1, new Context()));
+        self::assertSame(1, $type->resolveTypeBy(fn() => 1)->parse(1, new Context()));
     }
 
     public function testCorrectHandlingWhenUsingSoftFailures(): void
     {
         $type = UnionType::make(StringType::make()->nullable(), IntType::make());
 
-        self::assertSame('string', $type->resolve('string', new Context()));
-        self::assertSame(1, $type->resolve(1, new Context()));
-        self::assertSame(null, $type->resolve(null, new Context()));
-        self::assertSame(Value::INVALID, $type->resolve(new stdClass(), new Context()));
+        self::assertSame('string', $type->parse('string', new Context()));
+        self::assertSame(1, $type->parse(1, new Context()));
+        self::assertSame(null, $type->parse(null, new Context()));
+        self::assertSame(Value::INVALID, $type->parse(new stdClass(), new Context()));
 
         $complexType = UnionType::make(
             ObjectType::make([
@@ -68,7 +68,7 @@ class UnionTypeTest extends TestCase
             StringType::make()->nullable(),
         );
 
-        $result = $complexType->resolve(['id' => 5, 'name' => 123], $context = new Context(allowPartialFailures: true));
+        $result = $complexType->parse(['id' => 5, 'name' => 123], $context = new Context(allowPartialFailures: true));
         self::assertEquals(['id' => 5, 'name' => null], $result);
         self::assertTrue($context->hasIssues());
         self::assertCount(1, $context->getIssues());

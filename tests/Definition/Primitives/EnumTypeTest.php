@@ -32,13 +32,13 @@ class EnumTypeTest extends TestCase
     public function testEnumParsing()
     {
         $type = EnumType::make(UnitEnumMock::class);
-        self::assertEquals(UnitEnumMock::FAILURE, $type->resolve('FAILURE', new Context()));
-        self::assertEquals(UnitEnumMock::SUCCESS, $type->resolve(UnitEnumMock::SUCCESS, new Context()));
+        self::assertEquals(UnitEnumMock::FAILURE, $type->parse('FAILURE', new Context()));
+        self::assertEquals(UnitEnumMock::SUCCESS, $type->parse(UnitEnumMock::SUCCESS, new Context()));
 
         self::assertEquals('FAILURE', Executor::execute($type,'FAILURE', new Context(mode: ExecutionMode::SERIALIZE)));
         self::assertEquals('SUCCESS', Executor::execute($type, UnitEnumMock::SUCCESS, new Context(mode: ExecutionMode::SERIALIZE)));
 
-        self::assertEquals(Value::INVALID,$type->resolve('', new Context()));
+        self::assertEquals(Value::INVALID,$type->parse('', new Context()));
     }
 
 }
