@@ -2,6 +2,8 @@
 
 namespace TypescriptSchema\Definition\Shared;
 
+use TypescriptSchema\Data\Schema\Definition;
+
 trait Coerce
 {
 
@@ -18,6 +20,18 @@ trait Coerce
         $clone = clone $this;
         $clone->coerce = $coerce;
         return $clone;
+    }
+
+    private function applyCoerceToInputDefinition(Definition $definition, ?array $acceptableInput = null): Definition
+    {
+        if (!$this->coerce || !$acceptableInput) {
+            return $definition;
+        }
+
+        return new Definition(
+            $acceptableInput,
+            $definition->output(),
+        );
     }
 
     protected function applyCoercionIfEnabled(mixed $value): mixed

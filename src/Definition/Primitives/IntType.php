@@ -23,11 +23,7 @@ final class IntType implements LeafType
     private function coerceValue(mixed $value): mixed
     {
         try {
-            return match ($value) {
-                'true' => 1,
-                'false' => 0,
-                default => (int)$value
-            };
+            return (int)$value;
         } catch (Throwable) {
             return $value;
         }
@@ -40,7 +36,16 @@ final class IntType implements LeafType
 
     public function toDefinition(): SchemaDefinition
     {
-        return Definition::same(['type' => 'integer']);
+        return $this->applyCoerceToInputDefinition(
+            Definition::same(['type' => 'integer']),
+            [
+                'oneOf' => [
+                    ['type' => 'number'],
+                    ['type' => 'string'],
+                    ['type' => 'boolean'],
+                ]
+            ],
+        );
     }
 
     public function min(int $minValue, bool $including = true): IntType

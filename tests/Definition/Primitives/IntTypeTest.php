@@ -34,6 +34,9 @@ class IntTypeTest extends TestCase
 
         self::assertSame('number', Typescript::fromJsonSchema(IntType::make()->toDefinition()->input()));
         self::assertSame('number', Typescript::fromJsonSchema(IntType::make()->toDefinition()->output()));
+
+        self::assertSame('number|string|boolean', Typescript::fromJsonSchema(IntType::make()->coerce()->toDefinition()->input()));
+        self::assertSame('number', Typescript::fromJsonSchema(IntType::make()->coerce()->toDefinition()->output()));
     }
 
     public function testMinBoundaries()

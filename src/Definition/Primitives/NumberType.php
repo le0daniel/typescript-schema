@@ -26,9 +26,16 @@ final class NumberType implements LeafType
 
     public function toDefinition(): SchemaDefinition
     {
-        return Definition::same([
-            'type' => 'number'
-        ]);
+        return $this->applyCoerceToInputDefinition(
+            Definition::same(['type' => 'number']),
+            [
+                'oneOf' => [
+                    ['type' => 'number'],
+                    ['type' => 'string'],
+                    ['type' => 'boolean'],
+                ],
+            ],
+        );
     }
 
     protected function coerceValue(mixed $value): mixed

@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace TypescriptSchema\Definition\Wrappers;
+namespace TypescriptSchema\Definition;
 
 use DateTimeInterface;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\ExecutionMode;
-use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Options;
 use TypescriptSchema\Data\Result;
 use TypescriptSchema\Definition\Complex\ArrayType;
@@ -23,6 +22,7 @@ use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Primitives\NumberType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
@@ -66,7 +66,7 @@ final class Schema
 
     /**
      * @template T of Type
-     * @param T $type
+     * @param Type $type
      * @return NullableWrapper<T>
      */
     public static function nullable(Type $type): NullableWrapper

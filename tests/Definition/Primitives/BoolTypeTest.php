@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
+use stdClass;
 use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Primitives\BoolType;
 use TypescriptSchema\Tests\Definition\TestsParsing;
@@ -23,12 +24,12 @@ class BoolTypeTest extends TestCase
             'bool strict' => [
                 (new BoolType),
                 [true, false],
-                [1, '1', 'true', '0', -1, 0, 'false', new \stdClass()]
+                [1, '1', 'true', '0', -1, 0, 'false', new stdClass()]
             ],
             'bool coerce' => [
                 (new BoolType)->coerce(),
                 [true, false, 1, '1', 'true', '0', 0, 'false'],
-                [-1, new \stdClass(), []]
+                [-1, new stdClass(), []]
             ]
         ];
     }
@@ -37,8 +38,7 @@ class BoolTypeTest extends TestCase
     {
         self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->input()));
         self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->output()));
-
         self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->output()));
-        //self::assertEquals("boolean|number|null|'true'|'false'", Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->toInputSchema()));
+        self::assertEquals("string|boolean|number", Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->input()));
     }
 }

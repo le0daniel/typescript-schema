@@ -29,24 +29,15 @@ final class BoolType implements LeafType
 
     public function toDefinition(): SchemaDefinition
     {
-        if ($this->coerce) {
-            return new Definition(
-                [
-                    "oneOf" => [
-                        ["type" => "string"],
-                        ["type" => "boolean"],
-                        ["type" => "number"],
-                    ]
-                ],
-                [
-                    'type' => "boolean",
+        return $this->applyCoerceToInputDefinition(
+            Definition::same(['type' => "boolean",]),
+            [
+                "oneOf" => [
+                    ["type" => "string"],
+                    ["type" => "boolean"],
+                    ["type" => "number"],
                 ]
-            );
-        }
-
-        return Definition::same([
-            'type' => "boolean",
-        ]);
+            ]);
     }
 
 

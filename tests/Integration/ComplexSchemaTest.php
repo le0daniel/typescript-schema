@@ -4,7 +4,7 @@ namespace TypescriptSchema\Tests\Integration;
 
 use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Tests\TestCase;
-use TypescriptSchema\Definition\Wrappers\Schema;
+use TypescriptSchema\Definition\Schema;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Utils\Typescript;
 

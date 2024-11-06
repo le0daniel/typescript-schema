@@ -4,7 +4,7 @@ namespace TypescriptSchema\Tests\Integration;
 
 use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Complex\Field;
-use TypescriptSchema\Definition\Wrappers\Schema;
+use TypescriptSchema\Definition\Schema;
 use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Utils\Typescript;
 

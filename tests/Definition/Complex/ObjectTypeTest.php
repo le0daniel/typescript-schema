@@ -2,17 +2,14 @@
 
 namespace TypescriptSchema\Tests\Definition\Complex;
 
-use TypescriptSchema\Tests\TestCase;
-use TypescriptSchema\Data\Enum\IssueType;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
-use TypescriptSchema\Definition\Wrappers\Schema;
-use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Tests\Mocks\GettersMock;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Utils\Typescript;
 
 class ObjectTypeTest extends TestCase
