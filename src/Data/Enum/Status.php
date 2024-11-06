@@ -2,9 +2,10 @@
 
 namespace TypescriptSchema\Data\Enum;
 
-enum Status implements \JsonSerializable
-{
+use JsonSerializable;
 
+enum Status implements JsonSerializable
+{
     case SUCCESS;
     case FAILURE;
     case PARTIAL;

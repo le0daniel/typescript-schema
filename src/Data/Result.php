@@ -7,18 +7,21 @@ use TypescriptSchema\Data\Enum\Status;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Exceptions\ParsingException;
+use TypescriptSchema\Utils\Issues;
 
-final readonly class Result
+final class Result
 {
-    public Status $status;
+    use HasLocalizer;
+
+    public readonly Status $status;
 
     /**
      * @param mixed $data
      * @param array<Issue> $issues
      */
     public function __construct(
-        private mixed $data,
-        public array  $issues,
+        private readonly mixed $data,
+        public readonly array  $issues,
     )
     {
         if ($this->data === Value::UNDEFINED) {
@@ -34,9 +37,9 @@ final readonly class Result
 
     public function toThrowable(): ParsingException
     {
-        return new ParsingException(
-            $this->issues
-        );
+        return (new ParsingException($this->issues))
+            ->setLocale($this->locale)
+            ->setLocalizer($this->localizer);
     }
 
     public function getData(): mixed
@@ -44,6 +47,11 @@ final readonly class Result
         return $this->data instanceof Value
             ? null
             : $this->data;
+    }
+
+    public function serializeIssues(bool $debug = false): array
+    {
+        return Issues::serialize($this->issues, $this->getLocalizer(), $this->locale, $debug);
     }
 
     public function isSuccess(): bool

@@ -19,9 +19,13 @@ class ParsingExceptionTest extends TestCase
         self::assertEquals([
             'message' => 'Invalid data',
             'issues' => [
-                'name' => [
-                    'Value needs to be of type string',
-                    'Value needs to be of type string',
+                [
+                    'message' => 'Value needs to be of type string',
+                    'path' => ['name']
+                ],
+                [
+                    'message' => 'Value needs to be of type string',
+                    'path' => ['name']
                 ]
             ],
         ], $exception->jsonSerialize());
@@ -29,9 +33,13 @@ class ParsingExceptionTest extends TestCase
         self::assertEquals([
             'message' => 'Ungültige Daten',
             'issues' => [
-                'name' => [
-                    'Wert muss vom Typ string sein',
-                    'Wert muss vom Typ string sein',
+                [
+                    'message' => 'Wert muss vom Typ string sein',
+                    'path' => ['name']
+                ],
+                [
+                    'message' => 'Wert muss vom Typ string sein',
+                    'path' => ['name']
                 ]
             ],
         ], $exception->setLocale('de')->jsonSerialize());

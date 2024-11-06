@@ -125,7 +125,7 @@ final class Issue extends Exception
      */
     public static function captureThrowable(Throwable $throwable): Issue
     {
-        if ($throwable instanceof self) {
+        if ($throwable instanceof Issue) {
             return $throwable;
         }
 
