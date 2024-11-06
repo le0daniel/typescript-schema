@@ -2,28 +2,20 @@
 
 namespace TypescriptSchema\Contracts;
 
-use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\Context;
 
 interface Validator
 {
 
     /**
-     * Given a value, return true or false showing if the value is correct or not.
+     * Given a value, validate it and add issues to the context.
+     * You can add multiple issues if needed.
+     *
+     * Important, this should NOT throw.
      *
      * @param mixed $value
-     * @throws Issue
+     * @param Context $context
      * @return bool
      */
-    public function validate(mixed $value): bool;
-
-    /**
-     * In case the validation failed, produce an issue that is registered correctly.
-     *
-     * If no further validation should happen, use `$issue->fatal()`
-     *
-     * @param mixed $invalidValue
-     * @return Issue
-     */
-    public function produceIssue(mixed $invalidValue): Issue;
-
+    public function validate(mixed $value, Context $context): bool;
 }

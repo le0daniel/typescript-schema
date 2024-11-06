@@ -55,21 +55,11 @@ trait Validators
 
         $isDirty = false;
         foreach ($this->validators as $validator) {
-            try {
-                if ($validator->validate($value)) {
-                    continue;
-                }
-
-                $issue = $validator->produceIssue($value);
-            } catch (Throwable $exception) {
-                $issue = Issue::captureThrowable($exception);
+            if ($validator->validate($value, $context)) {
+                continue;
             }
 
             $isDirty = true;
-            $context->addIssue($issue);
-            if ($issue->isFatal()) {
-                return false;
-            }
         }
 
         return !$isDirty;

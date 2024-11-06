@@ -32,13 +32,7 @@ final class RefineType implements ComplexType
             return Value::INVALID;
         }
 
-        try {
-            if (!$this->validator->validate($value)) {
-                $context->addIssue($this->validator->produceIssue($value));
-                return Value::INVALID;
-            }
-        } catch (Throwable $exception) {
-            $context->addIssue(Issue::captureThrowable($exception));
+        if (!$this->validator->validate($value, $context)) {
             return Value::INVALID;
         }
 

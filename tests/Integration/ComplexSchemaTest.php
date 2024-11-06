@@ -8,7 +8,7 @@ use TypescriptSchema\Definition\Wrappers\Schema;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Utils\Typescript;
 
-final class ComplextSchemaTest extends TestCase
+final class ComplexSchemaTest extends TestCase
 {
     public function testObjectRefinement(): void
     {

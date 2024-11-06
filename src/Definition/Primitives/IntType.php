@@ -46,15 +46,29 @@ final class IntType implements LeafType
     public function min(int $minValue, bool $including = true): IntType
     {
         return $this->addValidator(static function (int $value) use ($minValue, $including): bool {
-            return $including ? $value >= $minValue : $value > $minValue;
-        }, 'Value must be greater than or equal to ' . $minValue);
+            if ($including ? $value >= $minValue : $value > $minValue) {
+                return true;
+            }
+
+            throw ($including
+                ? Issue::custom("Value must be bigger than or equal to {$minValue}", ['min' => $minValue], localizationKey: "int.invalid_min.including")
+                : Issue::custom("Value must be bigger than {$minValue}", ['min' => $minValue], localizationKey: "int.invalid_min.excluding")
+            );
+        });
     }
 
     public function max(int $maxValue, bool $including = true): IntType
     {
         return $this->addValidator(static function (int $value) use ($maxValue, $including): bool {
-            return $including ? $value <= $maxValue : $value < $maxValue;
-        }, 'Value must be smaller than or equal to ' . $maxValue);
+            if ($including ? $value <= $maxValue : $value < $maxValue) {
+                return true;
+            }
+
+            throw ($including
+                ? Issue::custom("Value must be smaller than or equal to {$maxValue}", ['max' => $maxValue], localizationKey: "int.invalid_max.including")
+                : Issue::custom("Value must be smaller than {$maxValue}", ['max' => $maxValue], localizationKey: "int.invalid_max.excluding")
+            );
+        });
     }
 
     public function parseAndValidate(mixed $value, Context $context): Value|int
