@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Tests\Integration;
 
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Tests\Mocks\UnitEnumMock;
 use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Definition\Schema;
 use TypescriptSchema\Exceptions\Issue;
@@ -107,6 +108,37 @@ final class ComplexSchemaTest extends TestCase
                 ['name' => 'hans']
             ], new Context(allowPartialFailures: true))
         );
+    }
+
+    public function testDefaultValues(): void
+    {
+        $schema = Schema::make(
+            Schema::object([
+                'string' => Schema::string()->defaultValue('my-string'),
+                'boolean' => Schema::bool()->defaultValue(true),
+                'integer' => Schema::int()->defaultValue(99),
+                'float' => Schema::number()->defaultValue(109.9),
+                'literal' => Schema::literal('test')->defaultValue('test'),
+                'date' => Schema::dateTime('Y-m-d')->defaultValue('2021-09-27'),
+                'dateImmutableDefault' => Schema::dateTime('Y-m-d')
+                    ->defaultValue(\DateTimeImmutable::createFromFormat('Y-m-d', '2022-02-25')),
+                'enum' => Schema::enum(UnitEnumMock::class)->defaultValue('SUCCESS'),
+                'enumAsEnum' => Schema::enum(UnitEnumMock::class)->defaultValue(UnitEnumMock::FAILURE),
+            ])
+        );
+
+        self::assertSuccess($result = $schema->serialize([]));
+        self::assertEquals([
+            'string' => 'my-string',
+            'boolean' => true,
+            'integer' => 99,
+            'float' => 109.9,
+            'literal' => 'test',
+            'date' => '2021-09-27',
+            'dateImmutableDefault' => '2022-02-25',
+            'enum' => 'SUCCESS',
+            'enumAsEnum' => 'FAILURE'
+        ], $result->getData());
     }
 
     public function testDeeperSchema()

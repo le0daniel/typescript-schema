@@ -21,7 +21,7 @@ final class TransformType implements Type
     /**
      * @param Type $type
      * @param Closure $transformation
-     * @param array|Closure(array): array|null $outputSchema
+     * @param array<mixed>|Closure(array<mixed>): array<mixed>|null $outputSchema
      */
     public function __construct(
         private readonly Type $type,

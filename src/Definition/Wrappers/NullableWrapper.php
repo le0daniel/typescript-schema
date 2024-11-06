@@ -13,14 +13,14 @@ use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
 /**
- * @template T of Type
+ * @template-covariant T of Type
  * @mixin T
  */
 final class NullableWrapper extends WrapsType
 {
     /**
      * @template M of Type
-     * @param Type $type
+     * @param M $type
      * @return NullableWrapper<M>
      */
     public static function make(Type $type): NullableWrapper
@@ -40,8 +40,8 @@ final class NullableWrapper extends WrapsType
      * top of all other wrappers.
      *
      * @param string $name
-     * @param array $arguments
-     * @return $this
+     * @param array<mixed> $arguments
+     * @return NullableWrapper<T>|mixed
      */
     final public function __call(string $name, array $arguments)
     {

@@ -3,14 +3,9 @@
 namespace TypescriptSchema\Definition\Shared;
 
 use Closure;
-use TypescriptSchema\Contracts\Type;
 
-/**
- * @template T of Type
- */
 trait HasDefaultValue
 {
-
     private mixed $defaultValue = null;
 
     public function defaultValue(mixed $defaultValue): static

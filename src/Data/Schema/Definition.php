@@ -8,6 +8,10 @@ use TypescriptSchema\Utils\Typescript;
 final readonly class Definition implements SchemaDefinition
 {
 
+    /**
+     * @param array<mixed> $input
+     * @param array<mixed> $output
+     */
     public function __construct(
         public array $input,
         public array $output,
@@ -15,6 +19,10 @@ final readonly class Definition implements SchemaDefinition
     {
     }
 
+    /**
+     * @param array<mixed> $definition
+     * @return Definition
+     */
     public static function same(array $definition): Definition
     {
         return new Definition($definition, $definition);

@@ -18,16 +18,15 @@ use TypescriptSchema\Helpers\Context;
 
 final class IntType implements Type
 {
-    /** @uses Nullable<IntType> */
+    /** @use Nullable<IntType> */
     use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
 
     private function coerceValue(mixed $value): mixed
     {
-        try {
-            return (int)$value;
-        } catch (Throwable) {
-            return $value;
+        if (is_scalar($value)) {
+            return (int) $value;
         }
+        return $value;
     }
 
     public static function make(): self

@@ -16,7 +16,7 @@ use UnitEnum;
 
 final class LiteralType implements Type, SerializesOutputValue
 {
-    /** @uses Nullable<LiteralType> */
+    /** @use Nullable<LiteralType> */
     use Nullable, Refinable, Transformable, HasDefaultValue;
 
     public function __construct(private readonly string|int|float|bool|UnitEnum $literalValue)

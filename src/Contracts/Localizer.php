@@ -8,6 +8,7 @@ interface Localizer
     /**
      * If no locale is passed, the default is returned if given, otherwise the key.
      *
+     * @param array<string, mixed> $parameters
      * @throws \RuntimeException
      */
     public function translate(string $locale, string $key, array $parameters = [], ?string $default = null): string;

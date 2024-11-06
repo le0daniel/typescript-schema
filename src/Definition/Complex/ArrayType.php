@@ -15,9 +15,15 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
+/**
+ *
+ */
 final class ArrayType implements Type
 {
-    use Nullable, Refinable, Transformable;
+    /** @use Nullable<ArrayType> */
+    use Nullable,
+        Refinable,
+        Transformable;
 
     public function __construct(
         private readonly Type $type,
@@ -42,8 +48,7 @@ final class ArrayType implements Type
 
     public function parse(mixed $value, Context $context): mixed
     {
-        // We accept more types when serializing
-        if (!is_iterable($value) && !$value instanceof Generator) {
+        if (!is_iterable($value)) {
             $context->addIssue(Issue::invalidType('iterable', $value));
             return Value::INVALID;
         }

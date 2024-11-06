@@ -88,7 +88,7 @@ final class Schema
 
     /**
      * @template T of Type
-     * @param Type $type
+     * @param T $type
      * @return NullableWrapper<T>
      */
     public static function nullable(Type $type): NullableWrapper
@@ -109,7 +109,12 @@ final class Schema
         );
     }
 
-    public static function __callStatic(string $name, array $arguments)
+    /**
+     * @param string $name
+     * @param array<mixed> $arguments
+     * @return Type|Field
+     */
+    public static function __callStatic(string $name, array $arguments): Type|Field
     {
         $type = self::TYPES[$name] ?? null;
         if (!$name) {

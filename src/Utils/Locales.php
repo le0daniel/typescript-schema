@@ -9,6 +9,7 @@ final class Locales
 
     /**
      * @throws RuntimeException
+     * @return array{0: string, 1: string|null}
      */
     public static function explodeIntoLanguageAndCountry(string $locale): array
     {

@@ -32,7 +32,6 @@ class StringTypeTest extends TestCase
 
         foreach ($successful as $value) {
             $result = Executor::execute($type, $value, new Context(mode: ExecutionMode::PARSE));
-            var_dump($result);
             self::assertNotSame(Value::INVALID, $result);
         }
 

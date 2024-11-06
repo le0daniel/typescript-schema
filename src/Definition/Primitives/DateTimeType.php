@@ -20,7 +20,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class DateTimeType implements Type, SerializesOutputValue
 {
-    /** @uses Nullable<DateTimeType> */
+    /** @use Nullable<DateTimeType> */
     use Validators, Nullable, Refinable, Transformable, HasDefaultValue;
 
     private static string $DEFAULT_FORMAT = DateTimeInterface::ATOM;
@@ -74,7 +74,7 @@ final class DateTimeType implements Type, SerializesOutputValue
         return $this->format ?? self::$DEFAULT_FORMAT;
     }
 
-    public function before(DateTimeImmutable $before): static
+    public function before(DateTimeImmutable $before): DateTimeType
     {
         return $this->addValidator(function (DateTimeImmutable $value) use ($before) {
             if ($value < $before) {
@@ -87,7 +87,7 @@ final class DateTimeType implements Type, SerializesOutputValue
         });
     }
 
-    public function after(DateTimeImmutable $after): static
+    public function after(DateTimeImmutable $after): DateTimeType
     {
         return $this->addValidator(function (DateTimeImmutable $value) use ($after) {
             if ($value > $after) {

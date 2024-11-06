@@ -7,12 +7,24 @@ use Throwable;
 use TypescriptSchema\Data\Enum\IssueType;
 use TypescriptSchema\Utils\Serialize;
 
+/**
+ * @phpstan-type Path array<int|string>
+ */
 final class Issue extends Exception
 {
+    /** @var Path  */
     private array $basePath = [];
 
     private bool $isFatal = false;
 
+    /**
+     * @param IssueType $type
+     * @param string $message
+     * @param array<string, mixed> $metadata
+     * @param Path $path
+     * @param Throwable|null $previous
+     * @param string|null $localizationKey
+     */
     protected function __construct(
         public readonly IssueType $type,
         string                    $message,
@@ -54,6 +66,7 @@ final class Issue extends Exception
     }
 
     /**
+     * @param Path $path
      * @internal
      */
     public function setBasePath(array $path): Issue
@@ -62,6 +75,9 @@ final class Issue extends Exception
         return $this;
     }
 
+    /**
+     * @param Path $path
+     */
     public static function coercionFailure(string $expected, mixed $actual, array $path = []): Issue
     {
         $actual = Serialize::safeType($actual);
@@ -74,6 +90,9 @@ final class Issue extends Exception
         );
     }
 
+    /**
+     * @param Path $path
+     */
     public static function invalidType(string $expected, mixed $actual, array $path = []): Issue
     {
         $actual = Serialize::safeType($actual);
@@ -86,6 +105,9 @@ final class Issue extends Exception
         );
     }
 
+    /**
+     * @param Path $path
+     */
     public static function invalidKey(string $expected, mixed $actual, array $path = []): Issue
     {
         $actual = Serialize::safeType($actual);
@@ -98,6 +120,10 @@ final class Issue extends Exception
         );
     }
 
+    /**
+     * @param array<mixed> $data
+     * @param Path $path
+     */
     public static function custom(string $message, array $data = [], array $path = [], ?string $localizationKey = null): Issue
     {
         return new self(
@@ -109,6 +135,10 @@ final class Issue extends Exception
         );
     }
 
+    /**
+     * @param array<mixed> $data
+     * @param Path $path
+     */
     public static function generic(array $data = [], array $path = []): Issue
     {
         return new self(
@@ -139,7 +169,9 @@ final class Issue extends Exception
         return $issue;
     }
 
-    /** @api */
+    /**
+     * @return Path
+     */
     public function getPath(): array
     {
         return [

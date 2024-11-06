@@ -21,6 +21,10 @@ class ParsingException extends Exception implements JsonSerializable
         parent::__construct('Failed parsing the schema');
     }
 
+    /**
+     * @param bool $debug
+     * @return array{message: string, issues: array<array{message: string, path: array<string|int>, exception?: mixed}>}
+     */
     public function toArray(bool $debug = false): array
     {
         return [
@@ -29,6 +33,9 @@ class ParsingException extends Exception implements JsonSerializable
         ];
     }
 
+    /**
+     * @return array{message: string, issues: array<array{message: string, path: array<string|int>, exception?: mixed}>}
+     */
     public function jsonSerialize(): array
     {
         return $this->toArray();

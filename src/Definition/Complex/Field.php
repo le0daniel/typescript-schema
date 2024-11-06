@@ -15,6 +15,7 @@ class Field
 
     protected Closure $resolvedBy;
     protected bool $isOptional = false;
+    /** @var array{0: string|null, 1: DateTimeInterface|null}|null  */
     protected array|null $deprecated = null;
 
     public function __construct(protected Type $type)
@@ -57,6 +58,8 @@ class Field
         if (!Utils::valueExists($fieldName, $data)) {
             return Value::UNDEFINED;
         }
+
+        /** @var array<mixed>|object $data */
 
         return Utils::extractValue($fieldName, $data);
     }
@@ -106,6 +109,6 @@ class Field
     /** @internal  */
     public function isDeprecated(): bool
     {
-        return !!$this->deprecated ?? false;
+        return $this->deprecated !== null;
     }
 }

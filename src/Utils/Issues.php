@@ -13,7 +13,7 @@ final class Issues
      * @param Localizer $localizer
      * @param string $locale
      * @param bool $debug
-     * @return array
+     * @return array<array{message: string, path: array<string|int>, exception?: mixed}>
      */
     public static function serialize(array $issues, Localizer $localizer, string $locale, bool $debug = false): array
     {
@@ -44,7 +44,7 @@ final class Issues
      * @param array<Issue> $issues
      * @param Localizer $localizer
      * @param string $locale
-     * @return array
+     * @return array<string, array<string>>
      */
     public static function serializeGrouped(array $issues, Localizer $localizer, string $locale): array
     {

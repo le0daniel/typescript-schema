@@ -28,8 +28,10 @@ final class ComplexSchemaGenerationTest extends TestCase
             ),
             'logs' => Schema::record(Schema::string()),
             'searchResults' => Schema::discriminatedUnion('type',
-                Schema::object(['type' => Schema::literal('book')]),
-                Schema::object(['type' => Schema::literal('user')]),
+                [
+                    Schema::object(['type' => Schema::literal('book')]),
+                    Schema::object(['type' => Schema::literal('user')]),
+                ]
             ),
             'union' => Schema::union([Schema::string()->nullable(), Schema::int()]),
             'enum' => Schema::enum(UnitEnumMock::class),

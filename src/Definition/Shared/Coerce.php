@@ -22,6 +22,11 @@ trait Coerce
         return $clone;
     }
 
+    /**
+     * @param Definition $definition
+     * @param array<mixed>|null $acceptableInput
+     * @return Definition
+     */
     private function applyCoerceToInputDefinition(Definition $definition, ?array $acceptableInput = null): Definition
     {
         if (!$this->coerce || !$acceptableInput) {

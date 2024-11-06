@@ -18,7 +18,7 @@ use TypescriptSchema\Helpers\Context;
 
 class StringType implements Type
 {
-    /** @uses Nullable<StringType> */
+    /** @use Nullable<StringType> */
     use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
 
     public static function make(): StringType
@@ -28,16 +28,12 @@ class StringType implements Type
 
     protected function coerceValue(mixed $value): string|Value
     {
-        try {
-            return (string) $value;
-        } catch (Throwable) {
-            return $value;
-        }
+        return (string)$value;
     }
 
     public function regex(string $regex): static
     {
-        return $this->addValidator(static function(string $value) use ($regex) {
+        return $this->addValidator(static function (string $value) use ($regex) {
             if (preg_match($regex, $value) !== 1) {
                 throw Issue::custom(
                     "Value did not match expected pattern.",
@@ -51,7 +47,7 @@ class StringType implements Type
 
     public function email(): static
     {
-        return $this->addValidator(static function(string $value) {
+        return $this->addValidator(static function (string $value) {
             if (filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
                 throw Issue::custom("Value is not a valid email address.", localizationKey: 'string.invalid_email');
             }
@@ -75,7 +71,7 @@ class StringType implements Type
 
     public function nonEmpty(): static
     {
-        return $this->addValidator(static function(string $value) {
+        return $this->addValidator(static function (string $value) {
             $trimmed = trim($value);
             if (empty($trimmed)) {
                 throw Issue::custom(

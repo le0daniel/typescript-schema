@@ -28,6 +28,11 @@ final class Utils
         return property_exists($arrayOrObject, $key);
     }
 
+    /**
+     * @param string $key
+     * @param array<mixed>|object $arrayOrObject
+     * @return mixed
+     */
     public static function extractValue(string $key, array|object $arrayOrObject): mixed
     {
         if (is_array($arrayOrObject) || $arrayOrObject instanceof ArrayAccess) {

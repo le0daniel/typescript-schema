@@ -16,7 +16,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class BoolType implements Type
 {
-    /** @uses Nullable<BoolType> */
+    /** @use Nullable<BoolType> */
     use Nullable, Coerce, Refinable, Transformable, HasDefaultValue;
 
     protected function coerceValue(mixed $value): mixed
@@ -24,7 +24,7 @@ final class BoolType implements Type
         return match ($value) {
             true, 'true', 1, '1' => true,
             false, 'false', 0, '0' => false,
-            default => Value::INVALID
+            default => $value
         };
     }
 

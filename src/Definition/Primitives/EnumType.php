@@ -17,7 +17,7 @@ use UnitEnum;
 
 class EnumType implements Type, SerializesOutputValue
 {
-    /** @uses Nullable<EnumType> */
+    /** @use Nullable<EnumType> */
     use Nullable, Refinable, Transformable, HasDefaultValue;
 
     /**

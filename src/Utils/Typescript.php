@@ -8,6 +8,11 @@ use UnitEnum;
 
 final class Typescript
 {
+    /**
+     * @param array<mixed> $definition
+     * @return string
+     * @throws \JsonException
+     */
     public static function fromJsonSchema(array $definition): string
     {
         if (empty($definition)) {
@@ -55,6 +60,10 @@ final class Typescript
         };
     }
 
+    /**
+     * @param array<string> $lines
+     * @return string
+     */
     private static function doc(array $lines): string
     {
         $linesAsStrings = implode(PHP_EOL . ' * ', $lines);
@@ -66,6 +75,11 @@ DOCBLOCK;
 
     }
 
+    /**
+     * @param array<mixed> $definition
+     * @return string
+     * @throws \JsonException
+     */
     private static function arrayDefinition(array $definition): string
     {
         if (isset($definition['items']) && is_array($definition['items'])) {
@@ -80,6 +94,11 @@ DOCBLOCK;
         return 'Array<any>';
     }
 
+    /**
+     * @param array<mixed> $definition
+     * @return string
+     * @throws \JsonException
+     */
     private static function objectDefinition(array $definition): string
     {
         // We accept everything
@@ -114,6 +133,11 @@ DOCBLOCK;
             : self::wrapInSingleQuote($name);
     }
 
+    /**
+     * @param array<mixed> $array
+     * @param string $key
+     * @return array<mixed>
+     */
     private static function withoutKey(array $array, string $key): array
     {
         if (isset($array[$key])) {
@@ -122,6 +146,10 @@ DOCBLOCK;
         return $array;
     }
 
+    /**
+     * @param array<mixed> $config
+     * @return string
+     */
     private static function docblockFromConfig(array $config): string
     {
         $lines = array_filter([

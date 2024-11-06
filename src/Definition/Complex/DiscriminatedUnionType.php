@@ -20,23 +20,18 @@ use TypescriptSchema\Helpers\Context;
 
 final class DiscriminatedUnionType implements Type
 {
-    /** @uses Nullable<DiscriminatedUnionType> */
+    /** @use Nullable<DiscriminatedUnionType> */
     use Nullable, Refinable, Transformable;
-
-    /** @var array<int, ObjectType>|array<string, ObjectType> */
-    private readonly array $types;
 
     /**
      * @param string $discriminatorFieldName
-     * @param Type|array ...$types
+     * @param array<int|string, ObjectType> $types
      */
     public function __construct(
         private readonly string $discriminatorFieldName,
-        Type|array ... $types,
+        private readonly array $types,
     )
     {
-        $this->types = count($types) === 1 && is_array($types[0]) ? $types[0] : $types;
-
         if (count($this->types) < 2) {
             throw new RuntimeException("A discriminatory union type must have at least two types.");
         }

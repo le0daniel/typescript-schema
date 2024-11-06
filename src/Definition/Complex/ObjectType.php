@@ -15,7 +15,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class ObjectType implements Type
 {
-    /** @uses Nullable<ObjectType> */
+    /** @use Nullable<ObjectType> */
     use Nullable, Refinable, Transformable;
 
     private bool|Closure $passThrough = false;
@@ -26,12 +26,15 @@ final class ObjectType implements Type
     private array $fields;
 
     /**
-     * @param array|Closure $definition
+     * @param array<string,Type>|Closure(): array<string, Type> $definition
      */
     public function __construct(private readonly array|Closure $definition)
     {
     }
 
+    /**
+     * @param array<string,Type>|Closure(): array<string, Type> $definition
+     */
     public static function make(array|Closure $definition): ObjectType
     {
         return new self($definition);
@@ -43,7 +46,7 @@ final class ObjectType implements Type
      *
      * If you pass a Closure, you can customize the logic of how pass through works.
      *
-     * @param Closure(mixed): array|null $closure
+     * @param Closure(mixed): array<mixed>|null $closure
      * @api
      */
     public function passThrough(?Closure $closure = null): ObjectType
@@ -73,6 +76,9 @@ final class ObjectType implements Type
         return $this->fields()[$name];
     }
 
+    /**
+     * @return false|array<mixed>
+     */
     private function passThroughConfig(): false|array
     {
         if (!$this->passThrough) {

@@ -83,7 +83,7 @@ Typescript::fromJsonSchema($schema->toDefinition()->output());
 
 By default, type checks are strict. Meaning passing a number to a String type will result in a failure.
 You can use coercion to make it less strict as following: `Schema::string()->coerce()`. This is available for all
-primitive types.
+primitive types and tries to parse the value from any input.
 
 This works as following for the different primitives:
 
@@ -109,12 +109,6 @@ The string type supports following default validations:
 - regex `Schema::string()->regex('/[a-z]+/')`
 - alphaNumeric `Schema::string()->alphaNumeric()`
 - email `Schema::string()->email()`
-
-Following Transformers are available:
-
-- trim `Schema::string()->trim()`
-- lowerCase `Schema::string()->lowerCase()`
-- upperCase `Schema::string()->upperCase()`
 
 ### Int
 

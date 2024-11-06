@@ -12,7 +12,7 @@ class SimpleLoaderLocalizer implements Contracts\Localizer
     /** @var array<string, bool> */
     private array $loadedLocales = [];
 
-    /** @var array<string, array> */
+    /** @var array<string, array<string, string>> */
     private array $locales = [];
 
     private Closure $loader;
@@ -22,6 +22,10 @@ class SimpleLoaderLocalizer implements Contracts\Localizer
         $this->loader = $loader ?? self::defaultLoader(...);
     }
 
+    /**
+     * @param string $locale
+     * @return array<string, string>|null
+     */
     private static function defaultLoader(string $locale): ?array
     {
         if (file_exists(__DIR__ . "/../Locales/{$locale}.php")) {
@@ -31,6 +35,10 @@ class SimpleLoaderLocalizer implements Contracts\Localizer
         return null;
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     * @return array<string, string>
+     */
     public static function prepareParameters(array $parameters): array
     {
         return array_map(
@@ -69,6 +77,11 @@ class SimpleLoaderLocalizer implements Contracts\Localizer
         return isset($this->locales[$locale][$key]);
     }
 
+    /**
+     * @param string $target
+     * @param array<string, mixed> $parameters
+     * @return string
+     */
     private function replaceParameters(string $target, array $parameters): string
     {
         $stringSafeParameters = self::prepareParameters($parameters);

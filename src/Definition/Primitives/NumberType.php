@@ -17,7 +17,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class NumberType implements Type
 {
-    /** @uses Nullable<NumberType> */
+    /** @use Nullable<NumberType> */
     use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
 
     public static function make(): NumberType
@@ -49,11 +49,7 @@ final class NumberType implements Type
             return (float) ($value ? 1 : 0);
         }
 
-        try {
-            return (float) $value;
-        } catch (Throwable) {
-            return $value;
-        }
+        return (float) $value;
     }
 
     public function parse(mixed $value, Context $context): Value|int|float

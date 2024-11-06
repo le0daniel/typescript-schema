@@ -17,7 +17,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class UnionType implements Type
 {
-    /** @uses Nullable<UnionType> */
+    /** @use Nullable<UnionType> */
     use Nullable, Refinable, Transformable;
 
     /**
@@ -65,7 +65,7 @@ final class UnionType implements Type
     protected function validateAndParseType(mixed $value, Context $context): mixed
     {
         if (isset($this->resolveType)) {
-            return $this->resolveByClosure($value, $context);
+            return $this->resolveByClosure($value);
         }
 
         // Need to handle the partial mode differently, as null barriers will be accepted.
@@ -76,7 +76,7 @@ final class UnionType implements Type
         $validationContext = $context->cloneForProbing();
 
         foreach ($this->types as $type) {
-            $result = $type->execute($value, $validationContext);
+            $result = Executor::execute($type, $value, $validationContext);
             if ($result !== Value::INVALID) {
                 return $result;
             }

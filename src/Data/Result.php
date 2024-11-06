@@ -49,6 +49,10 @@ final class Result
             : $this->data;
     }
 
+    /**
+     * @param bool $debug
+     * @return array<int, array{path: array<int, int|string>, message: string, exception?: mixed}>
+     */
     public function serializeIssues(bool $debug = false): array
     {
         return Issues::serialize($this->issues, $this->getLocalizer(), $this->locale, $debug);

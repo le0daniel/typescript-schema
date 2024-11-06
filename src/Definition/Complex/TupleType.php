@@ -16,7 +16,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class TupleType implements Type
 {
-    /** @uses Nullable<TupleType> */
+    /** @use Nullable<TupleType> */
     use Nullable, Refinable, Transformable;
 
     /**
@@ -47,6 +47,11 @@ final class TupleType implements Type
         );
     }
 
+    /**
+     * @param mixed $value
+     * @param Context $context
+     * @return array<mixed>|Value
+     */
     private function verifyValue(mixed $value, Context $context): array|Value
     {
         if (!is_array($value)) {
@@ -73,7 +78,7 @@ final class TupleType implements Type
         if ($value === Value::INVALID) {
             return Value::INVALID;
         }
-
+        /** @var array<mixed> $value */
         $isDirty = false;
         $parsed = [];
         foreach ($value as $index => $itemValue) {

@@ -15,7 +15,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class RecordType implements Type
 {
-    /** @uses Nullable<RecordType> */
+    /** @use Nullable<RecordType> */
     use Nullable, Refinable, Transformable;
 
     public function __construct(private readonly Type $ofType)
