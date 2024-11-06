@@ -45,7 +45,7 @@ final class Typescript
         throw new RuntimeException("Unsupported configuration: " . json_encode($definition, JSON_THROW_ON_ERROR));
     }
 
-    public static function literal(string|int|float|bool|null $value): string
+    private static function literal(string|int|float|bool|null $value): string
     {
         return match (gettype($value)) {
             'integer', 'double' => (string)$value,
@@ -55,7 +55,7 @@ final class Typescript
         };
     }
 
-    public static function doc(array $lines): string
+    private static function doc(array $lines): string
     {
         $linesAsStrings = implode(PHP_EOL . ' * ', $lines);
         return <<<DOCBLOCK

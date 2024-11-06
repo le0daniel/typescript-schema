@@ -2,11 +2,11 @@
 
 namespace TypescriptSchema\Execution;
 
-use RuntimeException;
-use TypescriptSchema\Contracts\ComplexType;
-use TypescriptSchema\Contracts\LeafType;
+
+use TypescriptSchema\Contracts\SerializesOutputValue;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\ExecutionMode;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Helpers\Context;
 
 /**
@@ -24,18 +24,14 @@ final class Executor
      */
     public static function execute(Type $type, mixed $data, Context $context): mixed
     {
-        if ($type instanceof LeafType) {
-            return match ($context->mode) {
-                ExecutionMode::PARSE => $type->parseAndValidate($data, $context),
-                ExecutionMode::SERIALIZE => $type->validateAndSerialize($data, $context),
-            };
+        $value = $type->resolve($data, $context);
+        if ($context->mode !== ExecutionMode::SERIALIZE || $value === Value::INVALID) {
+            return $value;
         }
 
-        if ($type instanceof ComplexType) {
-            return $type->resolve($data, $context);
-        }
-
-        throw new RuntimeException("Failed to resolve.");
+        return $type instanceof SerializesOutputValue
+            ? $type->serializeValue($value, $context)
+            : $value;
     }
 
 }

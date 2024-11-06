@@ -3,8 +3,8 @@
 namespace TypescriptSchema\Definition\Primitives;
 
 use Throwable;
-use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
@@ -15,7 +15,7 @@ use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
-class StringType implements LeafType
+class StringType implements Type
 {
     /** @uses Nullable<StringType> */
     use Nullable, Coerce, Validators, Refinable, Transformable;
@@ -148,16 +148,9 @@ class StringType implements LeafType
         ]);
     }
 
-    public function parseAndValidate(mixed $value, Context $context): Value|string
+    public function resolve(mixed $value, Context $context): Value|string
     {
-        return $this->validateAndSerialize(
-            $this->applyCoercionIfEnabled($value),
-            $context
-        );
-    }
-
-    public function validateAndSerialize(mixed $value, Context $context): mixed
-    {
+        $value = $this->applyCoercionIfEnabled($value);
         if (!is_string($value)) {
             $context->addIssue(Issue::invalidType('string', $value));
             return Value::INVALID;

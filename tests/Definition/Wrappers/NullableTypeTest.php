@@ -76,6 +76,11 @@ class NullableTypeTest extends TestCase
             {
                 return Definition::same(['type' => 'boolean']);
             }
+
+            public function resolve(mixed $value, Context $context): mixed
+            {
+                return 'Value';
+            }
         };
 
         $nullable = NullableWrapper::make($mockType);

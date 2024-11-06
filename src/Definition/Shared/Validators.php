@@ -5,6 +5,7 @@ namespace TypescriptSchema\Definition\Shared;
 use Closure;
 use Throwable;
 use TypescriptSchema\Contracts\Validator;
+use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\ClosureValidator;
 use TypescriptSchema\Helpers\Context;

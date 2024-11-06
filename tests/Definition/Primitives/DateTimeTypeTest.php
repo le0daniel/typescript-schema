@@ -14,20 +14,24 @@ class DateTimeTypeTest extends TestCase
     public function testsReturnsInstanceOfDateTimeImmutable(): void
     {
         $type = DateTimeType::make('Y-m-d H:i:s');
-        self::assertInstanceOf(DateTimeImmutable::class, $type->parseAndValidate('2023-12-29 18:56:01', new Context()));
-        self::assertSame('2023-12-29 18:56:01', $type->parseAndValidate('2023-12-29 18:56:01', new Context())->format('Y-m-d H:i:s'));
+
+        var_dump($type->resolve('2023-12-29 18:56:01', new Context()));
+        self::assertInstanceOf(DateTimeImmutable::class, $type->resolve('2023-12-29 18:56:01', new Context()));
+        self::assertSame('2023-12-29 18:56:01', $type->resolve('2023-12-29 18:56:01', new Context())->format('Y-m-d H:i:s'));
     }
 
     public function testSerialize()
     {
         self::assertSame(
             '2023-12-29 18:56:01',
-            DateTimeType::make('Y-m-d H:i:s')->validateAndSerialize('2023-12-29 18:56:01', new Context())
+            DateTimeType::make('Y-m-d H:i:s')
+                ->resolve('2023-12-29 18:56:01', new Context())
+                ->format('Y-m-d H:i:s')
         );
 
         self::assertSame(
             Value::INVALID,
-            DateTimeType::make()->validateAndSerialize('2023-12-29 18:56:01', new Context())
+            DateTimeType::make()->resolve('2023-12-29 18:56:01', new Context())
         );
     }
 
@@ -36,10 +40,10 @@ class DateTimeTypeTest extends TestCase
         $type = DateTimeType::make('Y-m-d H:i:s')->before(DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2023-12-29 18:56:01'));
 
         self::assertSame(Value::INVALID,
-            $type->parseAndValidate('2023-12-29 18:56:01', new Context()),
+            $type->resolve('2023-12-29 18:56:01', new Context()),
         );
 
-        self::assertInstanceOf(DateTimeImmutable::class, $type->parseAndValidate('2023-12-29 18:56:00', new Context()));
+        self::assertInstanceOf(DateTimeImmutable::class, $type->resolve('2023-12-29 18:56:00', new Context()));
     }
 
     public function testAfter()
@@ -47,10 +51,10 @@ class DateTimeTypeTest extends TestCase
         $type = DateTimeType::make('Y-m-d H:i:s')->after(DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2023-12-29 18:56:01'));
 
         self::assertSame(Value::INVALID,
-            $type->parseAndValidate('2023-12-29 18:56:01', new Context()),
+            $type->resolve('2023-12-29 18:56:01', new Context()),
         );
 
-        self::assertInstanceOf(DateTimeImmutable::class, $type->parseAndValidate('2023-12-29 18:56:02', new Context()));
+        self::assertInstanceOf(DateTimeImmutable::class, $type->resolve('2023-12-29 18:56:02', new Context()));
     }
 
     public static function parsingDataProvider(): array

@@ -3,7 +3,6 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use Closure;
-use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -14,7 +13,7 @@ use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class ObjectType implements ComplexType
+final class ObjectType implements Type
 {
     /** @uses Nullable<ObjectType> */
     use Nullable, Refinable, Transformable;

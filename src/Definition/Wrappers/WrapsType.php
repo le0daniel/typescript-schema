@@ -3,11 +3,10 @@
 namespace TypescriptSchema\Definition\Wrappers;
 
 use RuntimeException;
-use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\Type;
 
 
-abstract class WrapsType implements ComplexType
+abstract class WrapsType implements Type
 {
     private const int RESOLVING_MAX_DEPTH = 10;
 

@@ -3,6 +3,8 @@
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use TypescriptSchema\Data\Enum\ExecutionMode;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -17,7 +19,7 @@ class LiteralTypeTest extends TestCase
     #[DataProvider('parsingDataProvider')]
     public function testParsing(bool $success, Type $type, mixed $value, mixed $expectedValue = null): void
     {
-        $result = $type->parseAndValidate($value, new Context());
+        $result = $type->resolve($value, new Context());
         if (!$success) {
             self::assertTrue( $result === Value::INVALID);
             return;
@@ -116,11 +118,11 @@ class LiteralTypeTest extends TestCase
     {
         foreach ([UnitEnumMock::SUCCESS, StringBackedEnumMock::ERROR, IntBackedEnumMock::FAILURE] as $enum) {
             $type = LiteralType::make($enum);
-            self::assertEquals($enum, $type->parseAndValidate($enum->name, new Context()));
-            self::assertEquals($enum, $type->parseAndValidate($enum, new Context()));
+            self::assertEquals($enum, $type->resolve($enum->name, new Context()));
+            self::assertEquals($enum, $type->resolve($enum, new Context()));
 
-            self::assertEquals($enum->name, $type->validateAndSerialize($enum->name, new Context()));
-            self::assertEquals($enum->name, $type->validateAndSerialize($enum, new Context()));
+            self::assertEquals($enum->name, Executor::execute($type, $enum->name, new Context(mode: ExecutionMode::SERIALIZE)));
+            self::assertEquals($enum->name, Executor::execute($type, $enum, new Context(mode: ExecutionMode::SERIALIZE)));
         }
     }
 

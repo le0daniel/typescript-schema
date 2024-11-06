@@ -2,16 +2,18 @@
 
 namespace TypescriptSchema\Utils;
 
+use RuntimeException;
+
 final class Locales
 {
 
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public static function explodeIntoLanguageAndCountry(string $locale): array
     {
         if (!self::isValidLocaleString($locale)) {
-            throw new \RuntimeException("Invalid locale given: {$locale}");
+            throw new RuntimeException("Invalid locale given: {$locale}");
         }
 
         return strlen($locale) === 2
@@ -25,7 +27,7 @@ final class Locales
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public static function normalizeLocaleString(string $locale): string
     {

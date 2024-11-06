@@ -2,8 +2,9 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
-use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\SerializesOutputValue;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
@@ -13,7 +14,7 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 use UnitEnum;
 
-class EnumType implements LeafType
+class EnumType implements Type, SerializesOutputValue
 {
     /** @uses Nullable<EnumType> */
     use Nullable, Refinable, Transformable;
@@ -51,7 +52,7 @@ class EnumType implements LeafType
         return Value::INVALID;
     }
 
-    public function parseAndValidate(mixed $value, Context $context): Value|UnitEnum
+    public function resolve(mixed $value, Context $context): Value|UnitEnum
     {
         $enumValue = $this->parseStringValueToEnum($value);
         if ($enumValue === Value::INVALID) {
@@ -62,12 +63,13 @@ class EnumType implements LeafType
         return $enumValue;
     }
 
-    public function validateAndSerialize(mixed $value, Context $context): Value|string
+    public function serializeValue(mixed $value, Context $context): Value|string
     {
-        $enumValue = $this->parseAndValidate($value, $context);
-        return $enumValue === Value::INVALID
-            ? Value::INVALID
-            : $enumValue->name;
+        if (!$value instanceof UnitEnum) {
+            return Value::INVALID;
+        }
+
+        return $value->name;
     }
 
     public function toDefinition(): SchemaDefinition

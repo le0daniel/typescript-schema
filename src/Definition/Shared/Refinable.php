@@ -3,11 +3,9 @@
 namespace TypescriptSchema\Definition\Shared;
 
 use Closure;
-use Throwable;
 use TypescriptSchema\Definition\Complex\RefineType;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\ClosureValidator;
-use TypescriptSchema\Helpers\Context;
 
 trait Refinable
 {

@@ -3,8 +3,8 @@
 namespace TypescriptSchema\Definition\Primitives;
 
 use Throwable;
-use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
@@ -15,7 +15,7 @@ use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
-final class IntType implements LeafType
+final class IntType implements Type
 {
     /** @uses Nullable<IntType> */
     use Nullable, Coerce, Validators, Refinable, Transformable;
@@ -76,15 +76,10 @@ final class IntType implements LeafType
         });
     }
 
-    public function parseAndValidate(mixed $value, Context $context): Value|int
+    public function resolve(mixed $value, Context $context): Value|int
     {
-        return $this->validateAndSerialize(
-            $this->applyCoercionIfEnabled($value), $context
-        );
-    }
+        $value = $this->applyCoercionIfEnabled($value);
 
-    public function validateAndSerialize(mixed $value, Context $context): Value|int
-    {
         if (!is_int($value)) {
             $context->addIssue(Issue::invalidType('integer', $value));
             return Value::INVALID;

@@ -2,8 +2,9 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
-use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\SerializesOutputValue;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
@@ -12,7 +13,7 @@ use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Helpers\Context;
 use UnitEnum;
 
-final class LiteralType implements LeafType
+final class LiteralType implements Type, SerializesOutputValue
 {
     /** @uses Nullable<LiteralType> */
     use Nullable, Refinable, Transformable;
@@ -37,7 +38,7 @@ final class LiteralType implements LeafType
         ]);
     }
 
-    public function parseAndValidate(mixed $value, Context $context): mixed
+    public function resolve(mixed $value, Context $context): mixed
     {
         if ($this->literalValue instanceof UnitEnum && $value === $this->literalValue->name) {
             return $this->literalValue;
@@ -50,17 +51,8 @@ final class LiteralType implements LeafType
         return $value;
     }
 
-    public function validateAndSerialize(mixed $value, Context $context): mixed
+    public function serializeValue(mixed $value, Context $context): mixed
     {
-        // Ensure enums are serialized as strings
-        if ($this->literalValue instanceof UnitEnum && $value === $this->literalValue->name) {
-            return $this->literalValue->name;
-        }
-
-        if ($value !== $this->literalValue) {
-            return Value::INVALID;
-        }
-
         if ($value instanceof UnitEnum) {
             return $value->name;
         }

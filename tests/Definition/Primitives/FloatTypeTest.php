@@ -14,7 +14,7 @@ class FloatTypeTest extends TestCase
     #[DataProvider('successfulParsingOfValuesDataProvider')]
     public function testSuccessfulParsingOfValues(mixed $value): void
     {
-        self::assertSuccess(NumberType::make()->parseAndValidate($value, new Context()));
+        self::assertSuccess(NumberType::make()->resolve($value, new Context()));
     }
 
     public static function successfulParsingOfValuesDataProvider(): array {
@@ -27,7 +27,7 @@ class FloatTypeTest extends TestCase
     #[DataProvider('successfulWithCoercionDataProvider')]
     public function testSuccessfulWithCoercion(float $expected, mixed $value): void
     {
-        self::assertSame($expected, NumberType::make()->coerce()->parseAndValidate($value, new Context()));
+        self::assertSame($expected, NumberType::make()->coerce()->resolve($value, new Context()));
     }
 
     public static function successfulWithCoercionDataProvider(): array {

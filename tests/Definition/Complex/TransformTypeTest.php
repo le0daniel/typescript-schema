@@ -2,8 +2,8 @@
 
 namespace TypescriptSchema\Tests\Definition\Complex;
 
-use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Complex\TransformType;
 use TypescriptSchema\Helpers\Context;
@@ -12,9 +12,9 @@ use TypescriptSchema\Tests\TestCase;
 class TransformTypeTest extends TestCase
 {
 
-    private function mockedType(): ComplexType
+    private function mockedType(): Type
     {
-        return new class implements ComplexType {
+        return new class implements Type {
             public function resolve(mixed $value, Context $context): mixed
             {
                 return "String!";

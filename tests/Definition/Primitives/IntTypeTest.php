@@ -15,10 +15,10 @@ class IntTypeTest extends TestCase
 
     public function testSuccessfulParsing(): void
     {
-        self::assertSame(0, IntType::make()->parseAndValidate(0, new Context()));
-        self::assertSame(1, IntType::make()->parseAndValidate(1, new Context()));
-        self::assertSame(123, IntType::make()->parseAndValidate(123, new Context()));
-        self::assertSame(123, IntType::make()->coerce()->parseAndValidate('123',  new Context()));
+        self::assertSame(0, IntType::make()->resolve(0, new Context()));
+        self::assertSame(1, IntType::make()->resolve(1, new Context()));
+        self::assertSame(123, IntType::make()->resolve(123, new Context()));
+        self::assertSame(123, IntType::make()->coerce()->resolve('123',  new Context()));
 
         self::assertSame(null, Executor::execute(IntType::make()->nullable(),null, new Context()));
         self::assertSame(123, Executor::execute(IntType::make()->nullable(),123, new Context()));
@@ -41,20 +41,20 @@ class IntTypeTest extends TestCase
 
     public function testMinBoundaries()
     {
-        self::assertSame(10, IntType::make()->min(10)->parseAndValidate(10, new Context()));
-        self::assertSame(Value::INVALID, IntType::make()->min(10)->parseAndValidate(9, new Context()));
+        self::assertSame(10, IntType::make()->min(10)->resolve(10, new Context()));
+        self::assertSame(Value::INVALID, IntType::make()->min(10)->resolve(9, new Context()));
     }
 
     public function testMaxBoundaries()
     {
-        self::assertSame(10, IntType::make()->max(10)->parseAndValidate(10, new Context()));
-        self::assertSame(Value::INVALID, IntType::make()->max(10)->parseAndValidate(11, new Context()));
+        self::assertSame(10, IntType::make()->max(10)->resolve(10, new Context()));
+        self::assertSame(Value::INVALID, IntType::make()->max(10)->resolve(11, new Context()));
     }
 
     #[DataProvider('failingInputProvider')]
     public function testFailingInput(mixed $value): void
     {
-        self::assertSame(Value::INVALID, IntType::make()->parseAndValidate($value, new Context()));
+        self::assertSame(Value::INVALID, IntType::make()->resolve($value, new Context()));
     }
 
     public static function failingInputProvider(): array

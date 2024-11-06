@@ -3,7 +3,6 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use RuntimeException;
-use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -15,7 +14,7 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class TupleType implements ComplexType
+final class TupleType implements Type
 {
     /** @uses Nullable<TupleType> */
     use Nullable, Refinable, Transformable;

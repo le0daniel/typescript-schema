@@ -2,14 +2,14 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
-use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Helpers\Context;
 
-final class AnyType implements LeafType
+final class AnyType implements Type
 {
     use Refinable, Transformable;
 
@@ -23,12 +23,7 @@ final class AnyType implements LeafType
         return Definition::same([]);
     }
 
-    public function parseAndValidate(mixed $value, Context $context): mixed
-    {
-        return $value;
-    }
-
-    public function validateAndSerialize(mixed $value, Context $context): mixed
+    public function resolve(mixed $value, Context $context): mixed
     {
         return $value;
     }

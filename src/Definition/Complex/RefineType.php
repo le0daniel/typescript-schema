@@ -2,19 +2,16 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
-use Throwable;
-use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
-use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\ClosureValidator;
 use TypescriptSchema\Helpers\Context;
 
-final class RefineType implements ComplexType
+final class RefineType implements Type
 {
     use Refinable, Transformable;
 
@@ -28,6 +25,10 @@ final class RefineType implements ComplexType
     public function resolve(mixed $value, Context $context): mixed
     {
         $value = Executor::execute($this->type, $value, $context);
+        if (!$context->shouldRunValidators()) {
+            return $value;
+        }
+
         if ($value === Value::INVALID) {
             return Value::INVALID;
         }

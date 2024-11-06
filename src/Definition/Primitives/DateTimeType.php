@@ -2,12 +2,12 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Throwable;
-use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\SerializesOutputValue;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
@@ -17,7 +17,7 @@ use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
-final class DateTimeType implements LeafType
+final class DateTimeType implements Type, SerializesOutputValue
 {
     /** @uses Nullable<DateTimeType> */
     use Validators, Nullable, Refinable, Transformable;
@@ -47,10 +47,10 @@ final class DateTimeType implements LeafType
     /**
      * Accepts formatted string and returns the
      *
-     * @param string|DateTime $value
+     * @param string|DateTimeInterface $value
      * @return DateTimeImmutable|Value
      */
-    private function parseDateTime(string|DateTime $value): DateTimeImmutable|Value
+    private function parseDateTime(string|DateTimeInterface $value): DateTimeImmutable|Value
     {
         if ($value instanceof DateTimeInterface) {
             return DateTimeImmutable::createFromInterface($value);
@@ -113,9 +113,9 @@ final class DateTimeType implements LeafType
         );
     }
 
-    public function parseAndValidate(mixed $value, Context $context): DateTimeImmutable|Value
+    public function resolve(mixed $value, Context $context): DateTimeImmutable|Value
     {
-        if (!is_string($value)) {
+        if (!is_string($value) && !$value instanceof DateTimeInterface) {
             $context->addIssue(Issue::invalidType('DateTimeString', $value));
             return Value::INVALID;
         }
@@ -133,18 +133,12 @@ final class DateTimeType implements LeafType
         return $dateTime;
     }
 
-    public function validateAndSerialize(mixed $value, Context $context): string|Value
+    public function serializeValue(mixed $value, Context $context): string|Value
     {
-        $dateTime = $this->parseDateTime($value);
-        if ($dateTime === Value::INVALID) {
-            $context->addIssue(Issue::invalidType("DateTimeString<format: {$this->getFormat()}>", $value));
+        if (!$value instanceof DateTimeImmutable) {
             return Value::INVALID;
         }
 
-        if (!$this->runValidators($dateTime, $context)) {
-            return Value::INVALID;
-        }
-
-        return $dateTime->format($this->getFormat());
+        return $value->format($this->getFormat());
     }
 }

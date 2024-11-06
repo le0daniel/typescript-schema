@@ -2,6 +2,8 @@
 
 namespace TypescriptSchema\Tests\Definition\Primitives;
 
+use TypescriptSchema\Data\Enum\ExecutionMode;
+use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Primitives\EnumType;
@@ -30,12 +32,13 @@ class EnumTypeTest extends TestCase
     public function testEnumParsing()
     {
         $type = EnumType::make(UnitEnumMock::class);
-        self::assertEquals(UnitEnumMock::FAILURE, $type->parseAndValidate('FAILURE', new Context()));
-        self::assertEquals('FAILURE', $type->validateAndSerialize('FAILURE', new Context()));
-        self::assertEquals(UnitEnumMock::SUCCESS, $type->parseAndValidate(UnitEnumMock::SUCCESS, new Context()));
-        self::assertEquals('SUCCESS', $type->validateAndSerialize('SUCCESS', new Context()));
+        self::assertEquals(UnitEnumMock::FAILURE, $type->resolve('FAILURE', new Context()));
+        self::assertEquals(UnitEnumMock::SUCCESS, $type->resolve(UnitEnumMock::SUCCESS, new Context()));
 
-        self::assertEquals(Value::INVALID,$type->parseAndValidate('', new Context()));
+        self::assertEquals('FAILURE', Executor::execute($type,'FAILURE', new Context(mode: ExecutionMode::SERIALIZE)));
+        self::assertEquals('SUCCESS', Executor::execute($type, UnitEnumMock::SUCCESS, new Context(mode: ExecutionMode::SERIALIZE)));
+
+        self::assertEquals(Value::INVALID,$type->resolve('', new Context()));
     }
 
 }

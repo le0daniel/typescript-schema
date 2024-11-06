@@ -5,7 +5,6 @@ namespace TypescriptSchema\Definition\Complex;
 use Generator;
 use RuntimeException;
 use Throwable;
-use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -19,7 +18,7 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class DiscriminatedUnionType implements ComplexType
+final class DiscriminatedUnionType implements Type
 {
     /** @uses Nullable<DiscriminatedUnionType> */
     use Nullable, Refinable, Transformable;

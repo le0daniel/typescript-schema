@@ -86,35 +86,4 @@ class TypescriptTest extends TestCase
             'additionalProperties' => false
         ]));
     }
-
-    public function testLiteral()
-    {
-        self::assertEquals("'string'", Typescript::literal('string'));
-        self::assertEquals("123", Typescript::literal(123));
-        self::assertEquals("123.03", Typescript::literal(123.03));
-        self::assertEquals("true", Typescript::literal(true));
-        self::assertEquals("false", Typescript::literal(false));
-        self::assertEquals("null", Typescript::literal(null));
-    }
-
-    public function testDocWithLines(): void
-    {
-        self::assertEquals(<<<PLAIN
-/**
- * first line
- * second line
- * 
- * after space
- */
-PLAIN, Typescript::doc(['first line', 'second line', '', 'after space']));
-    }
-
-    public function testEmptyDoc(): void
-    {
-        self::assertEquals(<<<PLAIN
-/**
- * 
- */
-PLAIN, Typescript::doc([]));
-    }
 }
