@@ -36,8 +36,6 @@ final class Typescript
                 'string' => 'string',
                 'boolean' => 'boolean',
                 'null' => 'null',
-
-                // ToDo: proper typescript support needed
                 'object' => self::objectDefinition(self::withoutKey($definition, 'type')),
                 'array' => self::arrayDefinition($definition),
                 default => throw new RuntimeException("Unsupported configuration: " . json_encode($definition, JSON_THROW_ON_ERROR))
