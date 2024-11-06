@@ -2,6 +2,8 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
+use Closure;
+use Throwable;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
@@ -17,10 +19,15 @@ final class TransformType implements ComplexType
 {
     use Refinable, Transformable;
 
+    /**
+     * @param Type $type
+     * @param Closure $transformation
+     * @param array|Closure(array): array|null $outputSchema
+     */
     public function __construct(
         private readonly Type $type,
-        private readonly \Closure $transformation,
-        private readonly ?array $outputSchema,
+        private readonly Closure $transformation,
+        private readonly null|array|Closure $outputSchema = null,
     )
     {
     }
@@ -35,7 +42,7 @@ final class TransformType implements ComplexType
 
         try {
             return ($this->transformation)($value);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $context->addIssue(Issue::captureThrowable($exception));
             return Value::INVALID;
         }
@@ -45,8 +52,11 @@ final class TransformType implements ComplexType
     {
         return new Definition(
             $this->type->toDefinition()->input(),
-            // By default, transformations result in a type ANY.
-            $this->outputSchema ?? [],
+            match (true) {
+                is_null($this->outputSchema) => [],
+                is_array($this->outputSchema) => $this->outputSchema,
+                $this->outputSchema instanceof Closure => ($this->outputSchema)($this->type->toDefinition()->output())
+            }
         );
     }
 }
