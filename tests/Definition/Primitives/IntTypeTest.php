@@ -29,11 +29,11 @@ class IntTypeTest extends TestCase
 
     public function testDefinition(): void
     {
-        self::assertSame(['type' => 'integer'], IntType::make()->toDefinition()->toInputSchema());
-        self::assertSame(['type' => 'integer'], IntType::make()->toDefinition()->toOutputSchema());
+        self::assertSame(['type' => 'integer'], IntType::make()->toDefinition()->input());
+        self::assertSame(['type' => 'integer'], IntType::make()->toDefinition()->output());
 
-        self::assertSame('number', Typescript::fromJsonSchema(IntType::make()->toDefinition()->toInputSchema()));
-        self::assertSame('number', Typescript::fromJsonSchema(IntType::make()->toDefinition()->toOutputSchema()));
+        self::assertSame('number', Typescript::fromJsonSchema(IntType::make()->toDefinition()->input()));
+        self::assertSame('number', Typescript::fromJsonSchema(IntType::make()->toDefinition()->output()));
     }
 
     public function testMinBoundaries()

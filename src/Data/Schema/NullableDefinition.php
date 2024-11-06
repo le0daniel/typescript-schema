@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace TypescriptSchema\Data;
+namespace TypescriptSchema\Data\Schema;
 
 use TypescriptSchema\Contracts\SchemaDefinition;
 
@@ -11,21 +11,21 @@ final readonly class NullableDefinition implements SchemaDefinition
     {
     }
 
-    public function toInputSchema(): array
+    public function input(): array
     {
         return [
             'anyOf' => [
-                $this->definition->toInputSchema(),
+                $this->definition->input(),
                 ['type' => 'null']
             ],
         ];
     }
 
-    public function toOutputSchema(): array
+    public function output(): array
     {
         return [
             'anyOf' => [
-                $this->definition->toOutputSchema(),
+                $this->definition->output(),
                 ['type' => 'null']
             ],
         ];

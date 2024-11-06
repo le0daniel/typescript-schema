@@ -5,6 +5,7 @@ namespace TypescriptSchema\Tests;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Result;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
@@ -13,11 +14,21 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected static function assertFailure(mixed $result): void
     {
+        if ($result instanceof Result) {
+            self::assertTrue($result->isFailure());
+            return;
+        }
+
         self::assertSame(Value::INVALID, $result);
     }
 
     protected static function assertSuccess(mixed $result): void
     {
+        if ($result instanceof Result) {
+            self::assertTrue($result->isSuccess());
+            return;
+        }
+
         self::assertNotInstanceOf(Value::class, $result);
     }
 

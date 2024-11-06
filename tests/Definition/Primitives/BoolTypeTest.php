@@ -35,10 +35,10 @@ class BoolTypeTest extends TestCase
 
     public function testToDefinition()
     {
-        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->toInputSchema()));
-        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->toOutputSchema()));
+        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->input()));
+        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->toDefinition()->output()));
 
-        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->toOutputSchema()));
+        self::assertEquals('boolean', Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->output()));
         //self::assertEquals("boolean|number|null|'true'|'false'", Typescript::fromJsonSchema((new BoolType)->coerce()->toDefinition()->toInputSchema()));
     }
 }

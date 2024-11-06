@@ -5,9 +5,8 @@ namespace TypescriptSchema\Definition\Complex;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
@@ -45,7 +44,7 @@ final class TransformType implements ComplexType
     public function toDefinition(): SchemaDefinition
     {
         return new Definition(
-            $this->type->toDefinition()->toInputSchema(),
+            $this->type->toDefinition()->input(),
             // By default, transformations result in a type ANY.
             $this->outputSchema ?? [],
         );

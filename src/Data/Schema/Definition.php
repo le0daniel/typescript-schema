@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace TypescriptSchema\Data;
+namespace TypescriptSchema\Data\Schema;
 
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Utils\Typescript;
@@ -20,12 +20,12 @@ final readonly class Definition implements SchemaDefinition
         return new Definition($definition, $definition);
     }
 
-    public function toInputSchema(): array
+    public function input(): array
     {
         return $this->input;
     }
 
-    public function toOutputSchema(): array
+    public function output(): array
     {
         return $this->output;
     }

@@ -8,9 +8,11 @@ use DateTimeInterface;
 use Throwable;
 use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
@@ -18,7 +20,7 @@ use TypescriptSchema\Helpers\Context;
 final class DateTimeType implements LeafType
 {
     /** @uses Nullable<DateTimeType> */
-    use Validators, Nullable;
+    use Validators, Nullable, Refinable, Transformable;
 
     private static string $DEFAULT_FORMAT = DateTimeInterface::ATOM;
 

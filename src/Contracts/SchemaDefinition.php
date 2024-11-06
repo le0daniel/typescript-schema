@@ -4,7 +4,7 @@ namespace TypescriptSchema\Contracts;
 
 interface SchemaDefinition
 {
-    public function toInputSchema(): array;
+    public function input(): array;
 
-    public function toOutputSchema(): array;
+    public function output(): array;
 }

@@ -43,8 +43,8 @@ class FloatTypeTest extends TestCase
 
     public function testDefinition():void
     {
-        self::assertEquals('number', Typescript::fromJsonSchema(NumberType::make()->toDefinition()->toInputSchema()));
-        self::assertEquals('number', Typescript::fromJsonSchema(NumberType::make()->toDefinition()->toOutputSchema()));
+        self::assertEquals('number', Typescript::fromJsonSchema(NumberType::make()->toDefinition()->input()));
+        self::assertEquals('number', Typescript::fromJsonSchema(NumberType::make()->toDefinition()->output()));
     }
 
 }

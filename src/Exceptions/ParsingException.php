@@ -13,15 +13,21 @@ class ParsingException extends Exception implements JsonSerializable
 
     private string $locale = self::DEFAULT_LOCALE;
 
+    private ?Localizer $localizer = null;
+
     /**
      * @param array<Issue> $issues
      */
     public function __construct(
         public readonly array $issues,
-        private Localizer $localizer = new SimpleLoaderLocalizer(),
     )
     {
         parent::__construct('Failed parsing the schema');
+    }
+
+    private function getLocalizer(): Localizer
+    {
+        return $this->localizer ??= new SimpleLoaderLocalizer();
     }
 
     public function setLocalizer(Localizer $localizer): self
@@ -40,13 +46,13 @@ class ParsingException extends Exception implements JsonSerializable
     {
         $groupedIssues = [];
         foreach ($this->issues as $issue) {
-            $groupedIssues[$issue->pathAsString()][] = $this->localizer->translate(
+            $groupedIssues[$issue->pathAsString()][] = $this->getLocalizer()->translate(
                 $this->locale, $issue->getLocalizationKey(), $issue->metadata,
             );
         }
 
         return [
-            'message' => $this->localizer->translate($this->locale, 'failed'),
+            'message' => $this->getLocalizer()->translate($this->locale, 'failed'),
             'issues' => $groupedIssues,
         ];
     }

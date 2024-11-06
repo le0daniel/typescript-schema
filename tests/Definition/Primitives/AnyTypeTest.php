@@ -13,8 +13,8 @@ class AnyTypeTest extends TestCase
 
     public function testToDefinition()
     {
-        self::assertEquals('any', Typescript::fromJsonSchema(AnyType::make()->toDefinition()->toInputSchema()));
-        self::assertEquals('any', Typescript::fromJsonSchema(AnyType::make()->toDefinition()->toOutputSchema()));
+        self::assertEquals('any', Typescript::fromJsonSchema(AnyType::make()->toDefinition()->input()));
+        self::assertEquals('any', Typescript::fromJsonSchema(AnyType::make()->toDefinition()->output()));
     }
 
     public static function parsingDataProvider(): array

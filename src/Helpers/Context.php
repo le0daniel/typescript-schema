@@ -5,7 +5,8 @@ namespace TypescriptSchema\Helpers;
 use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Exceptions\Issue;
 
-class Context
+/** @internal */
+final class Context
 {
     /** @var array<int|string> */
     private array $currentPath = [];

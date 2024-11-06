@@ -27,8 +27,8 @@ class TupleTypeTest extends TestCase
     public function testToDefinition(): void
     {
         $type = TupleType::make(StringType::make(), IntType::make());
-        self::assertEquals('[string,number]', Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
-        self::assertEquals('[string,number]', Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
+        self::assertEquals('[string,number]', Typescript::fromJsonSchema($type->toDefinition()->input()));
+        self::assertEquals('[string,number]', Typescript::fromJsonSchema($type->toDefinition()->output()));
     }
 
     public function testNumberOfIssuesCollected(): void

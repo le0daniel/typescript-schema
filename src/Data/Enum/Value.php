@@ -2,23 +2,24 @@
 
 namespace TypescriptSchema\Data\Enum;
 
-enum Value
+use JsonSerializable;
+
+enum Value implements JsonSerializable
 {
     case INVALID;
     case UNDEFINED;
-
-    public static function invalidToNull(mixed $value): mixed
-    {
-        return $value === self::INVALID ? null : $value;
-    }
 
     public static function undefinedToNull(mixed $value): mixed
     {
         return $value === self::UNDEFINED ? null : $value;
     }
 
-    public static function coerceToNull(mixed $value): mixed
+    /**
+     * To ensure json serialization
+     * @return null
+     */
+    public function jsonSerialize(): null
     {
-        return $value instanceof Value ? null : $value;
+        return null;
     }
 }

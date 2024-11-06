@@ -5,8 +5,8 @@ namespace TypescriptSchema\Definition\Complex;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -33,11 +33,11 @@ final class RecordType implements ComplexType
         return new Definition(
             [
                 'type' => 'object',
-                'additionalProperties' => $this->ofType->toDefinition()->toInputSchema(),
+                'additionalProperties' => $this->ofType->toDefinition()->input(),
             ],
             [
                 'type' => 'object',
-                'additionalProperties' => $this->ofType->toDefinition()->toOutputSchema(),
+                'additionalProperties' => $this->ofType->toDefinition()->output(),
             ]
         );
     }

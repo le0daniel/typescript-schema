@@ -5,11 +5,12 @@ namespace TypescriptSchema\Definition\Primitives;
 use Throwable;
 use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
-use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
@@ -17,7 +18,7 @@ use TypescriptSchema\Helpers\Context;
 final class IntType implements LeafType
 {
     /** @uses Nullable<IntType> */
-    use Coerce, Nullable, Validators;
+    use Nullable, Coerce, Validators, Refinable, Transformable;
 
     private function coerceValue(mixed $value): mixed
     {
@@ -25,7 +26,7 @@ final class IntType implements LeafType
             return match ($value) {
                 'true' => 1,
                 'false' => 0,
-                default => (int) $value
+                default => (int)$value
             };
         } catch (Throwable) {
             return $value;
@@ -58,18 +59,9 @@ final class IntType implements LeafType
 
     public function parseAndValidate(mixed $value, Context $context): Value|int
     {
-        // Coercion is ONLY applied on input.
-        $value = $this->applyCoercionIfEnabled($value);
-
-        if (!is_int($value)) {
-            $context->addIssue(Issue::invalidType('integer', $value));
-            return Value::INVALID;
-        }
-
-        if (!$this->runValidators($value, $context)) {
-            return Value::INVALID;
-        }
-        return $value;
+        return $this->validateAndSerialize(
+            $this->applyCoercionIfEnabled($value), $context
+        );
     }
 
     public function validateAndSerialize(mixed $value, Context $context): Value|int

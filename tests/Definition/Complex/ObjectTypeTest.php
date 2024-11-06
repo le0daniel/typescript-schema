@@ -32,10 +32,10 @@ class ObjectTypeTest extends TestCase
             'opt' => Field::ofType(StringType::make()->nullable())->optional(),
         ]);
 
-        self::assertSame('{id:string;name:string|null;opt?:string|null}', Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
-        self::assertTrue($type->toDefinition()->toInputSchema() === $type->toDefinition()->toOutputSchema());
-        self::assertSame('{id:string;name:string|null;opt?:string|null;[key: string]:unknown}', Typescript::fromJsonSchema($type->passThrough()->toDefinition()->toOutputSchema()));
-        self::assertTrue($type->passThrough()->toDefinition()->toInputSchema() === $type->passThrough()->toDefinition()->toOutputSchema());
+        self::assertSame('{id:string;name:string|null;opt?:string|null}', Typescript::fromJsonSchema($type->toDefinition()->output()));
+        self::assertTrue($type->toDefinition()->input() === $type->toDefinition()->output());
+        self::assertSame('{id:string;name:string|null;opt?:string|null;[key: string]:any}', Typescript::fromJsonSchema($type->passThrough()->toDefinition()->output()));
+        self::assertTrue($type->passThrough()->toDefinition()->input() === $type->passThrough()->toDefinition()->output());
     }
 
     public function testPassThroughAsClosure(): void
@@ -68,8 +68,8 @@ class ObjectTypeTest extends TestCase
  * @deprecated
  */id:string;name:string}
 DOC;
-        self::assertEquals($expectedDescription, Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
-        self::assertEquals($expectedDescription, Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
+        self::assertEquals($expectedDescription, Typescript::fromJsonSchema($type->toDefinition()->input()));
+        self::assertEquals($expectedDescription, Typescript::fromJsonSchema($type->toDefinition()->output()));
     }
 
     public function testParsing(): void

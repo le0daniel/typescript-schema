@@ -15,16 +15,16 @@ class EnumTypeTest extends TestCase
     public function testEnumDefinitionWhenTransformingToStrings(): void
     {
         $unitEnumSchema = EnumType::make(UnitEnumMock::class);
-        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $unitEnumSchema->toDefinition()->toOutputSchema());
-        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $unitEnumSchema->toDefinition()->toInputSchema());
+        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $unitEnumSchema->toDefinition()->output());
+        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $unitEnumSchema->toDefinition()->input());
 
         $stringEnumSchema = EnumType::make(StringBackedEnumMock::class);
-        self::assertEquals(['enum' => ['SUCCESS', 'ERROR']], $stringEnumSchema->toDefinition()->toOutputSchema());
-        self::assertEquals(['enum' => ['SUCCESS', 'ERROR']], $stringEnumSchema->toDefinition()->toInputSchema());
+        self::assertEquals(['enum' => ['SUCCESS', 'ERROR']], $stringEnumSchema->toDefinition()->output());
+        self::assertEquals(['enum' => ['SUCCESS', 'ERROR']], $stringEnumSchema->toDefinition()->input());
 
         $intEnumSchema = EnumType::make(IntBackedEnumMock::class);
-        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $intEnumSchema->toDefinition()->toOutputSchema());
-        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $intEnumSchema->toDefinition()->toInputSchema());
+        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $intEnumSchema->toDefinition()->output());
+        self::assertEquals(['enum' => ['SUCCESS', 'FAILURE']], $intEnumSchema->toDefinition()->input());
     }
 
     public function testEnumParsing()

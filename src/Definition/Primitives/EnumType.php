@@ -4,9 +4,11 @@ namespace TypescriptSchema\Definition\Primitives;
 
 use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 use UnitEnum;
@@ -14,7 +16,7 @@ use UnitEnum;
 class EnumType implements LeafType
 {
     /** @uses Nullable<EnumType> */
-    use Nullable;
+    use Nullable, Refinable, Transformable;
 
     /**
      * @template T of UnitEnum

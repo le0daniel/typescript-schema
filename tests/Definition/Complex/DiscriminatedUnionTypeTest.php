@@ -29,8 +29,8 @@ class DiscriminatedUnionTypeTest extends TestCase
             ObjectType::make(['type' => LiteralType::make('failure')])
         );
 
-        self::assertEquals("{type:'success'}|{type:'failure'}", Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
-        self::assertEquals("{type:'success'}|{type:'failure'}", Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
+        self::assertEquals("{type:'success'}|{type:'failure'}", Typescript::fromJsonSchema($type->toDefinition()->input()));
+        self::assertEquals("{type:'success'}|{type:'failure'}", Typescript::fromJsonSchema($type->toDefinition()->output()));
     }
 
 

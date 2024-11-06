@@ -24,6 +24,7 @@ final readonly class Result
         if ($this->data === Value::UNDEFINED) {
             throw new RuntimeException("Got value Undefined.");
         }
+
         $this->status = match (true) {
             $this->data === Value::INVALID => Status::FAILURE,
             empty($this->issues) => Status::SUCCESS,
@@ -40,7 +41,9 @@ final readonly class Result
 
     public function getData(): mixed
     {
-        return Value::invalidToNull($this->data);
+        return $this->data instanceof Value
+            ? null
+            : $this->data;
     }
 
     public function isSuccess(): bool

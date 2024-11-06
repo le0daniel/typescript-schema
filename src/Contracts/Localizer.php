@@ -12,9 +12,25 @@ interface Localizer
      */
     public function translate(string $locale, string $key, array $parameters = [], ?string $default = null): string;
 
-    /** @throws \RuntimeException */
+    /**
+     * Should return true if a translation is available for the language only.
+     * Example:
+     *
+     * Available: de, de-DE
+     * - de => true
+     * - de-CH => true
+     * - fr => false
+     * - fr-FR => false
+     *
+     * @throws \RuntimeException
+     */
     public function hasTranslation(string $locale, string $key): bool;
 
-    /** @throws \RuntimeException */
+    /**
+     * Should determine if there is a translation available for the exact locale.
+     * Example: de-CH, fr-FR
+     *
+     * @throws \RuntimeException
+     */
     public function hasExactTranslation(string $locale, string $key): bool;
 }

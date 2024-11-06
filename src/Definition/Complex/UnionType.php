@@ -7,8 +7,8 @@ use RuntimeException;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -146,10 +146,10 @@ final class UnionType implements ComplexType
     {
         return new Definition(
             [
-                'oneOf' =>  array_map(fn(Type $type) => $type->toDefinition()->toInputSchema(), $this->types)
+                'oneOf' =>  array_map(fn(Type $type) => $type->toDefinition()->input(), $this->types)
             ],
             [
-                'oneOf' =>  array_map(fn(Type $type) => $type->toDefinition()->toOutputSchema(), $this->types)
+                'oneOf' =>  array_map(fn(Type $type) => $type->toDefinition()->output(), $this->types)
             ],
         );
     }

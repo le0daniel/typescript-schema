@@ -6,8 +6,8 @@ use RuntimeException;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -39,8 +39,8 @@ final class TupleType implements ComplexType
 
     public function toDefinition(): SchemaDefinition
     {
-        $inputDef = array_map(fn(Type $type): array => $type->toDefinition()->toOutputSchema(), $this->types);
-        $outputDef = array_map(fn(Type $type): array => $type->toDefinition()->toInputSchema(), $this->types);
+        $inputDef = array_map(fn(Type $type): array => $type->toDefinition()->output(), $this->types);
+        $outputDef = array_map(fn(Type $type): array => $type->toDefinition()->input(), $this->types);
 
         return new Definition(
             ['type' => 'array', 'prefixItems' => $inputDef, 'items' => false],

@@ -6,6 +6,9 @@ use DateTimeInterface;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\ExecutionMode;
+use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Options;
+use TypescriptSchema\Data\Result;
 use TypescriptSchema\Definition\Complex\ArrayType;
 use TypescriptSchema\Definition\Complex\DiscriminatedUnionType;
 use TypescriptSchema\Definition\Complex\ObjectType;
@@ -20,6 +23,7 @@ use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Primitives\NumberType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 use UnitEnum;
@@ -37,6 +41,8 @@ use UnitEnum;
  *
  * @method static ObjectType object(array|\Closure $definition)
  * @method static ArrayType array(Type $type)
+ * @method static UnionType union(array $types)
+ *
  */
 final class Schema
 {
@@ -55,6 +61,7 @@ final class Schema
         'discriminatedUnion' => DiscriminatedUnionType::class,
         'tuple' => TupleType::class,
         'record' => RecordType::class,
+        'union' => UnionType::class,
     ];
 
     /**
@@ -92,14 +99,50 @@ final class Schema
         return new self($type);
     }
 
-    public function serialize(mixed $data, array $options = [])
+    /** @throws ParsingException */
+    public function serializeOrFail(mixed $data, Options $options = new Options()): mixed
     {
-        return Executor::execute($this->type, $data, new Context(mode: ExecutionMode::SERIALIZE));
+        $result = $this->run(ExecutionMode::SERIALIZE, $data, $options);
+
+        if ($result->isFailure()) {
+            throw $result->toThrowable();
+        }
+        return $result;
     }
 
-    public function parse(mixed $data, array $options = [])
+    public function serialize(mixed $data, Options $options = new Options()): Result
     {
-        return Executor::execute($this->type, $data, new Context(mode: ExecutionMode::PARSE));
+        return $this->run(ExecutionMode::SERIALIZE, $data, $options);
+    }
+
+    /** @throws ParsingException */
+    public function parseOrFail(mixed $data, Options $options = new Options()): mixed
+    {
+        $result = $this->run(ExecutionMode::PARSE, $data, $options);
+
+        if ($result->isFailure()) {
+            throw $result->toThrowable();
+        }
+        return $result;
+    }
+
+    public function parse(mixed $data, Options $options = new Options()): Result
+    {
+        return $this->run(ExecutionMode::PARSE, $data, $options);
+    }
+
+    private function run(ExecutionMode $mode, mixed $data, Options $options): Result
+    {
+        $context =  new Context(
+            mode: $mode,
+            allowPartialFailures: $options->allowPartialFailures,
+            validateOnSerialize: $options->validateWhenSerializing,
+        );
+
+        return new Result(
+            Executor::execute($this->type, $data, $context),
+            $context->getIssues(),
+        );
     }
 
     public function toDefinition(): SchemaDefinition

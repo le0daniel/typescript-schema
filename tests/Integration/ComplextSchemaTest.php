@@ -22,13 +22,17 @@ final class ComplextSchemaTest extends TestCase
             )
         );
 
-        self::assertSuccess($schema->parse(['password' => 'super-secret', 'password_confirm' => 'super-secret']));
-        self::assertFailure($schema->parse(['password' => 'super-secret', 'password_confirm' => 'super-secret-but-different']));
+        self::assertTrue(
+            $schema->parse(['password' => 'super-secret', 'password_confirm' => 'super-secret'])->isSuccess()
+        );
+        self::assertTrue(
+            $schema->parse(['password' => 'super-secret', 'password_confirm' => 'super-secret-but-different'])->isFailure()
+        );
 
-        // ToDo: Test with expected failures
-        // self::assertCount(1, $invalid->issues);
-        // self::assertEquals('Password did not match confirmed password.', $invalid->issues[0]->getMessage());
-        // self::assertEquals(['password'], $invalid->issues[0]->getPath());
+        $result = $schema->parse(['password' => 'super-secret', 'password_confirm' => 'super-secret-but-different']);
+        self::assertCount(1, $result->issues);
+        self::assertEquals('Password did not match confirmed password.', $result->issues[0]->getMessage());
+        self::assertEquals(['password'], $result->issues[0]->getPath());
     }
 
     public function testTransform()
@@ -45,11 +49,11 @@ final class ComplextSchemaTest extends TestCase
 
         self::assertEquals(
             "leodaniel(29): test@me.test",
-            $schema->parse(['username' => 'leodaniel', 'age' => 29, 'email' => 'test@me.test'])
+            $schema->parse(['username' => 'leodaniel', 'age' => 29, 'email' => 'test@me.test'])->getData()
         );
 
-        self::assertEquals('{username:string;age:number;email:string|null}', Typescript::fromJsonSchema($schema->toDefinition()->toInputSchema()));
-        self::assertEquals('string', Typescript::fromJsonSchema($schema->toDefinition()->toOutputSchema()));
+        self::assertEquals('{username:string;age:number;email:string|null}', Typescript::fromJsonSchema($schema->toDefinition()->input()));
+        self::assertEquals('string', Typescript::fromJsonSchema($schema->toDefinition()->output()));
     }
 
     public function testChainingOfTransformAndRefine(): void
@@ -122,7 +126,7 @@ final class ComplextSchemaTest extends TestCase
             ),
         ]));
 
-        $result = $schema->parse([
+        $result = $schema->parseOrFail([
             'tuple' => ['string', 'is', null],
             'user' => [
                 (object)[

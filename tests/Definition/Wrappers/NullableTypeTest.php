@@ -2,15 +2,14 @@
 
 namespace TypescriptSchema\Tests\Definition\Wrappers;
 
-use TypescriptSchema\Tests\TestCase;
 use RuntimeException;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
-use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Utils\Typescript;
 
 class NullableTypeTest extends TestCase
@@ -50,8 +49,8 @@ class NullableTypeTest extends TestCase
 
     public function testDefinition()
     {
-        self::assertEquals('string|null', Typescript::fromJsonSchema(StringType::make()->nullable()->toDefinition()->toOutputSchema()));
-        self::assertEquals('string|null', Typescript::fromJsonSchema(StringType::make()->nullable()->toDefinition()->toInputSchema()));
+        self::assertEquals('string|null', Typescript::fromJsonSchema(StringType::make()->nullable()->toDefinition()->output()));
+        self::assertEquals('string|null', Typescript::fromJsonSchema(StringType::make()->nullable()->toDefinition()->input()));
     }
 
     public function testProxyFunctionality(): void
@@ -86,10 +85,10 @@ class NullableTypeTest extends TestCase
         self::assertNotSame($changedType, $nullable);
         self::assertInstanceOf(NullableWrapper::class, $changedType);
 
-        self::assertEquals('string|null', Typescript::fromJsonSchema($changedType->toDefinition()->toInputSchema()));
-        self::assertEquals('string|null', Typescript::fromJsonSchema($changedType->toDefinition()->toOutputSchema()));
-        self::assertEquals('boolean|null', Typescript::fromJsonSchema($nullable->toDefinition()->toInputSchema()));
-        self::assertEquals('boolean|null', Typescript::fromJsonSchema($nullable->toDefinition()->toOutputSchema()));
+        self::assertEquals('string|null', Typescript::fromJsonSchema($changedType->toDefinition()->input()));
+        self::assertEquals('string|null', Typescript::fromJsonSchema($changedType->toDefinition()->output()));
+        self::assertEquals('boolean|null', Typescript::fromJsonSchema($nullable->toDefinition()->input()));
+        self::assertEquals('boolean|null', Typescript::fromJsonSchema($nullable->toDefinition()->output()));
 
         self::assertInstanceOf(StringType::class, $changedType->unwrap());
     }

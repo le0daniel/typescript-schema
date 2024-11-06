@@ -4,18 +4,19 @@ namespace TypescriptSchema\Definition\Primitives;
 
 use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
-use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
 final class BoolType implements LeafType
 {
     /** @uses Nullable<BoolType> */
-    use Nullable, Coerce;
+    use Nullable, Coerce, Refinable, Transformable;
 
     protected function coerceValue(mixed $value): mixed
     {
@@ -52,12 +53,7 @@ final class BoolType implements LeafType
     public function parseAndValidate(mixed $value, Context $context): Value|bool
     {
         $value = $this->applyCoercionIfEnabled($value);
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        $context->addIssue(Issue::invalidType('boolean', $value));
-        return Value::INVALID;
+        return $this->validateAndSerialize($value, $context);
     }
 
     public function validateAndSerialize(mixed $value, Context $context): Value|bool

@@ -8,8 +8,8 @@ use Throwable;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
@@ -24,15 +24,20 @@ final class DiscriminatedUnionType implements ComplexType
     /** @uses Nullable<DiscriminatedUnionType> */
     use Nullable, Refinable, Transformable;
 
+    /** @var array<int, Type>|array<string, Type> */
+    private readonly array $types;
+
     /**
      * @param string $discriminatorFieldName
      * @param array<ObjectType|NullableWrapper<ObjectType>> $types
      */
-    protected function __construct(
+    public function __construct(
         private readonly string $discriminatorFieldName,
-        private readonly array $types,
+        Type|array ... $types,
     )
     {
+        $this->types = count($types) === 1 && is_array($types[0]) ? $types[0] : $types;
+
         if (count($this->types) < 2) {
             throw new RuntimeException("A discriminatory union type must have at least two types.");
         }
@@ -80,9 +85,9 @@ final class DiscriminatedUnionType implements ComplexType
     public function toDefinition(): SchemaDefinition
     {
         return new Definition([
-            'oneOf' => array_map(fn(Type $type) => $type->toDefinition()->toInputSchema(), $this->types),
+            'oneOf' => array_map(fn(Type $type) => $type->toDefinition()->input(), $this->types),
         ], [
-            'oneOf' => array_map(fn(Type $type) => $type->toDefinition()->toOutputSchema(), $this->types),
+            'oneOf' => array_map(fn(Type $type) => $type->toDefinition()->output(), $this->types),
         ]);
     }
 

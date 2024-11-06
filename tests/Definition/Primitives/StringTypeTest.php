@@ -15,8 +15,8 @@ class StringTypeTest extends TestCase
 {
     public function testTypescriptDefinition(): void
     {
-        self::assertSame(['type' => 'string'], StringType::make()->toDefinition()->toInputSchema());
-        self::assertSame(['type' => 'string'], StringType::make()->toDefinition()->toOutputSchema());
+        self::assertSame(['type' => 'string'], StringType::make()->toDefinition()->input());
+        self::assertSame(['type' => 'string'], StringType::make()->toDefinition()->output());
     }
 
     private function wrap(mixed $value): array

@@ -19,12 +19,12 @@ class RecordTypeTest extends TestCase
     public function testDefinition()
     {
         $same = RecordType::make(StringType::make());
-        self::assertEquals("{[key: string]:string}", Typescript::fromJsonSchema($same->toDefinition()->toInputSchema()));
-        self::assertEquals("{[key: string]:string}", Typescript::fromJsonSchema($same->toDefinition()->toOutputSchema()));
+        self::assertEquals("{[key: string]:string}", Typescript::fromJsonSchema($same->toDefinition()->input()));
+        self::assertEquals("{[key: string]:string}", Typescript::fromJsonSchema($same->toDefinition()->output()));
 
         $different = RecordType::make(LiteralType::make(UnitEnumMock::SUCCESS));
-        self::assertEquals("{[key: string]:'SUCCESS'}", Typescript::fromJsonSchema($different->toDefinition()->toInputSchema()));
-        self::assertEquals("{[key: string]:'SUCCESS'}", Typescript::fromJsonSchema($different->toDefinition()->toOutputSchema()));
+        self::assertEquals("{[key: string]:'SUCCESS'}", Typescript::fromJsonSchema($different->toDefinition()->input()));
+        self::assertEquals("{[key: string]:'SUCCESS'}", Typescript::fromJsonSchema($different->toDefinition()->output()));
     }
 
     public static function parsingDataProvider(): array

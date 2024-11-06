@@ -78,7 +78,7 @@ class UnionTypeTest extends TestCase
     public function testToDefinition()
     {
         $type = UnionType::make(StringType::make(), IntType::make());
-        self::assertEquals('string|number', Typescript::fromJsonSchema($type->toDefinition()->toInputSchema()));
-        self::assertEquals('string|number', Typescript::fromJsonSchema($type->toDefinition()->toOutputSchema()));
+        self::assertEquals('string|number', Typescript::fromJsonSchema($type->toDefinition()->input()));
+        self::assertEquals('string|number', Typescript::fromJsonSchema($type->toDefinition()->output()));
     }
 }

@@ -4,16 +4,18 @@ namespace TypescriptSchema\Definition\Primitives;
 
 use TypescriptSchema\Contracts\LeafType;
 use TypescriptSchema\Contracts\SchemaDefinition;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Helpers\Context;
 use UnitEnum;
 
 final class LiteralType implements LeafType
 {
     /** @uses Nullable<LiteralType> */
-    use Nullable;
+    use Nullable, Refinable, Transformable;
 
     public function __construct(private readonly string|int|float|bool|UnitEnum $literalValue)
     {

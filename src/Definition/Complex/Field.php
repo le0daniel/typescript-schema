@@ -16,7 +16,6 @@ class Field
     protected Closure $resolvedBy;
     protected bool $isOptional = false;
     protected array|null $deprecated = null;
-    protected bool $isOnlyOutput = false;
 
     public function __construct(protected Type $type)
     {
@@ -71,7 +70,7 @@ class Field
      * @param string $fieldName
      * @param mixed $data
      * @return mixed
-     *@internal
+     * @internal
      */
     public function resolveValue(string $fieldName, mixed $data): mixed
     {

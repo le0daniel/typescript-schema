@@ -8,7 +8,7 @@ use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
-use TypescriptSchema\Data\WrappedDefinition;
+use TypescriptSchema\Data\Schema\WrappedDefinition;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -34,9 +34,9 @@ final class ArrayType implements ComplexType
     public function toDefinition(): SchemaDefinition
     {
         return WrappedDefinition::same(
-            $this->type->toDefinition(), static fn(array $def) => [
+            $this->type->toDefinition(), fn(array $def) => [
                 'type' => 'array',
-                'items' => $this->type->toDefinition()->toInputSchema()
+                'items' => $this->type->toDefinition()->input()
             ]
         );
     }

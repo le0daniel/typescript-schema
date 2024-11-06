@@ -6,12 +6,11 @@ use Closure;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
-use TypescriptSchema\Data\Definition;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
-use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
@@ -75,6 +74,15 @@ final class ObjectType implements ComplexType
         return $this->fields()[$name];
     }
 
+    private function passThroughConfig(): false|array
+    {
+        if (!$this->passThrough) {
+            return false;
+        }
+
+        return [];
+    }
+
     public function toDefinition(): SchemaDefinition
     {
         $required = [];
@@ -89,21 +97,21 @@ final class ObjectType implements ComplexType
             [
                 'type' => 'object',
                 'properties' => array_map(static fn(Field $field) => ([
-                    ...$field->getType()->toDefinition()->toInputSchema(),
+                    ...$field->getType()->toDefinition()->input(),
                     'description' => $field->getDescription(),
                     'deprecated' => $field->isDeprecated()
                 ]), $this->fields),
-                'additionalProperties' => !!$this->passThrough,
+                'additionalProperties' => $this->passThroughConfig(),
                 'required' => $required,
             ],
             [
                 'type' => 'object',
                 'properties' => array_map(static fn(Field $field) => ([
-                    ...$field->getType()->toDefinition()->toOutputSchema(),
+                    ...$field->getType()->toDefinition()->output(),
                     'description' => $field->getDescription(),
                     'deprecated' => $field->isDeprecated()
                 ]), $this->fields),
-                'additionalProperties' => !!$this->passThrough,
+                'additionalProperties' => $this->passThroughConfig(),
                 'required' => $required,
             ]
         );
