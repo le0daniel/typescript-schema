@@ -4,8 +4,6 @@ This is a simple library with no outside dependencies that generates a typescrip
 This can help creating tight contracts in rest APIs for your input and output, without the need and complexity of using
 GraphQL or similar.
 
-This library is heavily inspired by GraphQL and Zod. It first parses, then validates and transforms it.
-
 ## Installation
 
 ```composer require le0daniel/typescript-schema```
@@ -43,7 +41,7 @@ $schema->parseOrFail(['name' => 'The name', 'email' => 'email@test.com', 'other'
 ## Difference between parse and serialize
 
 The main difference is that parsing will cast some values to PHP types, whereas serialize will return a format that is JSON serializable. 
-Use parse if you have unknown input that should be used in a PHP format, use serialize if the result should be Json Serialized. 
+Use parse if you have unknown input that should be used in a PHP, use serialize if the result should be Json Serialized. 
 
 Parsing: Takes input and returns PHP Types where possible (Enums, DateTimeImmutable)
 Serializing: Takes input and serializes it to JsonSerializable format. Example (Enum => Enum->name, DateTimeImmutable => DateTimeImmutable->format(...))
@@ -75,7 +73,6 @@ Typescript::fromJsonSchema($schema->toDefinition()->output());
 - Boolean  `Schema::boolean() | BoolType::make()`
 - Literal  `Schema::literal('book') | LiteralType::make('book')`
 - DateTime `Schema::dateTime(format) | DateTimeType::make(format)`
-- Unknown  `Schema::unknown() | UnknownType::make()`
 - Any      `Schema::any() | AnyType::make()`
 - Enum     `Schema::enum(class) | EnumType::make(class)`
 
@@ -91,11 +88,6 @@ This works as following for the different primitives:
 - Int: `(int) $value`
 - Float: `(float) $value`
 - Boolean: `Accepts: 0, 1, '0', '1', 'true', 'false'`
-- Enum: Accepts the enum value for Backed enums.
-- DateTime: No Change in behaviour
-- Literal: No Change in behaviour.
-- Any: No Change in behaviour.
-- Unknown: No Change in behaviour.
 
 ### String
 
@@ -114,8 +106,8 @@ The string type supports following default validations:
 
 The int type supports following validations:
 
-- min (including) `Schema::int()->min(5)`
-- max (including) `Schema::int()->max(5)`
+- min `Schema::int()->min(5, including: true)`
+- max `Schema::int()->max(5, including: true)`
 
 ### DateTime
 
@@ -130,7 +122,8 @@ instead of the DateTimeImmutableInstance.
 
 ### Enum
 
-An Enum type expects the input to be the Enum instance or a string with the name of the enum.
+An Enum type expects the input to be the Enum instance or a string with the name of the enum. In serialization mode,
+the Enum name is outputted (`Enum::CASE->name`).
 
 ```php
 use TypescriptSchema\Definition\Schema;
@@ -162,11 +155,10 @@ Both the unknown and any type pass all data through in the form it was before.
 use TypescriptSchema\Definition\Schema;
 
 $type = Schema::make(Schema::any());
-$type->parse(null) // => null
-$type->parse('string') // => 'string'
-$type->parse((object) []) // => object{}
-$type->parse([]) // => array
-// (...)
+$type->parse(null) // => Result<null>
+$type->parse('string') // => Result<'string'>
+$type->parse((object) []) // => Result<object{}>
+$type->parse([]) // => Result<array{}>
 ```
 
 ---
@@ -188,13 +180,14 @@ in PHP, where the key needs to be a string and the value a Type or a Field.
 
 ```php
 use TypescriptSchema\Definition\Schema;
+use \TypescriptSchema\Utils\Typescript;
 
 $user = Schema::object([
     'name' => Schema::string(),
 ]);
 
-$user->toDefinition()->input()  // => {name: string;}
-$user->toDefinition()->output() // => {name: string;}
+Typescript::fromJsonSchema($user->toDefinition()->input())  // => {name: string;}
+Typescript::fromJsonSchema($user->toDefinition()->output()) // => {name: string;}
 ```
 
 By default, resolving a value to a field is done by checking if the key exists in the array or a property of an object.
@@ -223,4 +216,71 @@ $user = Schema::object([
         ->describe('The combination of title, first and last name')
         ->deprecated('Use lastName, firstName and title to compute manually', DateTime::createFromFormat('Y-m-d', '2024-05-25')),
 ]);
+```
+
+## Extending
+
+You can define your own custom types, by implementing the Type interface. Two methods need to be implemented:
+
+- `public function toDefinition(): SchemaDefinition;`
+- `public function parse(mixed $value, Context $context): mixed;`
+
+The definition method should define the Json Schema for input and output, whereas the parse function should parse the given value into the correct type. It MUST NOT throw any exception.
+In case of failure, `Value::INVALID` should be returned and all issues added to the context.
+
+If your type needs to serialize values in a specific way you have to additionally implement the `SerializesOutputValue` interface.
+
+Remember, the types should be immutable.
+
+Following utilities (traits) are available for types to use:
+
+- Coerce: Enables `->coerce()`
+- HasDefaultValue: `->defaultValue()`
+- Nullable: Enables `->nullable()`
+- Refinable: Enables `->refine()`
+- Transformable: Enables `->transform()`
+- Validators: Enables Closure Validators to be used easily.
+
+Example
+
+```php
+use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Definition\Shared\Nullable;
+use TypescriptSchema\Definition\Shared\Refinable;
+use TypescriptSchema\Definition\Shared\Transformable;
+use TypescriptSchema\Definition\Shared\Validators;
+use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Exceptions\Issue;
+
+final class MyCustomType implements Type {
+    use Nullable, Refinable, Transformable, Validators;
+
+    public function toDefinition(): SchemaDefinition {
+        return new \TypescriptSchema\Data\Schema\Definition(
+            ['type' => 'string'],
+            ['type' => 'string'],
+        );
+    }
+
+    public function serializeValue(mixed $value, Context $context): Value|string {
+        if (!is_string($value)) {
+            $context->addIssue(Issue::custom('Value must be a string.'));
+            return Value::INVALID;
+        }
+        
+        if (!$this->runValidators($value, $context)) {
+            return Value::INVALID;
+        }
+        
+        return $value;
+    }
+    
+    public function minLength(): MyCustomType {
+        return $this->addValidator(function (string $value) {
+            return strlen($value) > 5;
+        });
+    }
+}
+
 ```
