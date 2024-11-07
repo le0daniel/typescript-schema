@@ -25,7 +25,9 @@ final class NullableWrapper extends WrapsType
      */
     public static function make(Type $type): NullableWrapper
     {
-        return new self($type);
+        /** @var NullableWrapper<M> $type */
+        $type = new self($type);
+        return $type;
     }
 
     protected function verifyType(Type $type): void

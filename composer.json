@@ -18,5 +18,8 @@
     "psr-4": {
       "TypescriptSchema\\Tests\\": "tests/"
     }
+  },
+  "scripts": {
+    "check": "phpstan analyse src --level 8"
   }
 }
