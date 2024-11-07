@@ -23,10 +23,16 @@ final class IntType implements Type
 
     private function coerceValue(mixed $value): mixed
     {
-        if (is_scalar($value)) {
-            return (int) $value;
+        if (!is_scalar($value)) {
+            return $value;
         }
-        return $value;
+
+        // Make sure the string is valid
+        if (is_string($value) && filter_var($value, FILTER_VALIDATE_INT) === false) {
+            return $value;
+        }
+
+        return (int)$value;
     }
 
     public static function make(): self

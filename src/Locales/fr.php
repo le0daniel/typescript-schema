@@ -15,8 +15,10 @@ return [
     'string.invalid_max' => 'La valeur doit être inférieure à :max caractères',
     'string.invalid_ends_with' => 'La valeur doit se terminer par :endsWith',
     'string.invalid_starts_with' => 'La valeur doit commencer par :startsWith',
-    'int.invalid_min' => 'La valeur doit être au moins :min',
-    'int.invalid_max' => 'La valeur doit être inférieure à :max',
+    'int.invalid_min.excluding' => 'La valeur doit être supérieure à :min',
+    'int.invalid_min.including' => 'La valeur doit être supérieure ou égale à :min',
+    'int.invalid_max.excluding' => 'La valeur doit être inférieure à :max',
+    'int.invalid_max.including' => 'La valeur doit être inférieure ou égale à :max',
     'datetime.invalid_before' => 'La valeur doit être avant :before',
     'datetime.invalid_after' => 'La valeur doit être après :after',
 ] ;
