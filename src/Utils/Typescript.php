@@ -15,7 +15,7 @@ final class Typescript
      */
     public static function fromJsonSchema(array $definition): string
     {
-        if (empty($definition)) {
+        if (self::isEmptyDefinition($definition)) {
             return 'any';
         }
 
@@ -48,6 +48,20 @@ final class Typescript
         }
 
         throw new RuntimeException("Unsupported configuration: " . json_encode($definition, JSON_THROW_ON_ERROR));
+    }
+
+    private static function isEmptyDefinition(array $definition): bool
+    {
+        if (empty($definition)) {
+            return true;
+        }
+
+        foreach (['const', 'enum', 'anyOf', 'oneOf', 'type'] as $key) {
+            if (isset($definition[$key])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static function literal(string|int|float|bool|null $value): string
@@ -113,7 +127,7 @@ DOCBLOCK;
             $isOptional = in_array($name, $requiredProperties, true) ? '' : '?';
             $escapedName = self::escapeObjectKey($name);
             $docBlock = self::docblockFromConfig($typeDefinition);
-            $properties[] = "{$docBlock}{$escapedName}{$isOptional}:" .  self::fromJsonSchema($typeDefinition);
+            $properties[] = "{$docBlock}{$escapedName}{$isOptional}:" . self::fromJsonSchema($typeDefinition);
         }
 
         $properties[] = match ($definition['additionalProperties'] ?? true) {

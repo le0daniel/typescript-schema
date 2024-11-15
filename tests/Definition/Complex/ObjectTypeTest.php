@@ -5,6 +5,7 @@ namespace TypescriptSchema\Tests\Definition\Complex;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Complex\ObjectType;
+use TypescriptSchema\Definition\Primitives\AnyType;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Helpers\Context;
@@ -19,6 +20,12 @@ class ObjectTypeTest extends TestCase
     {
         $object = ObjectType::make(['name' => StringType::make()]);
         self::assertNotSame($object, $object->passThrough());
+    }
+
+    public function testAnyOnField(): void
+    {
+        $object = ObjectType::make(['name' => new AnyType()]);
+        self::assertEquals('{name:any}', Typescript::fromJsonSchema($object->toDefinition()->input()));
     }
 
     public function testObjectTypeDefinition()
