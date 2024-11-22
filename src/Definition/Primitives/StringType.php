@@ -2,8 +2,10 @@
 
 namespace TypescriptSchema\Definition\Primitives;
 
+use Stringable;
 use Throwable;
 use TypescriptSchema\Contracts\SchemaDefinition;
+use TypescriptSchema\Contracts\SerializesOutputValue;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
@@ -16,7 +18,7 @@ use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
 
-class StringType implements Type
+class StringType implements Type, SerializesOutputValue
 {
     /** @use Nullable<StringType> */
     use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
@@ -150,6 +152,7 @@ class StringType implements Type
         $value = $this->applyCoercionIfEnabled(
             $this->applyDefaultValue($value)
         );
+
         if (!is_string($value)) {
             $context->addIssue(Issue::invalidType('string', $value));
             return Value::INVALID;
@@ -160,5 +163,13 @@ class StringType implements Type
         }
 
         return $value;
+    }
+
+    public function serializeValue(mixed $value, Context $context): mixed
+    {
+        return $this->parse(
+            $value instanceof Stringable ? (string) $value : $value,
+            $context
+        );
     }
 }

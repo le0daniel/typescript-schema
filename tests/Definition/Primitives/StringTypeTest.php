@@ -19,6 +19,21 @@ class StringTypeTest extends TestCase
         self::assertSame(['type' => 'string'], StringType::make()->toDefinition()->output());
     }
 
+    public function testOutputOfStringable(): void
+    {
+        $stringable = new class implements \Stringable
+        {
+
+            public function __toString()
+            {
+                return 'stringValue';
+            }
+        };
+
+        self::assertSame('stringValue', StringType::make()->serializeValue($stringable, new Context()));
+        self::assertSame(Value::INVALID, StringType::make()->parse($stringable, new Context()));
+    }
+
     private function wrap(mixed $value): array
     {
         return is_array($value) ? $value : [$value];
