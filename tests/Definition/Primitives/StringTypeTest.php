@@ -30,8 +30,8 @@ class StringTypeTest extends TestCase
             }
         };
 
-        self::assertSame('stringValue', StringType::make()->serializeValue($stringable, new Context()));
-        self::assertSame(Value::INVALID, StringType::make()->parse($stringable, new Context()));
+        self::assertSame('stringValue', Executor::execute(StringType::make(), $stringable, new Context(ExecutionMode::SERIALIZE)));
+        self::assertSame('stringValue', StringType::make()->parse($stringable, new Context()));
     }
 
     private function wrap(mixed $value): array
