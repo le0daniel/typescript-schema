@@ -5,6 +5,7 @@ namespace TypescriptSchema\Definition\Primitives;
 use Stringable;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Coerce;
@@ -151,7 +152,7 @@ class StringType implements Type
             $this->applyDefaultValue($value)
         );
 
-        if ($value instanceof Stringable) {
+        if ($context->mode === ExecutionMode::SERIALIZE && $value instanceof Stringable) {
             $value = (string)$value;
         }
 

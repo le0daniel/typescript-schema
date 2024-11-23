@@ -61,10 +61,32 @@ final class ObjectType implements Type
      */
     protected function fields(): array
     {
-        return $this->fields ??= array_map(
-            fn(Type|Field $field): Field => $field instanceof Field ? $field : Field::ofType($field),
-            $this->definition instanceof Closure ? ($this->definition)() : $this->definition
-        );
+        return $this->fields ??= $this->initFields();
+    }
+
+    private function initFields(): array
+    {
+        $fields = [];
+
+        $definition = $this->definition instanceof Closure ? ($this->definition)() : $this->definition;
+
+        /**
+         * @var string $name
+         * @var Field|Type $fieldDeclaration
+         */
+        foreach ($definition as $name => $fieldDeclaration) {
+            $field = $fieldDeclaration instanceof Field
+                ? $fieldDeclaration
+                : Field::ofType($fieldDeclaration);
+
+            if (str_ends_with($name, '?')) {
+                $fields[substr($name, 0, -1)] = $field->optional();
+            } else {
+                $fields[$name] = $field;
+            }
+        }
+
+        return $fields;
     }
 
     /**

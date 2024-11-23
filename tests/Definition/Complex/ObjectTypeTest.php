@@ -42,6 +42,18 @@ class ObjectTypeTest extends TestCase
         self::assertTrue($type->passThrough()->toDefinition()->input() === $type->passThrough()->toDefinition()->output());
     }
 
+    public function testOptionalByName()
+    {
+        $type = ObjectType::make([
+            'id' => StringType::make(),
+            'name?' => StringType::make()->nullable(),
+            'other?' => Field::ofType(StringType::make()),
+        ]);
+
+        self::assertSame('{id:string;name?:string|null;other?:string}', Typescript::fromJsonSchema($type->toDefinition()->output()));
+        self::assertSame('{id:string;name?:string|null;other?:string}', Typescript::fromJsonSchema($type->toDefinition()->input()));
+    }
+
     public function testPassThroughAsClosure(): void
     {
         $type = ObjectType::make([
