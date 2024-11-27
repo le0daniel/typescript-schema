@@ -22,7 +22,7 @@ final class Issue extends Exception
      * @param string $message
      * @param array<string, mixed> $metadata
      * @param Path $path
-     * @param Throwable|null $previous
+     * @param ?Throwable|null $previous
      * @param string|null $localizationKey
      */
     protected function __construct(
@@ -30,7 +30,7 @@ final class Issue extends Exception
         string                    $message,
         public readonly array     $metadata = [],
         protected readonly array  $path = [],
-        Throwable                 $previous = null,
+        ?Throwable                 $previous = null,
         private readonly ?string  $localizationKey = null,
     )
     {

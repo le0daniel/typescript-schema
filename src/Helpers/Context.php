@@ -5,7 +5,6 @@ namespace TypescriptSchema\Helpers;
 use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Exceptions\Issue;
 
-/** @internal */
 final class Context
 {
     /** @var array<int|string> */

@@ -10,13 +10,14 @@ use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
+use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
 final class ObjectType implements Type
 {
     /** @use Nullable<ObjectType> */
-    use Nullable, Refinable, Transformable;
+    use Nullable, Refinable, Transformable, Validators;
 
     private bool|Closure $passThrough = false;
 
@@ -28,8 +29,18 @@ final class ObjectType implements Type
     /**
      * @param array<string,Type>|Closure(): array<string, Type> $definition
      */
-    public function __construct(private readonly array|Closure $definition)
+    public function __construct(private array|Closure $definition)
     {
+    }
+
+    public function extend(array $fields): ObjectType
+    {
+        $clone = clone $this;
+        $clone->definition = [
+            ... $this->fields(),
+            ... $fields,
+        ];
+        return $clone;
     }
 
     /**
@@ -62,6 +73,13 @@ final class ObjectType implements Type
     protected function fields(): array
     {
         return $this->fields ??= $this->initFields();
+    }
+
+    public function notEmpty(): self
+    {
+        return $this->addValidator(function (array $object): bool {
+            return !empty($object);
+        });
     }
 
     private function initFields(): array
@@ -170,6 +188,10 @@ final class ObjectType implements Type
         }
 
         if ($isDirty) {
+            return Value::INVALID;
+        }
+
+        if (!$this->runValidators($parsed, $context)) {
             return Value::INVALID;
         }
 

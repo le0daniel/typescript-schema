@@ -28,6 +28,23 @@ class ObjectTypeTest extends TestCase
         self::assertEquals('{name:any}', Typescript::fromJsonSchema($object->toDefinition()->input()));
     }
 
+    public function testNotEmptyValidator()
+    {
+        $object = ObjectType::make(['name?' => StringType::make()]);
+        self::assertSame([], $object->parse([], new Context()));
+        self::assertSame(Value::INVALID, $object->notEmpty()->parse([], new Context()));
+    }
+
+    public function testExtend(): void
+    {
+        $object = ObjectType::make(['name' => StringType::make()]);
+        $clone = $object->extend(['other' => StringType::make()]);
+
+        self::assertNotSame($object, $clone);
+        self::assertSame('{name:string}', Typescript::fromJsonSchema($object->toDefinition()->input()));
+        self::assertSame('{name:string;other:string}', Typescript::fromJsonSchema($clone->toDefinition()->input()));
+    }
+
     public function testObjectTypeDefinition()
     {
         $type = ObjectType::make([

@@ -76,6 +76,11 @@ final class Schema
     {
     }
 
+    public function getType(): Type
+    {
+        return $this->type;
+    }
+
     /**
      * Sugar syntax for chaining for PHP version < 8.4
      * @param Type $type
