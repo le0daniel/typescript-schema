@@ -45,6 +45,10 @@ final class NumberType implements Type
             return $value;
         }
 
+        if (filter_var($value, FILTER_VALIDATE_FLOAT) !== false || filter_var($value, FILTER_VALIDATE_INT) !== false) {
+            return (float) $value;
+        }
+
         if (is_bool($value)) {
             return (float) ($value ? 1 : 0);
         }
