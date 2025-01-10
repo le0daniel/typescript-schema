@@ -28,6 +28,19 @@ class ObjectTypeTest extends TestCase
         self::assertEquals('{name:any}', Typescript::fromJsonSchema($object->toDefinition()->input()));
     }
 
+    public function testRemoveFields(): void
+    {
+        $object = ObjectType::make(['name' => new AnyType()]);
+        $objectWithoutName = $object->removeFields(['name']);
+
+        self::assertNotSame($object, $objectWithoutName);
+        self::assertFalse($object->isEmpty());
+        self::assertTrue($objectWithoutName->isEmpty());
+
+        self::assertEquals('{}', Typescript::fromJsonSchema($objectWithoutName->toDefinition()->input()));
+        self::assertEquals('{name:any}', Typescript::fromJsonSchema($object->toDefinition()->input()));
+    }
+
     public function testNotEmptyValidator()
     {
         $object = ObjectType::make(['name?' => StringType::make()]);

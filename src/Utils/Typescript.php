@@ -2,9 +2,7 @@
 
 namespace TypescriptSchema\Utils;
 
-use BackedEnum;
 use RuntimeException;
-use UnitEnum;
 
 final class Typescript
 {

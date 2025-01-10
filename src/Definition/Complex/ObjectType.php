@@ -43,6 +43,20 @@ final class ObjectType implements Type
         return $clone;
     }
 
+    public function removeFields(array $fields): ObjectType
+    {
+        $clone = clone $this;
+        $clone->definition = array_filter($this->fields(), static function (string $fieldName) use ($fields): bool {
+            return !in_array($fieldName, $fields, true);
+        }, ARRAY_FILTER_USE_KEY);
+        return $clone;
+    }
+
+    public function isEmpty(): bool
+    {
+        return empty($this->fields);
+    }
+
     /**
      * @param array<string,Type>|Closure(): array<string, Type> $definition
      */
