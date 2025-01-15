@@ -10,6 +10,7 @@ use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Primitives\LiteralType;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -21,7 +22,7 @@ use TypescriptSchema\Helpers\Context;
 final class DiscriminatedUnionType implements Type
 {
     /** @use Nullable<DiscriminatedUnionType> */
-    use Nullable, Refinable, Transformable;
+    use Nullable, Refinable, Transformable, BaseType;
 
     /**
      * @param string $discriminatorFieldName

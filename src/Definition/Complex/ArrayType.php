@@ -3,11 +3,11 @@
 namespace TypescriptSchema\Definition\Complex;
 
 
-use Generator;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\WrappedDefinition;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -21,9 +21,7 @@ use TypescriptSchema\Helpers\Context;
 final class ArrayType implements Type
 {
     /** @use Nullable<ArrayType> */
-    use Nullable,
-        Refinable,
-        Transformable;
+    use Nullable, Refinable, Transformable, BaseType;
 
     public function __construct(
         private readonly Type $type,

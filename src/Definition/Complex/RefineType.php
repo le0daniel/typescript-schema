@@ -5,6 +5,7 @@ namespace TypescriptSchema\Definition\Complex;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Execution\Executor;
@@ -13,7 +14,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class RefineType implements Type
 {
-    use Refinable, Transformable;
+    use Refinable, Transformable, BaseType;
 
     public function __construct(
         private readonly Type             $type,

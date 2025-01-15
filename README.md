@@ -40,15 +40,34 @@ $schema->parseOrFail(['name' => 'The name', 'email' => 'email@test.com', 'other'
 
 ## Difference between parse and serialize
 
-The main difference is that parsing will cast some values to PHP types, whereas serialize will return a format that is JSON serializable. 
-Use parse if you have unknown input that should be used in a PHP, use serialize if the result should be Json Serialized. 
+The main difference is that parsing will cast some values to PHP types, whereas serialize will return a format that is
+JSON serializable.
+Use parse if you have unknown input that should be used in a PHP, use serialize if the result should be Json Serialized.
 
 Parsing: Takes input and returns PHP Types where possible (Enums, DateTimeImmutable)
-Serializing: Takes input and serializes it to JsonSerializable format. Example (Enum => Enum->name, DateTimeImmutable => DateTimeImmutable->format(...))
+Serializing: Takes input and serializes it to JsonSerializable format. Example (Enum => Enum->name, DateTimeImmutable =>
+DateTimeImmutable->format(...))
+
+## Value Object Casting
+
+It is possible to cast values as value objects. This is done using reflection. In case the object has a constructor, the
+constructor is used. Otherwise, a new object is created and the properties are set. Important, the latter case does not
+work with readonly properties. You can customize the casting logic by having a `public static function cast()` set on
+your class. In this case, this method is called with the raw data. No other logic applies.
+
+```php
+use TypescriptSchema\Utils\Typescript;
+use TypescriptSchema\Definition\Schema;
+use TypescriptSchema\Data\Options;
+
+$schema = Schema::object(['name' => Schema::string()])->toSchema();
+$result = $schema->parse(['name' => 'Test name'])->castInto(Person::class);
+```
 
 ## Typescript Support
 
-By default, the toDefinition() method generates Json Schema output. You can use it to create a valid typescript declaration using the Typescript utility.
+By default, the toDefinition() method generates Json Schema output. You can use it to create a valid typescript
+declaration using the Typescript utility.
 
 ```php
 use TypescriptSchema\Utils\Typescript;
@@ -204,7 +223,8 @@ $user = Schema::object([
 ]);
 ```
 
-Using fields adds more benefits. You can describe the field or even deprecate it. This is especially useful for output types that serialize your Data.
+Using fields adds more benefits. You can describe the field or even deprecate it. This is especially useful for output
+types that serialize your Data.
 
 ```php
 use TypescriptSchema\Definition\Complex\Field;
@@ -225,10 +245,12 @@ You can define your own custom types, by implementing the Type interface. Two me
 - `public function toDefinition(): SchemaDefinition;`
 - `public function parse(mixed $value, Context $context): mixed;`
 
-The definition method should define the Json Schema for input and output, whereas the parse function should parse the given value into the correct type. It MUST NOT throw any exception.
+The definition method should define the Json Schema for input and output, whereas the parse function should parse the
+given value into the correct type. It MUST NOT throw any exception.
 In case of failure, `Value::INVALID` should be returned and all issues added to the context.
 
-If your type needs to serialize values in a specific way you have to additionally implement the `SerializesOutputValue` interface.
+If your type needs to serialize values in a specific way you have to additionally implement the `SerializesOutputValue`
+interface.
 
 Remember, the types should be immutable.
 

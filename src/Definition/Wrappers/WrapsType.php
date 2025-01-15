@@ -4,6 +4,7 @@ namespace TypescriptSchema\Definition\Wrappers;
 
 use RuntimeException;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Definition\Schema;
 
 
 abstract class WrapsType implements Type
@@ -13,6 +14,11 @@ abstract class WrapsType implements Type
     protected function __construct(protected Type $type)
     {
         $this->verifyType($this->type);
+    }
+
+    public function toSchema(): Schema
+    {
+        return new Schema($this);
     }
 
     /**

@@ -2,11 +2,15 @@
 
 namespace TypescriptSchema\Tests\Integration;
 
-use TypescriptSchema\Helpers\Context;
-use TypescriptSchema\Tests\Mocks\UnitEnumMock;
-use TypescriptSchema\Tests\TestCase;
+use DateTimeImmutable;
+use RuntimeException;
 use TypescriptSchema\Definition\Schema;
 use TypescriptSchema\Exceptions\Issue;
+use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Tests\Mocks\IdTypeMock;
+use TypescriptSchema\Tests\Mocks\UnitEnumMock;
+use TypescriptSchema\Tests\Mocks\ValueObjectWithConstructor;
+use TypescriptSchema\Tests\TestCase;
 use TypescriptSchema\Utils\Typescript;
 
 final class ComplexSchemaTest extends TestCase
@@ -121,7 +125,7 @@ final class ComplexSchemaTest extends TestCase
                 'literal' => Schema::literal('test')->defaultValue('test'),
                 'date' => Schema::dateTime('Y-m-d')->defaultValue('2021-09-27'),
                 'dateImmutableDefault' => Schema::dateTime('Y-m-d')
-                    ->defaultValue(\DateTimeImmutable::createFromFormat('Y-m-d', '2022-02-25')),
+                    ->defaultValue(DateTimeImmutable::createFromFormat('Y-m-d', '2022-02-25')),
                 'enum' => Schema::enum(UnitEnumMock::class)->defaultValue('SUCCESS'),
                 'enumAsEnum' => Schema::enum(UnitEnumMock::class)->defaultValue(UnitEnumMock::FAILURE),
             ])
@@ -170,6 +174,42 @@ final class ComplexSchemaTest extends TestCase
         ]);
 
         self::assertSuccess($result);
+    }
+
+    public function testSchemaWithCasting(): void
+    {
+        $schema = Schema::object([
+            'name' => Schema::string(),
+        ])->toSchema();
+
+        $result = $schema->parse(['name' => 'test']);
+        self::assertTrue($result->isSuccess());
+        self::assertInstanceOf(ValueObjectWithConstructor::class, $result->castInto(ValueObjectWithConstructor::class));
+    }
+
+    public function testSchemaWithInvalidCasting(): void
+    {
+        $schema = Schema::object([
+            'name?' => Schema::string(),
+        ])->toSchema();
+
+        $result = $schema->parse([]);
+        self::assertTrue($result->isSuccess());
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Failed to cast the data into TypescriptSchema\Tests\Mocks\ValueObjectWithConstructor.');
+        $result->castInto(ValueObjectWithConstructor::class);
+    }
+
+    public function testCastIntoWithNull()
+    {
+        $schema = Schema::int()->min(1)->nullable()->toSchema();
+        self::assertNull($schema->parse(null)->castInto(IdTypeMock::class));
+
+        self::assertInstanceOf(
+            IdTypeMock::class,
+            $schema->parse(1)->castInto(IdTypeMock::class)
+        );
     }
 
 }

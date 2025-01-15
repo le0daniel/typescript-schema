@@ -7,6 +7,7 @@ use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -17,7 +18,7 @@ use TypescriptSchema\Helpers\Context;
 final class TupleType implements Type
 {
     /** @use Nullable<TupleType> */
-    use Nullable, Refinable, Transformable;
+    use Nullable, Refinable, Transformable, BaseType;
 
     /**
      * @param array<Type> $types

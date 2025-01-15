@@ -13,8 +13,8 @@ final readonly class Definition implements SchemaDefinition
      * @param array<mixed> $output
      */
     public function __construct(
-        public array $input,
-        public array $output,
+        public array|JsonSchema $input,
+        public array|JsonSchema $output,
     )
     {
     }
@@ -28,23 +28,21 @@ final readonly class Definition implements SchemaDefinition
         return new Definition($definition, $definition);
     }
 
+    /**
+     * Schema which applies to parse
+     * @return array|mixed[]
+     */
     public function input(): array
     {
         return $this->input;
     }
 
+    /**
+     * Schema which applies to serialize
+     * @return array|mixed[]
+     */
     public function output(): array
     {
         return $this->output;
-    }
-
-    public function toTypescriptInput(): string
-    {
-        return Typescript::fromJsonSchema($this->input);
-    }
-
-    public function toTypescriptOutput(): string
-    {
-        return Typescript::fromJsonSchema($this->output);
     }
 }

@@ -7,6 +7,7 @@ use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Coerce;
 use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
@@ -18,7 +19,7 @@ use TypescriptSchema\Helpers\Context;
 final class NumberType implements Type
 {
     /** @use Nullable<NumberType> */
-    use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
+    use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue, BaseType;
 
     public static function make(): NumberType
     {

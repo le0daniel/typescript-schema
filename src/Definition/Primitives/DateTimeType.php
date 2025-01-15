@@ -10,6 +10,7 @@ use TypescriptSchema\Contracts\SerializesOutputValue;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
@@ -21,7 +22,7 @@ use TypescriptSchema\Helpers\Context;
 final class DateTimeType implements Type, SerializesOutputValue
 {
     /** @use Nullable<DateTimeType> */
-    use Validators, Nullable, Refinable, Transformable, HasDefaultValue;
+    use Validators, Nullable, Refinable, Transformable, HasDefaultValue, BaseType;
 
     private static string $DEFAULT_FORMAT = DateTimeInterface::ATOM;
 

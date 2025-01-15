@@ -2,35 +2,35 @@
 
 namespace TypescriptSchema\Utils;
 
+use JsonException;
 use RuntimeException;
+use TypescriptSchema\Data\Schema\JsonSchema;
 
 final class Typescript
 {
     /**
-     * @param array<mixed> $definition
+     * @param array|JsonSchema $definition
      * @return string
-     * @throws \JsonException
+     * @throws JsonException
      */
-    public static function fromJsonSchema(array $definition): string
+    public static function fromJsonSchema(array|JsonSchema $definition): string
     {
+        $definition = $definition instanceof JsonSchema
+            ? $definition->toArray()
+            : $definition;
+
         if (self::isEmptyDefinition($definition)) {
             return 'any';
         }
 
-        if (isset($definition['const'])) {
-            return self::literal($definition['const']);
-        }
-
-        if (isset($definition['enum'])) {
-            return implode('|', array_map(self::literal(...), $definition['enum']));
-        }
-
-        if (isset($definition['anyOf'])) {
-            return implode('|', array_map(self::fromJsonSchema(...), $definition['anyOf']));
-        }
-
-        if (isset($definition['oneOf'])) {
-            return implode('|', array_map(self::fromJsonSchema(...), $definition['oneOf']));
+        if (Arrays::anyKeyExists($definition, ['const', 'enum', 'anyOf', 'oneOf'])) {
+            return match (true) {
+                isset($definition['const']) => self::literal($definition['const']),
+                isset($definition['enum']) => implode('|', array_map(self::literal(...), $definition['enum'])),
+                isset($definition['anyOf']) => implode('|', array_map(self::fromJsonSchema(...), $definition['anyOf'])),
+                isset($definition['oneOf']) => implode('|', array_map(self::fromJsonSchema(...), $definition['oneOf'])),
+                default => throw new RuntimeException('Unknown definition type'),
+            };
         }
 
         if (isset($definition['type'])) {
@@ -88,9 +88,9 @@ DOCBLOCK;
     }
 
     /**
-     * @param array<mixed> $definition
+     * @param array $definition
      * @return string
-     * @throws \JsonException
+     * @throws JsonException
      */
     private static function arrayDefinition(array $definition): string
     {
@@ -109,7 +109,7 @@ DOCBLOCK;
     /**
      * @param array<mixed> $definition
      * @return string
-     * @throws \JsonException
+     * @throws JsonException
      */
     private static function objectDefinition(array $definition): string
     {

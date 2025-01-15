@@ -5,13 +5,14 @@ namespace TypescriptSchema\Definition\Primitives;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Helpers\Context;
 
 final class AnyType implements Type
 {
-    use Refinable, Transformable;
+    use Refinable, Transformable, BaseType;
 
     public static function make(): self
     {

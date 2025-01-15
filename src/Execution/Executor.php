@@ -9,9 +9,6 @@ use TypescriptSchema\Data\Enum\ExecutionMode;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Helpers\Context;
 
-/**
- * @internal
- */
 final class Executor
 {
 
@@ -20,7 +17,6 @@ final class Executor
      * @param mixed $data
      * @param Context $context
      * @return mixed
-     * @internal
      */
     public static function execute(Type $type, mixed $data, Context $context): mixed
     {

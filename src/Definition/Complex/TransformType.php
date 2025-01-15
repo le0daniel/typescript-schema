@@ -8,6 +8,7 @@ use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
 use TypescriptSchema\Exceptions\Issue;
@@ -16,7 +17,7 @@ use TypescriptSchema\Helpers\Context;
 
 final class TransformType implements Type
 {
-    use Refinable, Transformable;
+    use Refinable, Transformable, BaseType;
 
     /**
      * @param Type $type

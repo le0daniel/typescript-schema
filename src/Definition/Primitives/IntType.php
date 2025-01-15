@@ -7,6 +7,7 @@ use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Coerce;
 use TypescriptSchema\Definition\Shared\HasDefaultValue;
 use TypescriptSchema\Definition\Shared\Nullable;
@@ -19,7 +20,7 @@ use TypescriptSchema\Helpers\Context;
 final class IntType implements Type
 {
     /** @use Nullable<IntType> */
-    use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue;
+    use Nullable, Coerce, Validators, Refinable, Transformable, HasDefaultValue, BaseType;
 
     private function coerceValue(mixed $value): mixed
     {

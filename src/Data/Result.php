@@ -3,11 +3,13 @@
 namespace TypescriptSchema\Data;
 
 use RuntimeException;
+use Throwable;
 use TypescriptSchema\Data\Enum\Status;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Utils\Issues;
+use TypescriptSchema\Utils\ObjectCaster;
 
 final class Result
 {
@@ -21,11 +23,11 @@ final class Result
      */
     public function __construct(
         private readonly mixed $data,
-        public readonly array  $issues,
+        public readonly array $issues,
     )
     {
         if ($this->data === Value::UNDEFINED) {
-            throw new RuntimeException("Got value Undefined.");
+            throw new RuntimeException("Unexpectedly got value undefined.");
         }
 
         $this->status = match (true) {
@@ -37,6 +39,10 @@ final class Result
 
     public function toThrowable(): ParsingException
     {
+        if (empty($this->issues)) {
+            throw new RuntimeException("Can not create throwable without any issues.");
+        }
+
         return (new ParsingException($this->issues))
             ->setLocale($this->locale)
             ->setLocalizer($this->localizer);
@@ -47,6 +53,29 @@ final class Result
         return $this->data instanceof Value
             ? null
             : $this->data;
+    }
+
+    /**
+     * @template T
+     * @param class-string<T> $className
+     * @return T|null
+     */
+    public function castInto(string $className): mixed
+    {
+        if (!$this->isSuccess()) {
+            throw new RuntimeException("Can not cast the data in case of failure.");
+        }
+
+        // By default, it is optional. So if no value is provided, it is not cast.
+        if ($this->data === null) {
+            return null;
+        }
+
+        try {
+            return ObjectCaster::cast($className, $this->data);
+        } catch (Throwable $exception) {
+            throw new RuntimeException("Failed to cast the data into {$className}.", previous: $exception);
+        }
     }
 
     /**
