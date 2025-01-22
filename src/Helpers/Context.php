@@ -17,6 +17,7 @@ final class Context
         public readonly ExecutionMode $mode = ExecutionMode::SERIALIZE,
         public readonly bool          $allowPartialFailures = false,
         public readonly bool          $validateOnSerialize = true,
+        public readonly mixed         $userProvidedContext = null,
     )
     {
     }

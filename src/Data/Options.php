@@ -8,6 +8,7 @@ final readonly class Options
     public function __construct(
         public bool $allowPartialFailures = false,
         public bool $validateWhenSerializing = true,
+        public mixed $context = null,
     )
     {
 

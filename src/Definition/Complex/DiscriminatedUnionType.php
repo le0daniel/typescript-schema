@@ -61,7 +61,7 @@ final class DiscriminatedUnionType implements Type
     {
         foreach ($this->discriminatorFields() as $key => $field) {
             try {
-                $fieldValue = $field->resolveValue($this->discriminatorFieldName, $value);
+                $fieldValue = $field->resolveValue($this->discriminatorFieldName, $value, $context->userProvidedContext);
                 $result = Executor::execute($field->getType(), $fieldValue, $context);
                 if ($result === Value::INVALID) {
                     continue;

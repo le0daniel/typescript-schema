@@ -184,7 +184,7 @@ final class ObjectType implements Type
         foreach ($this->fields() as $name => $field) {
             $context->enter($name);
             try {
-                $fieldValue = $field->resolveValue($name, $value);
+                $fieldValue = $field->resolveValue($name, $value, $context->userProvidedContext);
 
                 if ($field->isOptional() && $fieldValue === Value::UNDEFINED) {
                     continue;

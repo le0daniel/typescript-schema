@@ -3,11 +3,13 @@
 namespace TypescriptSchema\Tests\Definition\Complex;
 
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Data\Options;
 use TypescriptSchema\Definition\Complex\Field;
 use TypescriptSchema\Definition\Complex\ObjectType;
 use TypescriptSchema\Definition\Primitives\AnyType;
 use TypescriptSchema\Definition\Primitives\IntType;
 use TypescriptSchema\Definition\Primitives\StringType;
+use TypescriptSchema\Definition\Schema;
 use TypescriptSchema\Helpers\Context;
 use TypescriptSchema\Tests\Mocks\GettersMock;
 use TypescriptSchema\Tests\TestCase;
@@ -26,6 +28,23 @@ class ObjectTypeTest extends TestCase
     {
         $object = ObjectType::make(['name' => new AnyType()]);
         self::assertEquals('{name:any}', Typescript::fromJsonSchema($object->toDefinition()->input()));
+    }
+
+    public function testResolverWithContext()
+    {
+        $object = ObjectType::make([
+            'name' => Schema::field(new StringType())->resolvedBy(fn($_, $__, array $context) => $context['name'])]
+        )->toSchema();
+
+        self::assertSame(
+            ['name' => 'test'],
+            $object->parse(['name' => 'something'], new Options(context: ['name' => 'test']))->getData()
+        );
+
+        self::assertSame(
+            ['name' => 'other'],
+            $object->parse([], new Options(context: ['name' => 'other']))->getData()
+        );
     }
 
     public function testRemoveFields(): void

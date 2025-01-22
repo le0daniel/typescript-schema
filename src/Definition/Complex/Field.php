@@ -75,10 +75,10 @@ class Field
      * @return mixed
      * @internal
      */
-    public function resolveValue(string $fieldName, mixed $data): mixed
+    public function resolveValue(string $fieldName, mixed $data, mixed $userProvidedContext = null): mixed
     {
         return isset($this->resolvedBy)
-            ? ($this->resolvedBy)($data, $fieldName)
+            ? ($this->resolvedBy)($data, $fieldName, $userProvidedContext)
             : $this->defaultResolver($data, $fieldName);
     }
 

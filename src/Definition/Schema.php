@@ -167,6 +167,7 @@ final class Schema
             mode: $mode,
             allowPartialFailures: $options->allowPartialFailures,
             validateOnSerialize: $options->validateWhenSerializing,
+            userProvidedContext: $options->context,
         );
 
         return new Result(
