@@ -94,9 +94,9 @@ final class UnionType implements Type
      * @return Type
      * @throws RuntimeException
      */
-    private function resolveByClosure(mixed $value): Type
+    private function resolveByClosure(mixed $value, Context $context): Type
     {
-        $keyOrIndex = ($this->resolveType)($value);
+        $keyOrIndex = ($this->resolveType)($value, $context->userProvidedContext);
         if (is_int($keyOrIndex) && !array_is_list($this->types)) {
             $key = array_keys($this->types)[$keyOrIndex];
             return $this->types[$key];
@@ -157,7 +157,7 @@ final class UnionType implements Type
     public function parse(mixed $value, Context $context): mixed
     {
         if (isset($this->resolveType)) {
-            return Executor::execute($this->resolveByClosure($value), $value, $context);
+            return Executor::execute($this->resolveByClosure($value, $context), $value, $context);
         }
 
         if ($context->allowPartialFailures) {

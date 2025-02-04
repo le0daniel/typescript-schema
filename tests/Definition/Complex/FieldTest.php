@@ -30,6 +30,12 @@ class FieldTest extends TestCase
         self::assertEquals('something', $field->resolveValue('irrelevant', null));
     }
 
+    public function testResolvedByAlias()
+    {
+        $field = Field::ofType(StringType::make())->alias('other');
+        self::assertEquals('other', $field->resolveValue('irrelevant', ['irrelevant' => 'something', 'other' => 'other']));
+    }
+
     public function testIsOptional()
     {
         $field = Field::ofType(StringType::make());

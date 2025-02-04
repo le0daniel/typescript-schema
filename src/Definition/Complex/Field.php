@@ -15,8 +15,11 @@ class Field
 
     protected Closure $resolvedBy;
     protected bool $isOptional = false;
+
     /** @var array{0: string|null, 1: DateTimeInterface|null}|null  */
     protected array|null $deprecated = null;
+
+    protected ?string $alias = null ;
 
     public function __construct(protected Type $type)
     {
@@ -27,6 +30,19 @@ class Field
         $instance = clone $this;
         $instance->isOptional = true;
         return $instance;
+    }
+
+    /**
+     * Set an alias for the field resolver. This is a shortcut
+     * for ->resolvedBy(fn($data) => $data['alias'])
+     * @param string $alias
+     * @return $this
+     */
+    public function alias(string $alias): self
+    {
+        $clone = clone $this;
+        $clone->alias = $alias;
+        return $clone;
     }
 
     /**
@@ -54,6 +70,7 @@ class Field
 
     private function defaultResolver(mixed $data, string $fieldName): mixed
     {
+        $fieldName = $this->alias ?? $fieldName;
         // Handles the undefined case.
         if (!Utils::valueExists($fieldName, $data)) {
             return Value::UNDEFINED;
