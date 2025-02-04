@@ -4,6 +4,7 @@ namespace TypescriptSchema\Tests\Integration;
 
 use DateTimeImmutable;
 use RuntimeException;
+use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Definition\Schema;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
@@ -210,6 +211,18 @@ final class ComplexSchemaTest extends TestCase
             IdTypeMock::class,
             $schema->parse(1)->castInto(IdTypeMock::class)
         );
+    }
+
+    public function testWithUndefinedResolver()
+    {
+        $schema = Schema::object([
+            'name' => Schema::string(),
+            'optional?' => Schema::field(Schema::string())
+                ->resolvedBy(fn(array $data) => $data['optional'] ?? Value::UNDEFINED),
+        ])->toSchema();
+
+        self::assertEquals(['name' => 'test'], $schema->parse(['name' => 'test'])->getData());
+        self::assertEquals(['name' => 'test', 'optional' => 'string'], $schema->parse(['name' => 'test', 'optional' => 'string'])->getData());
     }
 
 }
