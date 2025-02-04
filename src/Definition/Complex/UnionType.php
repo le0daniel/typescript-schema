@@ -66,7 +66,7 @@ final class UnionType implements Type
     protected function validateAndParseType(mixed $value, Context $context): mixed
     {
         if (isset($this->resolveType)) {
-            return $this->resolveByClosure($value);
+            return $this->resolveByClosure($value, $context);
         }
 
         // Need to handle the partial mode differently, as null barriers will be accepted.
