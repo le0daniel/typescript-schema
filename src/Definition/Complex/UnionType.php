@@ -63,32 +63,6 @@ final class UnionType implements Type
         return $instance;
     }
 
-    protected function validateAndParseType(mixed $value, Context $context): mixed
-    {
-        if (isset($this->resolveType)) {
-            return $this->resolveByClosure($value, $context);
-        }
-
-        // Need to handle the partial mode differently, as null barriers will be accepted.
-        if ($context->allowPartialFailures) {
-            return $this->parseInPartialMode($value, $context);
-        }
-
-        $validationContext = $context->cloneForProbing();
-
-        foreach ($this->types as $type) {
-            $result = Executor::execute($type, $value, $validationContext);
-            if ($result !== Value::INVALID) {
-                return $result;
-            }
-        }
-
-        // Add all issues that occurred during union resolving.
-        $context->mergeProbingIssues($validationContext);
-
-        throw Issue::custom("Value did not match any of the union types.");
-    }
-
     /**
      * @param mixed $value
      * @return Type
