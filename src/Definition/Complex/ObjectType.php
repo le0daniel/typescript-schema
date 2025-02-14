@@ -41,6 +41,7 @@ final class ObjectType implements Type
             ... $this->fields(),
             ... $fields,
         ];
+        unset($clone->fields);
         return $clone;
     }
 

@@ -30,6 +30,16 @@ class ObjectTypeTest extends TestCase
         self::assertEquals('{name:any}', Typescript::fromJsonSchema($object->toDefinition()->input()));
     }
 
+    public function testExtending()
+    {
+        $object = ObjectType::make(['name' => StringType::make()]);
+        self::assertEquals(['name' => 'test'], $object->toSchema()->parse(['name' => 'test'])->getData());
+
+        self::assertEquals(['name' => 'test', 'other' => 'wow'], $object->extend([
+            'other' => StringType::make(),
+        ])->toSchema()->parse(['name' => 'test', 'other' => 'wow'])->getData());
+    }
+
     public function testResolverWithContext()
     {
         $object = ObjectType::make([
