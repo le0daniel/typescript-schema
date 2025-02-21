@@ -17,6 +17,10 @@ final class Utils
             return false;
         }
 
+        if (property_exists($arrayOrObject, $key)) {
+            return true;
+        }
+
         if ($arrayOrObject instanceof ArrayAccess) {
             return $arrayOrObject->offsetExists($key);
         }
@@ -25,7 +29,7 @@ final class Utils
             return $arrayOrObject->__isset($key);
         }
 
-        return property_exists($arrayOrObject, $key);
+        return false;
     }
 
     /**
@@ -35,6 +39,10 @@ final class Utils
      */
     public static function extractValue(string $key, array|object $arrayOrObject): mixed
     {
+        if (is_object($arrayOrObject) && property_exists($arrayOrObject, $key)) {
+            return $arrayOrObject->{$key};
+        }
+
         if (is_array($arrayOrObject) || $arrayOrObject instanceof ArrayAccess) {
             return $arrayOrObject[$key] ?? null;
         }

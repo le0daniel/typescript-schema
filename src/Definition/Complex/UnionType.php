@@ -38,6 +38,11 @@ final class UnionType implements Type
         return new self($types);
     }
 
+    public function getType(int|string $key): Type
+    {
+        return $this->types[$key];
+    }
+
     /**
      * Define a closure that resolves the correct type based on the
      * data passed in. If you use named parameters, you need to return
@@ -65,8 +70,8 @@ final class UnionType implements Type
 
     /**
      * @param mixed $value
+     * @param Context $context
      * @return Type
-     * @throws RuntimeException
      */
     private function resolveByClosure(mixed $value, Context $context): Type
     {
@@ -76,7 +81,7 @@ final class UnionType implements Type
             return $this->types[$key];
         }
 
-        return $this->types[($this->resolveType)($value)];
+        return $this->types[$keyOrIndex];
     }
 
     private function parseInPartialMode(mixed $value, Context $context): mixed
