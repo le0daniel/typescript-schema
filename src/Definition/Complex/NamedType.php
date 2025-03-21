@@ -5,10 +5,14 @@ namespace TypescriptSchema\Definition\Complex;
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Definition\Shared\BaseType;
+use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Helpers\Context;
 
 final class NamedType implements Type, ComplexType, \TypescriptSchema\Contracts\NamedType
 {
+    use BaseType, Nullable;
+
     public function __construct(
         public readonly string $name,
         public readonly Type $type
