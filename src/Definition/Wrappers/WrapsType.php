@@ -59,10 +59,15 @@ abstract class WrapsType implements Type
         return false;
     }
 
-    public function mostInnerType(): Type
+    public static function mostInnerType(Type $type): Type
     {
         $currentDepth = 0;
-        $type = $this->unwrap();
+
+        if (!$type instanceof WrapsType) {
+            return $type;
+        }
+
+        $type = $type->unwrap();
 
         while ($type instanceof WrapsType) {
             if ($currentDepth > self::RESOLVING_MAX_DEPTH) {

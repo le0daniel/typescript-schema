@@ -4,7 +4,9 @@ namespace TypescriptSchema\Tests\Integration;
 
 use DateTimeImmutable;
 use RuntimeException;
+use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
+use TypescriptSchema\Definition\Resource;
 use TypescriptSchema\Definition\Schema;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Helpers\Context;
@@ -223,6 +225,80 @@ final class ComplexSchemaTest extends TestCase
 
         self::assertEquals(['name' => 'test'], $schema->parse(['name' => 'test'])->getData());
         self::assertEquals(['name' => 'test', 'optional' => 'string'], $schema->parse(['name' => 'test', 'optional' => 'string'])->getData());
+    }
+
+    public function testEmptyNamedExtraction(): void
+    {
+        $schema = Schema::object([
+            'name' => Schema::string(),
+            'optional?' => Schema::field(Schema::string())
+                ->resolvedBy(fn(array $data) => $data['optional'] ?? Value::UNDEFINED),
+        ])->toSchema();
+
+        self::assertEmpty($schema->getNamedTypes());
+    }
+
+    public function testNamedExtraction(): void
+    {
+        $schema = Schema::object([
+            'name' => Schema::named('name', Schema::string()),
+            'optional?' => Schema::field(Schema::string())
+                ->resolvedBy(fn(array $data) => $data['optional'] ?? Value::UNDEFINED),
+        ])->toSchema();
+
+        self::assertNotEmpty($schema->getNamedTypes());
+        self::assertCount(1, $schema->getNamedTypes());
+        self::assertEquals('string', Typescript::fromJsonSchema($schema->getNamedTypes()['name']->toDefinition()->output()));
+    }
+
+    public function testNamedExtractionDeep(): void
+    {
+        $schema = Schema::object([
+            'user' => Schema::named('User', Schema::object([
+                'name' => Schema::string(),
+                'age' => Schema::int()->min(0),
+                'address' => Schema::named('Address', Schema::object([
+                    'street' => Schema::string(),
+                ])->nullable())
+            ])),
+        ])->toSchema();
+
+        self::assertNotEmpty($schema->getNamedTypes());
+        self::assertCount(2, $schema->getNamedTypes());
+        self::assertEquals('{name:string;age:number;address:{street:string}|null}', Typescript::fromJsonSchema($schema->getNamedTypes()['User']->toDefinition()->output()));
+        self::assertEquals('{street:string}', Typescript::fromJsonSchema($schema->getNamedTypes()['Address']->toDefinition()->output()));
+    }
+
+    public function testResources()
+    {
+        $address = new readonly class extends Resource
+        {
+            public static function type(): Type
+            {
+                return Schema::object([
+                    'street' => Schema::string(),
+                ]);
+            }
+        };
+
+        $user = new readonly class extends Resource {
+            public static function type(): Type
+            {
+                return Schema::named('User', Schema::object([
+                    'name' => Schema::string(),
+                    'age' => Schema::int()->min(0),
+                ]));
+            }
+        };
+
+        $schema = Schema::object([
+            'user' => Schema::resource($user::class),
+            'address' => Schema::named('Address', Schema::resource($address::class)->nullable()),
+        ])->toSchema();
+
+        self::assertEquals(
+            '{user:{name:string;age:number};address:{street:string}|null}', Typescript::fromJsonSchema($schema->toDefinition()->output())
+        );
     }
 
 }

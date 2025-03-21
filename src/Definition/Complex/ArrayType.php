@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Definition\Complex;
 
 
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -18,7 +19,7 @@ use TypescriptSchema\Helpers\Context;
 /**
  *
  */
-final class ArrayType implements Type
+final class ArrayType implements Type, ComplexType
 {
     /** @use Nullable<ArrayType> */
     use Nullable, Refinable, Transformable, BaseType;
@@ -70,5 +71,10 @@ final class ArrayType implements Type
         }
 
         return $parsed;
+    }
+
+    public function getTypes(): array
+    {
+        return [$this->type];
     }
 }

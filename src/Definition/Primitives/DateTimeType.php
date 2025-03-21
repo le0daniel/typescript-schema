@@ -37,7 +37,7 @@ final class DateTimeType implements Type, SerializesOutputValue
         self::$DEFAULT_FORMAT = $defaultFormat;
     }
 
-    public function __construct(private readonly ?string $format)
+    public function __construct(private readonly ?string $format = null)
     {
     }
 

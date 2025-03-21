@@ -2,7 +2,11 @@
 
 namespace TypescriptSchema\Definition;
 
+use Closure;
 use DateTimeInterface;
+use RuntimeException;
+use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\NamedType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\ExecutionMode;
@@ -24,9 +28,11 @@ use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Primitives\NumberType;
 use TypescriptSchema\Definition\Primitives\StringType;
 use TypescriptSchema\Definition\Wrappers\NullableWrapper;
+use TypescriptSchema\Definition\Wrappers\WrapsType;
 use TypescriptSchema\Exceptions\ParsingException;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
+use TypescriptSchema\Utils\Types;
 use UnitEnum;
 
 /**
@@ -40,7 +46,7 @@ use UnitEnum;
  * @method static EnumType enum(string $enumClassName)
  *
  * @method static ArrayType array(Type $type)
- * @method static ObjectType object(array|\Closure $definition)
+ * @method static ObjectType object(array|Closure $definition)
  * @method static UnionType union(array $types)
  * @method static DiscriminatedUnionType discriminatedUnion(string $fieldName, array $objectTypes)
  * @method static TupleType tuple(array $types)
@@ -107,7 +113,7 @@ final class Schema
      * @param string|int|float|bool|UnitEnum ...$literals
      * @return UnionType
      */
-    public static function literalUnion(string|int|float|bool|UnitEnum ... $literals): UnionType
+    public static function literalUnion(string|int|float|bool|UnitEnum ...$literals): UnionType
     {
         return new UnionType(
             array_map(fn($literal): LiteralType => new LiteralType($literal), $literals)
@@ -123,7 +129,7 @@ final class Schema
     {
         $type = self::TYPES[$name] ?? null;
         if (!$name) {
-            throw new \RuntimeException("Invalid type $name");
+            throw new RuntimeException("Invalid type $name");
         }
         return new $type(...$arguments);
     }
@@ -138,6 +144,19 @@ final class Schema
         }
 
         return $result;
+    }
+
+    public static function named(string $name, Type $type): NamedType
+    {
+        return new Complex\NamedType($name, $type);
+    }
+
+    /**
+     * @return array<string,Type>
+     */
+    public function getNamedTypes(): array
+    {
+        return Types::extractNamesTypes($this->type);
     }
 
     public function serialize(mixed $data, Options $options = new Options()): Result
@@ -156,6 +175,15 @@ final class Schema
         return $result;
     }
 
+    /**
+     * @param class-string<Resource> $className
+     * @return Resource
+     */
+    public static function resource(string $className): Resource
+    {
+        return new $className();
+    }
+
     public function parse(mixed $data, Options $options = new Options()): Result
     {
         return $this->run(ExecutionMode::PARSE, $data, $options);
@@ -163,7 +191,7 @@ final class Schema
 
     private function run(ExecutionMode $mode, mixed $data, Options $options): Result
     {
-        $context =  new Context(
+        $context = new Context(
             mode: $mode,
             allowPartialFailures: $options->allowPartialFailures,
             validateOnSerialize: $options->validateWhenSerializing,

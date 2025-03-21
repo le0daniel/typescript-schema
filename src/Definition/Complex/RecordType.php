@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -14,7 +15,7 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class RecordType implements Type
+final class RecordType implements Type, ComplexType
 {
     /** @use Nullable<RecordType> */
     use Nullable, Refinable, Transformable, BaseType;
@@ -77,5 +78,10 @@ final class RecordType implements Type
         }
 
         return $values;
+    }
+
+    public function getTypes(): array
+    {
+        return [$this->ofType];
     }
 }

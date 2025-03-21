@@ -5,6 +5,7 @@ namespace TypescriptSchema\Definition\Complex;
 use Generator;
 use RuntimeException;
 use Throwable;
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -14,12 +15,11 @@ use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
-use TypescriptSchema\Definition\Wrappers\NullableWrapper;
 use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class DiscriminatedUnionType implements Type
+final class DiscriminatedUnionType implements Type, ComplexType
 {
     /** @use Nullable<DiscriminatedUnionType> */
     use Nullable, Refinable, Transformable, BaseType;
@@ -102,5 +102,10 @@ final class DiscriminatedUnionType implements Type
         }
 
         return Executor::execute($matchedType, $value, $context);
+    }
+
+    public function getTypes(): array
+    {
+        return $this->types;
     }
 }

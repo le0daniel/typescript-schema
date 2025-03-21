@@ -2,6 +2,7 @@
 
 namespace TypescriptSchema\Definition\Complex;
 
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -12,7 +13,7 @@ use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\ClosureValidator;
 use TypescriptSchema\Helpers\Context;
 
-final class RefineType implements Type
+final class RefineType implements Type, ComplexType
 {
     use Refinable, Transformable, BaseType;
 
@@ -44,5 +45,10 @@ final class RefineType implements Type
     public function toDefinition(): SchemaDefinition
     {
         return $this->type->toDefinition();
+    }
+
+    public function getTypes(): array
+    {
+        return [$this->type];
     }
 }

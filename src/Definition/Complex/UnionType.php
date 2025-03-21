@@ -4,6 +4,7 @@ namespace TypescriptSchema\Definition\Complex;
 
 use Closure;
 use RuntimeException;
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -16,7 +17,7 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class UnionType implements Type
+final class UnionType implements Type, ComplexType
 {
     /** @use Nullable<UnionType> */
     use Nullable, Refinable, Transformable, BaseType;
@@ -156,5 +157,10 @@ final class UnionType implements Type
         $context->mergeProbingIssues($validationContext);
         $context->addIssue(Issue::custom("Value did not match any of the union types."));
         return Value::INVALID;
+    }
+
+    public function getTypes(): array
+    {
+        return $this->types;
     }
 }

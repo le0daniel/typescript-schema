@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use Closure;
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -15,7 +16,7 @@ use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class ObjectType implements Type
+final class ObjectType implements Type, ComplexType
 {
     /** @use Nullable<ObjectType> */
     use Nullable, Refinable, Transformable, Validators, BaseType;
@@ -225,5 +226,10 @@ final class ObjectType implements Type
             ... $passthroughs,
             ... $parsed
         ];
+    }
+
+    public function getTypes(): array
+    {
+        return array_map(static fn(Field $field) => $field->getType(), $this->fields());
     }
 }

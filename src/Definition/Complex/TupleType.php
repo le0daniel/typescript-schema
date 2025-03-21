@@ -3,6 +3,7 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use RuntimeException;
+use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
@@ -15,7 +16,7 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class TupleType implements Type
+final class TupleType implements Type, ComplexType
 {
     /** @use Nullable<TupleType> */
     use Nullable, Refinable, Transformable, BaseType;
@@ -101,5 +102,10 @@ final class TupleType implements Type
         }
 
         return $parsed;
+    }
+
+    public function getTypes(): array
+    {
+        return $this->types;
     }
 }
