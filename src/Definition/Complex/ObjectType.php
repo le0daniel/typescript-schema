@@ -4,11 +4,13 @@ namespace TypescriptSchema\Definition\Complex;
 
 use Closure;
 use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\OptionallyNamed;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\BaseType;
+use TypescriptSchema\Definition\Shared\Nameable;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -16,10 +18,10 @@ use TypescriptSchema\Definition\Shared\Validators;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class ObjectType implements Type, ComplexType
+final class ObjectType implements Type, ComplexType, OptionallyNamed
 {
     /** @use Nullable<ObjectType> */
-    use Nullable, Refinable, Transformable, Validators, BaseType;
+    use Nullable, Refinable, Transformable, Validators, BaseType, Nameable;
 
     private bool|Closure $passThrough = false;
 

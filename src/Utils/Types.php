@@ -4,6 +4,7 @@ namespace TypescriptSchema\Utils;
 
 use TypescriptSchema\Contracts\ComplexType;
 use TypescriptSchema\Contracts\NamedType;
+use TypescriptSchema\Contracts\OptionallyNamed;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Definition\Wrappers\WrapsType;
 
@@ -24,11 +25,14 @@ final class Types
                 array_push($stack, ...array_values($unwrapped->getTypes()));
             }
 
-            if (!$unwrapped instanceof NamedType) {
+            if (!$unwrapped instanceof NamedType && !$unwrapped instanceof OptionallyNamed) {
                 continue;
             }
 
             $name = $unwrapped->getName();
+            if (!$name) {
+                continue;
+            }
 
             $namedType = $unwrapped instanceof \TypescriptSchema\Definition\Complex\NamedType
                 ? WrapsType::mostInnerType($unwrapped->type)

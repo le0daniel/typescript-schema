@@ -6,12 +6,14 @@ use Generator;
 use RuntimeException;
 use Throwable;
 use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\OptionallyNamed;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Primitives\LiteralType;
 use TypescriptSchema\Definition\Shared\BaseType;
+use TypescriptSchema\Definition\Shared\Nameable;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -19,10 +21,10 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class DiscriminatedUnionType implements Type, ComplexType
+final class DiscriminatedUnionType implements Type, ComplexType, OptionallyNamed
 {
     /** @use Nullable<DiscriminatedUnionType> */
-    use Nullable, Refinable, Transformable, BaseType;
+    use Nullable, Refinable, Transformable, BaseType, Nameable;
 
     /**
      * @param string $discriminatorFieldName

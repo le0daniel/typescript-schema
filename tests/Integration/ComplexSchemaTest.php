@@ -269,6 +269,24 @@ final class ComplexSchemaTest extends TestCase
         self::assertEquals('{street:string}', Typescript::fromJsonSchema($schema->getNamedTypes()['Address']->toDefinition()->output()));
     }
 
+    public function testNamedOptionally(): void
+    {
+        $schema = Schema::object([
+            'user' => Schema::object([
+                'name' => Schema::string(),
+                'age' => Schema::int()->min(0),
+                'address' => Schema::object([
+                    'street' => Schema::string(),
+                ])->name('Address')->nullable()
+            ])->name('User'),
+        ])->toSchema();
+
+        self::assertNotEmpty($schema->getNamedTypes());
+        self::assertCount(2, $schema->getNamedTypes());
+        self::assertEquals('{name:string;age:number;address:{street:string}|null}', Typescript::fromJsonSchema($schema->getNamedTypes()['User']->toDefinition()->output()));
+        self::assertEquals('{street:string}', Typescript::fromJsonSchema($schema->getNamedTypes()['Address']->toDefinition()->output()));
+    }
+
     public function testResources()
     {
         $address = new class extends Resource

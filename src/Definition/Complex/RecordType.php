@@ -3,11 +3,13 @@
 namespace TypescriptSchema\Definition\Complex;
 
 use TypescriptSchema\Contracts\ComplexType;
+use TypescriptSchema\Contracts\OptionallyNamed;
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
 use TypescriptSchema\Data\Enum\Value;
 use TypescriptSchema\Data\Schema\Definition;
 use TypescriptSchema\Definition\Shared\BaseType;
+use TypescriptSchema\Definition\Shared\Nameable;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Definition\Shared\Refinable;
 use TypescriptSchema\Definition\Shared\Transformable;
@@ -15,10 +17,10 @@ use TypescriptSchema\Exceptions\Issue;
 use TypescriptSchema\Execution\Executor;
 use TypescriptSchema\Helpers\Context;
 
-final class RecordType implements Type, ComplexType
+final class RecordType implements Type, ComplexType, OptionallyNamed
 {
     /** @use Nullable<RecordType> */
-    use Nullable, Refinable, Transformable, BaseType;
+    use Nullable, Refinable, Transformable, BaseType, Nameable;
 
     public function __construct(private readonly Type $ofType)
     {
