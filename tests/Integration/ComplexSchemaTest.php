@@ -271,7 +271,7 @@ final class ComplexSchemaTest extends TestCase
 
     public function testResources()
     {
-        $address = new readonly class extends Resource
+        $address = new class extends Resource
         {
             public static function type(): Type
             {
@@ -281,7 +281,7 @@ final class ComplexSchemaTest extends TestCase
             }
         };
 
-        $user = new readonly class extends Resource {
+        $user = new class extends Resource {
             public static function type(): Type
             {
                 return Schema::named('User', Schema::object([

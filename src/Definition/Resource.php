@@ -4,12 +4,13 @@ namespace TypescriptSchema\Definition;
 
 use TypescriptSchema\Contracts\SchemaDefinition;
 use TypescriptSchema\Contracts\Type;
+use TypescriptSchema\Definition\Shared\BaseType;
 use TypescriptSchema\Definition\Shared\Nullable;
 use TypescriptSchema\Helpers\Context;
 
-abstract readonly class Resource implements Type
+abstract class Resource implements Type
 {
-    use Nullable;
+    use Nullable, BaseType;
 
     private Type $type;
 
