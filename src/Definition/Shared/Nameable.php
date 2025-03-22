@@ -16,6 +16,5 @@ trait Nameable
     public function getName(): string|null
     {
         return $this->name;
-
     }
 }

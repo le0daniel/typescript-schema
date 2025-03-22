@@ -202,4 +202,19 @@ DOC;
         self::assertCount(2, $context->getIssues());
     }
 
+    public function testNameReset()
+    {
+        $objectType = ObjectType::make([
+            'id' => IntType::make()->min(1),
+            'name' => StringType::make()->minLength(10),
+        ])->name('User');
+
+        self::assertSame('User', $objectType->getName());
+        self::assertNull($objectType->extend(['name' => StringType::make()->minLength(10)])->getName());
+        self::assertNull($objectType->omit('name')->getName());
+        self::assertNull($objectType->removeFields(['name'])->getName());
+        self::assertNull($objectType->passThrough()->getName());
+        self::assertSame('User', $objectType->getName());
+    }
+
 }

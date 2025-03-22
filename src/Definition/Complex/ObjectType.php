@@ -40,6 +40,7 @@ final class ObjectType implements Type, ComplexType, OptionallyNamed
     public function extend(array $fields): ObjectType
     {
         $clone = clone $this;
+        $clone->name = null;
         $clone->definition = [
             ... $this->fields(),
             ... $fields,
@@ -48,9 +49,15 @@ final class ObjectType implements Type, ComplexType, OptionallyNamed
         return $clone;
     }
 
+    public function omit(string... $fields): ObjectType
+    {
+        return $this->removeFields($fields);
+    }
+
     public function removeFields(array $fields): ObjectType
     {
         $clone = clone $this;
+        $clone->name = null;
         $clone->definition = array_filter($this->fields(), static function (string $fieldName) use ($fields): bool {
             return !in_array($fieldName, $fields, true);
         }, ARRAY_FILTER_USE_KEY);
@@ -82,6 +89,7 @@ final class ObjectType implements Type, ComplexType, OptionallyNamed
     public function passThrough(?Closure $closure = null): ObjectType
     {
         $instance = clone $this;
+        $instance->name = null;
         $instance->passThrough = $closure ?? true;
         return $instance;
     }
